@@ -1,0 +1,86 @@
+/* ==========================================================
+    LIGHT
+========================================================== */
+
+:root {
+  /* BRAND */
+  --primary: var(--color-blue-600);
+  --secondary: var(--color-amber-500);
+  --accent: var(--color-orange-500);
+
+  /* Background */
+  --background: var(--color-white);
+  --surface: var(--color-slate-50);
+  --surface-elevated: var(--color-white);
+
+  /* Text */
+  --foreground: var(--color-slate-900);
+  --foreground-secondary: var(--color-slate-700);
+  --muted: var(--color-slate-500);
+
+  /* Border */
+  --border: var(--color-slate-200);
+
+  /* Status */
+  --success: var(--color-green-600);
+  --warning: var(--color-yellow-500);
+  --danger: var(--color-red-600);
+}
+
+/* ==========================================================
+    DARK
+========================================================== */
+
+.dark {
+  /* brand */
+  --primary: var(--color-blue-500);
+  --secondary: var(--color-amber-400);
+  --accent: var(--color-orange-400);
+
+  /* Background */
+  --background: var(--color-zinc-950);
+  --surface: var(--color-zinc-900);
+  --surface-elevated: var(--color-zinc-800);
+
+  /* Text */
+  --foreground: var(--color-zinc-100);
+  --foreground-secondary: var(--color-zinc-300);
+  --muted: var(--color-zinc-500);
+
+  /* Border */
+  --border: var(--color-zinc-800);
+
+  /* Status */
+  --success: var(--color-green-500);
+  --warning: var(--color-yellow-400);
+  --danger: var(--color-red-500);
+}
+
+/* ==========================================================
+    TAILWIND TOKENS
+========================================================== */
+
+@theme inline {
+  /* brand */
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+
+  /* background */
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+
+  /* text */
+  --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-muted: var(--muted);
+
+  /* border */
+  --color-border: var(--border);
+
+  /* status */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+}
