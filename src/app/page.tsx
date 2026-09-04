@@ -1,65 +1,184 @@
-import Image from "next/image";
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Badge from "@/components/ui/badge";
+import {
+  Card,
+  CardBody,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+const logoSrc = "/logo/logo_shanverse.png";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-10 px-6 py-16">
+      <header className="space-y-2">
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
+          Component check
+        </p>
+        <h1 className="text-4xl font-semibold tracking-tight">
+          UI component preview
+        </h1>
+        <p className="text-muted-foreground">
+          Kiểm tra nhanh Button, Avatar, Badge và Card bằng asset logo của
+          Shanverse.
+        </p>
+      </header>
+
+      {/* Button preview section */}
+      <section className="grid gap-8 rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <div className="space-y-3">
+          <h2 className="font-semibold">Variants</h2>
+          <div className="flex flex-wrap gap-3">
+            <Button>Default</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="outline">Outline</Button>
+            <Button variant="ghost">Ghost</Button>
+            <Button variant="destructive">Destructive</Button>
+            <Button variant="link">Link</Button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+        <div className="space-y-3">
+          <h2 className="font-semibold">Sizes and states</h2>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button size="sm">Small</Button>
+            <Button size="md">Medium</Button>
+            <Button size="lg">Large</Button>
+            <Button size="xl">Extra large</Button>
+            <Button disabled>Disabled</Button>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <h2 className="font-semibold">Full width</h2>
+          <Button fullWidth>Continue</Button>
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold">Avatar</h2>
+        <div className="flex flex-wrap items-center gap-8 rounded-2xl border border-border bg-surface-elevated p-6 shadow-sm">
+          <div className="flex flex-col items-center gap-2">
+            <Avatar src={logoSrc} alt="Shanverse logo" className="h-20 w-20" />
+            <span className="text-xs text-muted-foreground">Logo image</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar
+              src={logoSrc}
+              alt="Shanverse logo"
+              className="h-14 w-14 rounded-xl ring-2 ring-primary ring-offset-2"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <span className="text-xs text-muted-foreground">
+              Rounded square
+            </span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar className="h-14 w-14 rounded-xl ring-2 ring-emerald-500 ring-offset-2">
+              <AvatarImage src={logoSrc} alt="Shanverse logo" />
+            </Avatar>
+            <span className="text-xs text-muted-foreground">
+              Compound image
+            </span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar className="h-14 w-14 bg-primary text-lg font-semibold text-white">
+              <AvatarFallback>SV</AvatarFallback>
+            </Avatar>
+            <span className="text-xs text-muted-foreground">Fallback text</span>
+          </div>
+          <div className="relative flex flex-col items-center gap-2">
+            <Avatar src={logoSrc} alt="Shanverse logo" className="h-10 w-10" />
+            <Badge
+              variant="success"
+              className="absolute -right-8 -top-2 px-1.5 py-0 text-[10px]"
+            >
+              ON
+            </Badge>
+            <span className="text-xs text-muted-foreground">With badge</span>
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold">Badge</h2>
+        <div className="rounded-2xl border border-border bg-surface-elevated p-6 shadow-sm">
+          <div className="flex flex-wrap gap-3">
+            <Badge>Default</Badge>
+            <Badge variant="secondary">Secondary</Badge>
+            <Badge variant="outline">Outline</Badge>
+            <Badge variant="success">Success</Badge>
+            <Badge variant="warning">Warning</Badge>
+            <Badge variant="danger">Danger</Badge>
+          </div>
+          <div className="mt-6 flex items-center gap-3">
+            <Avatar src={logoSrc} alt="Shanverse logo" className="h-10 w-10" />
+            <div>
+              <p className="font-medium">Shanverse</p>
+              <p className="text-sm text-muted-foreground">Personal website</p>
+            </div>
+            <Badge variant="success" className="ml-auto">
+              Published
+            </Badge>
+          </div>
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold">Card</h2>
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Shanverse profile</CardTitle>
+              <CardDescription>
+                Card với đầy đủ các phần cấu thành.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex items-center gap-4">
+              <Avatar
+                src={logoSrc}
+                alt="Shanverse logo"
+                className="h-16 w-16 rounded-xl"
+              />
+              <div>
+                <p className="font-medium">Logo preview</p>
+                <p className="text-sm text-muted-foreground">
+                  Local asset rendered inside a card.
+                </p>
+              </div>
+            </CardContent>
+            <CardFooter className="flex items-center justify-between">
+              <Badge variant="outline">UI kit</Badge>
+              <Button size="sm">View</Button>
+            </CardFooter>
+          </Card>
+
+          <Card className="overflow-hidden">
+            <div className="flex items-center gap-4 bg-primary px-6 py-5 text-white">
+              <Avatar
+                src={logoSrc}
+                alt="Shanverse logo"
+                className="h-14 w-14 rounded-xl bg-white p-1"
+              />
+              <div>
+                <p className="font-semibold">Featured card</p>
+                <p className="text-sm text-white/75">Logo-led compact layout</p>
+              </div>
+            </div>
+            <CardBody>
+              <p className="text-sm text-muted-foreground">
+                CardBody cũng có thể dùng cho nội dung gọn, không cần compound
+                đầy đủ.
+              </p>
+            </CardBody>
+          </Card>
+        </div>
+      </section>
+    </main>
   );
 }

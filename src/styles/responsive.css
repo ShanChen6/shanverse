@@ -1,0 +1,43 @@
+/* ==========================================================
+   Container
+========================================================== */
+
+@utility container {
+  width: min(100% - clamp(2rem, 4vw, 4rem), 1440px);
+  margin-inline: auto;
+}
+
+/* ==========================================================
+   Content Width
+========================================================== */
+
+@utility content {
+  width: min(100%, 768px);
+  margin-inline: auto;
+}
+
+@utility content-wide {
+  width: min(100%, 1024px);
+  margin-inline: auto;
+}
+
+@utility content-sm {
+  width: min(100%, 480px);
+  margin-inline: auto;
+}
+
+/* ==========================================================
+   Section
+========================================================== */
+
+@utility section {
+  padding-block: clamp(4rem, 8vw, 7rem);
+}
+
+/* ==========================================================
+   Full Height
+========================================================== */
+
+@utility page {
+  min-height: 100dvh;
+}
