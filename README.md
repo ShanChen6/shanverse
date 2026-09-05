@@ -101,8 +101,46 @@ Create a `.env.local` file.
 ```env
 NOTION_TOKEN=
 NOTION_DATABASE_ID=
+NOTION_POSTS_DATA_SOURCE_ID=
+NOTION_CATEGORIES_DATA_SOURCE_ID=
+NOTION_TAGS_DATA_SOURCE_ID=
+NOTION_PROJECTS_DATA_SOURCE_ID=
+NOTION_AUTHORS_DATA_SOURCE_ID=
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
+
+`NOTION_TOKEN` must have access to every Notion data source used by the app. The
+five collection-specific IDs are recommended when posts, categories, tags,
+projects, and authors live in separate databases. If they are omitted, the service resolves
+the first data source from `NOTION_DATABASE_ID` as a compatibility fallback.
+
+Notion access is kept inside `src/services/notion.service.ts`. Server-side code
+can use the exported `notionService` methods:
+
+```ts
+await notionService.getPosts();
+await notionService.getPostBySlug("my-post");
+await notionService.getFeaturedPosts();
+await notionService.getCategories();
+await notionService.getTags();
+await notionService.getProjects();
+await notionService.getProjectBySlug("my-project");
+await notionService.getAuthors();
+```
+
+To verify the live connection during development, start the app and open
+`/notion-preview`. The preview queries all five collections independently and
+shows the normalized record count, a sample title, or the API error returned by
+Notion. When Notion reports `object_not_found`, open each database in Notion,
+choose **Share**, and invite the integration that owns `NOTION_TOKEN`.
+
+The adapter maps common property names (`Title`/`Name`, `Slug`, `Type`,
+`Published`, `Featured`, and so on) into the application models. Posts and
+projects may use the same Notion data source: `getPosts()` filters `Type =
+Blog`, while `getProjects()` filters `Type = Project`. Collection methods return
+an empty array when Notion has no rows; detail methods return `null` when the
+slug is not found, while configuration and API failures throw
+`NotionServiceError` with the original error as its cause.
 
 ---
 
