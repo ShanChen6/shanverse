@@ -1,5 +1,7 @@
+import React from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import "../styles/globals.css";
 
 const geistSans = Geist({
@@ -15,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Shanverse | Shan's Personal Website",
   description:
-    "Shanverse is the personal website of Shan, a software engineer and technology enthusiast. Explore his projects, blog posts, and more.",
+    "Shanverse is the personal website of Shan, a software engineer and technology enthusiast. Explore projects, notes, and UI components.",
 };
 
 export default function RootLayout({
@@ -26,10 +28,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}  h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col bg-background text-foreground">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
