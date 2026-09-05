@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import styles from "./page.module.css";
 
 import { notionService } from "@/services/notion.service";
@@ -13,6 +14,13 @@ type CollectionResult = {
   status: "connected" | "empty" | "error";
   count: number;
   sample: string;
+  error?: string;
+};
+
+type PostDetailResult = {
+  status: "connected" | "not-found" | "skipped" | "error";
+  slug: string;
+  post: Post | null;
   error?: string;
 };
 
@@ -68,9 +76,128 @@ const PreviewCard = ({ result }: { result: CollectionResult }) => (
   </article>
 );
 
-export default async function NotionPreviewPage() {
+const PostDetailCard = ({ result }: { result: PostDetailResult }) => (
+  <article className={styles.detailCard}>
+    <div className={styles.cardHeader}>
+      <h2>Post detail</h2>
+      <span
+        className={`${styles.status} ${styles[`status${result.status[0].toUpperCase()}${result.status.slice(1).replace("-", "")}`]}`}
+      >
+        {result.status === "connected"
+          ? "Found"
+          : result.status === "not-found"
+            ? "Not found"
+            : result.status === "skipped"
+              ? "Skipped"
+              : "Error"}
+      </span>
+    </div>
+    <p className={styles.detailSlug}>
+      Slug: {result.slug || "No slug selected"}
+    </p>
+    {result.post ? (
+      <div className={styles.detailContent}>
+        <h3>{result.post.title || "Untitled post"}</h3>
+        <p>{result.post.excerpt || "No excerpt returned"}</p>
+        <div className={styles.metaRow}>
+          <span>{result.post.category || "Uncategorized"}</span>
+          <span>{result.post.published ? "Published" : "Draft"}</span>
+          <span>{result.post.tags.length} tags</span>
+        </div>
+        <div className={styles.postBody}>
+          {result.post.content || "No content returned"}
+        </div>
+      </div>
+    ) : null}
+    {result.error ? <p className={styles.error}>{result.error}</p> : null}
+  </article>
+);
+
+const PostList = ({
+  posts,
+  selectedSlug,
+}: {
+  posts: Post[];
+  selectedSlug: string;
+}) => (
+  <div className={styles.postList}>
+    <div className={styles.listHeader}>
+      <div>
+        <p className={styles.eyebrow}>From Notion</p>
+        <h2 className={styles.sectionTitle}>Post list</h2>
+      </div>
+      <span className={styles.listCount}>{posts.length} posts</span>
+    </div>
+    {posts.length > 0 ? (
+      <div className={styles.postItems}>
+        {posts.map((post) => (
+          <Link
+            key={post.id}
+            href={`/notion-preview?slug=${encodeURIComponent(post.slug)}`}
+            className={`${styles.postItem} ${post.slug === selectedSlug ? styles.postItemActive : ""}`}
+          >
+            <span className={styles.postItemTitle}>
+              {post.title || "Untitled post"}
+            </span>
+            <span className={styles.postItemMeta}>
+              {post.slug || "No slug"}
+            </span>
+          </Link>
+        ))}
+      </div>
+    ) : (
+      <p className={styles.emptyState}>No posts returned from Notion.</p>
+    )}
+  </div>
+);
+
+type NotionPreviewPageProps = {
+  searchParams: Promise<{ slug?: string }>;
+};
+
+export default async function NotionPreviewPage({
+  searchParams,
+}: NotionPreviewPageProps) {
+  const { slug: requestedSlug = "" } = await searchParams;
+  const postsResult = await notionService.getPosts().then(
+    (posts) => ({ status: "fulfilled" as const, value: posts }),
+    (reason) => ({ status: "rejected" as const, reason }),
+  );
+  const selectedSlug =
+    requestedSlug ||
+    (postsResult.status === "fulfilled"
+      ? postsResult.value[0]?.slug || ""
+      : "");
+  const postDetailResult: PostDetailResult = selectedSlug
+    ? await notionService.getPostBySlug(selectedSlug).then(
+        (post) => ({
+          status: post ? ("connected" as const) : ("not-found" as const),
+          slug: selectedSlug,
+          post,
+        }),
+        (reason) => ({
+          status: "error" as const,
+          slug: selectedSlug,
+          post: null,
+          error:
+            reason instanceof Error ? reason.message : "Unknown Notion error",
+        }),
+      )
+    : {
+        status: postsResult.status === "rejected" ? "error" : "skipped",
+        slug: "",
+        post: null,
+        ...(postsResult.status === "rejected"
+          ? {
+              error:
+                postsResult.reason instanceof Error
+                  ? postsResult.reason.message
+                  : "Unknown Notion error",
+            }
+          : {}),
+      };
+
   const results = await Promise.allSettled([
-    notionService.getPosts(),
     notionService.getCategories(),
     notionService.getTags(),
     notionService.getProjects(),
@@ -80,27 +207,27 @@ export default async function NotionPreviewPage() {
   const cards = [
     toResult<Post>(
       "Posts",
-      results[0],
+      postsResult,
       (post) => post.title || "Untitled post",
     ),
     toResult<NotionCategory>(
       "Categories",
-      results[1],
+      results[0],
       (category) => category.name || "Untitled category",
     ),
     toResult<NotionTag>(
       "Tags",
-      results[2],
+      results[1],
       (tag) => tag.name || "Untitled tag",
     ),
     toResult<Project>(
       "Projects",
-      results[3],
+      results[2],
       (project) => project.title || "Untitled project",
     ),
     toResult<NotionAuthor>(
       "Authors",
-      results[4],
+      results[3],
       (author) => author.name || "Untitled author",
     ),
   ];
@@ -131,6 +258,29 @@ export default async function NotionPreviewPage() {
           {cards.map((card) => (
             <PreviewCard key={card.label} result={card} />
           ))}
+        </section>
+
+        <section
+          className={styles.detailSection}
+          aria-label="Post list and detail preview"
+        >
+          <div className={styles.previewHeading}>
+            <p className={styles.eyebrow}>Live content preview</p>
+            <h2 className={styles.sectionTitle}>Get post list and detail</h2>
+            <p className={styles.sectionIntro}>
+              Select a post to call <code>getPostBySlug()</code>. The detail
+              panel renders the normalized content from Notion.
+            </p>
+          </div>
+          <div className={styles.postPreviewGrid}>
+            <PostList
+              posts={
+                postsResult.status === "fulfilled" ? postsResult.value : []
+              }
+              selectedSlug={selectedSlug}
+            />
+            <PostDetailCard result={postDetailResult} />
+          </div>
         </section>
 
         <footer className={styles.footer}>
