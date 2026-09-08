@@ -134,10 +134,10 @@ shows the normalized record count, a sample title, or the API error returned by
 Notion. When Notion reports `object_not_found`, open each database in Notion,
 choose **Share**, and invite the integration that owns `NOTION_TOKEN`.
 
-The adapter maps common property names (`Title`/`Name`, `Slug`, `Type`,
-`Published`, `Featured`, and so on) into the application models. Posts and
-projects may use the same Notion data source: `getPosts()` filters `Type =
-Blog`, while `getProjects()` filters `Type = Project`. Collection methods return
+The adapter maps common property names (`Title`/`Name`, `Slug`, `Published`,
+`Featured`, and so on) into the application models. Posts and projects use
+separate Notion data sources configured by `NOTION_POSTS_DATA_SOURCE_ID` and
+`NOTION_PROJECTS_DATA_SOURCE_ID`; no `Type` property is required. Collection methods return
 an empty array when Notion has no rows; detail methods return `null` when the
 slug is not found, while configuration and API failures throw
 `NotionServiceError` with the original error as its cause.

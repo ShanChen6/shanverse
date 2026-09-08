@@ -9,7 +9,6 @@ export const notionPropertyNames = {
 	coverImage: ["Cover", "Thumbnail", "Image", "cover", "thumbnail", "image"],
 	category: ["Category", "category"],
 	tags: ["Tags", "Tag", "tags", "tag"],
-	type: ["Type", "type"],
 	publishedAt: ["Published Date", "Publish Date", "Date", "publishedAt"],
 	published: ["Published", "published"],
 	featured: ["Featured", "featured"],

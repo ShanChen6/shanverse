@@ -15,7 +15,8 @@ type NotionPage = PageObjectResponse;
 
 export class NotionServiceError extends Error {
 	constructor(message: string, options?: { cause?: unknown }) {
-		super(message, options);
+		const causeMessage = options?.cause instanceof Error ? `: ${options.cause.message}` : "";
+		super(`${message}${causeMessage}`, options);
 		this.name = "NotionServiceError";
 	}
 }
@@ -134,16 +135,12 @@ export class NotionService {
 			const dataSourceId = await this.getDataSourceId(collection);
 			const pages: NotionPage[] = [];
 			let cursor: string | undefined;
-			const contentType = collection === "posts" ? "Blog" : collection === "projects" ? "Project" : undefined;
 
 			do {
 				const response = await this.getClient().dataSources.query({
 					data_source_id: dataSourceId,
 					...(cursor ? { start_cursor: cursor } : {}),
 					page_size: 100,
-					...(contentType
-						? { filter: { property: notionPropertyNames.type[0], select: { equals: contentType } } }
-						: {}),
 				});
 				pages.push(...response.results.filter((page): page is NotionPage => page.object === "page" && isFullPage(page)));
 				cursor = response.has_more && response.next_cursor ? response.next_cursor : undefined;
