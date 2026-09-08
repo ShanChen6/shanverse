@@ -1,46 +1,70 @@
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, LayoutGrid, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import Badge from "@/components/ui/badge";
 import { ROUTES } from "@/constants/routes";
+import {
+  FacebookIcon,
+  GithubIcon,
+  InstagramIcon,
+  LinkedinIcon,
+} from "@/components/common/icons/BrandIcons";
+
+const SOCIAL_LINKS = [
+  { label: "GitHub", href: "https://github.com", icon: GithubIcon },
+  { label: "LinkedIn", href: "https://linkedin.com", icon: LinkedinIcon },
+  { label: "Facebook", href: "https://facebook.com", icon: FacebookIcon },
+  { label: "Instagram", href: "https://instagram.com", icon: InstagramIcon },
+];
 
 export function HeroSection() {
   return (
     <div className="space-y-6 lg:col-span-7">
-      <div className="inline-flex items-center gap-2">
-        <Badge variant="secondary" className="px-3 py-1 text-xs">
-          <Sparkles className="mr-1.5 h-3.5 w-3.5 text-primary" />
-          Shanverse Personal Site
-        </Badge>
-        <Badge variant="success" className="px-3 py-1 text-xs">
-          Next.js 16 Ready
-        </Badge>
+      <div className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-3 py-1.5 text-xs font-medium text-success">
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+        </span>
+        Available for work
       </div>
 
       <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-foreground">
-        Engineering notes, AI workflows &{" "}
-        <span className="text-primary">Modern Web</span>
+        Xin chào, tôi là{" "}
+        <span className="bg-linear-to-r from-primary to-indigo-400 bg-clip-text text-transparent">
+          Software Developer
+        </span>
       </h1>
 
       <p className="text-lg text-foreground-secondary leading-relaxed max-w-2xl">
-        Welcome to Shanverse — space of Shan Kinh Can. Exploring full-stack
-        engineering, clean design systems, and agentic AI workflows.
+        Tôi biến những vấn đề phức tạp thành sản phẩm đơn giản, hữu ích. Tôi
+        viết về kỹ nghệ phần mềm và những hệ thống đứng sau nó.
       </p>
 
       <div className="flex flex-wrap items-center gap-4 pt-2">
         <Button asChild size="lg" className="gap-2">
-          <Link href={ROUTES.TEST}>
-            <LayoutGrid className="h-4 w-4" />
-            Test Components Gallery
+          <Link href={ROUTES.ABOUT}>
+            About Me <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>
         <Button asChild variant="outline" size="lg">
-          <Link href="#features">
-            Learn More <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
+          <Link href={ROUTES.CONTACT}>Contact</Link>
         </Button>
+      </div>
+
+      <div className="flex items-center gap-4 pt-2">
+        {SOCIAL_LINKS.map(({ label, href, icon: Icon }) => (
+          <a
+            key={label}
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={label}
+            className="text-foreground-secondary transition-colors hover:text-primary"
+          >
+            <Icon className="h-5 w-5" />
+          </a>
+        ))}
       </div>
     </div>
   );
