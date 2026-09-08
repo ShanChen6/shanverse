@@ -1,3 +1,6 @@
+import * as React from "react";
+import { HomePageView } from "@/features/home";
+
 export default function Home() {
-  return <div className="text-display">hello world</div>;
+  return <HomePageView />;
 }
