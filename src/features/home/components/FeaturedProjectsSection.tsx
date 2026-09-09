@@ -2,7 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { ProjectCard } from "@/components/common/ProjectCard";
+import { ProjectCard } from "@/features/home/common/ProjectCard";
 import { ROUTES } from "@/constants/routes";
 import type { Project } from "@/types/project";
 

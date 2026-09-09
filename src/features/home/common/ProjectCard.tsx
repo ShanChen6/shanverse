@@ -1,5 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Code2, ExternalLink } from "lucide-react";
 
 import Badge from "@/components/ui/badge";
@@ -20,10 +21,24 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
+  const thumbnailImage = project.thumbnailImage ?? project.coverImage;
+
   return (
     <Card className="flex h-full flex-col overflow-hidden hover:border-primary/50 transition-colors">
-      <div className="flex h-36 items-center justify-center bg-linear-to-br from-primary/20 via-primary/10 to-transparent text-muted-foreground">
-        {"{ }"}
+      <div className="flex h-40 items-center justify-center overflow-hidden bg-linear-to-br from-primary/20 via-primary/10 to-transparent text-muted-foreground">
+        {thumbnailImage ? (
+          <img
+            src={thumbnailImage}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <Image
+            src="https://res.cloudinary.com/mvzqdllb/image/upload/v1788945427/s0x8c5x20xuuyqek2egk.png"
+            alt="Default thumbnail"
+            className="h-full w-full object-cover"
+          />
+        )}
       </div>
       <CardHeader className="space-y-1">
         <div className="flex items-center justify-between gap-2">

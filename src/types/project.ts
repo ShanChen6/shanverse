@@ -4,6 +4,7 @@ export type Project = {
 	slug: string;
 	description: string;
 	content: string;
+	thumbnailImage: string | null;
 	coverImage: string | null;
 	category: string | null;
 	tags: string[];
