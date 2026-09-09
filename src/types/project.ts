@@ -4,8 +4,9 @@ export type Project = {
 	slug: string;
 	description: string;
 	content: string;
+	thumbnailImage: string | null;
 	coverImage: string | null;
-	category: string | null;
+	techStack: string[];
 	tags: string[];
 	githubUrl: string | null;
 	liveUrl: string | null;
