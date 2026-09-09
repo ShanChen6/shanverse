@@ -278,7 +278,7 @@ export class NotionService {
 			content: includeContent ? await this.getContent(page.id) : propertyText(firstProperty(properties, notionPropertyNames.content)),
 			thumbnailImage: imageUrl(firstProperty(properties, notionPropertyNames.thumbnailImage)),
 			coverImage: imageUrl(firstProperty(properties, notionPropertyNames.coverImage)) ?? (page.cover?.type === "external" ? page.cover.external.url : page.cover?.type === "file" ? page.cover.file.url : null),
-			category: propertyText(firstProperty(properties, notionPropertyNames.category)) || null,
+			techStack: propertyMultiText(firstProperty(properties, notionPropertyNames.techStack)),
 			tags: propertyMultiText(firstProperty(properties, notionPropertyNames.tags)),
 			githubUrl: propertyUrl(firstProperty(properties, notionPropertyNames.githubUrl)),
 			liveUrl: propertyUrl(firstProperty(properties, notionPropertyNames.liveUrl)),

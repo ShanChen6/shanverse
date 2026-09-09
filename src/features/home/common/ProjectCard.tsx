@@ -41,32 +41,38 @@ export function ProjectCard({ project }: ProjectCardProps) {
         )}
       </div>
       <CardHeader className="space-y-1">
-        <div className="flex items-center justify-between gap-2">
-          {project.category ? (
-            <Badge variant="outline">{project.category}</Badge>
-          ) : (
-            <span />
-          )}
+        <div className="flex min-h-7 items-start justify-between gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+            {project.techStack.slice(0, 2).map((technology) => (
+              <Badge
+                key={technology}
+                variant="secondary"
+                className="text-[10px]"
+              >
+                {technology}
+              </Badge>
+            ))}
+          </div>
           <Badge
             variant={project.liveUrl ? "success" : "secondary"}
-            className="text-[10px]"
+            className="shrink-0 text-[10px]"
           >
             {project.liveUrl ? "Live" : "In Progress"}
           </Badge>
         </div>
-        <CardTitle className="text-lg">
+        <CardTitle className="min-h-14 px-0 text-lg leading-snug">
           <Link
             href={ROUTES.PROJECT_DETAIL(project.slug)}
-            className="hover:text-primary transition-colors"
+            className="line-clamp-2 hover:text-primary transition-colors"
           >
             {project.title}
           </Link>
         </CardTitle>
-        <CardDescription className="line-clamp-2">
+        <CardDescription className="min-h-10 px-0 line-clamp-2">
           {project.description}
         </CardDescription>
       </CardHeader>
-      <CardContent className="mt-auto flex flex-wrap gap-1.5">
+      <CardContent className="mt-auto min-h-7 flex flex-wrap items-start gap-1.5">
         {project.tags.slice(0, 3).map((tag) => (
           <Badge key={tag} variant="secondary" className="text-[10px]">
             {tag}
