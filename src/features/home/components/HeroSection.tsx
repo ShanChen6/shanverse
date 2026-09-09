@@ -1,9 +1,12 @@
+"use client";
+
 import * as React from "react";
+import { useTypewriter } from "../hooks/useTypewriter";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { ROUTES } from "@/constants/routes";
+import { ROUTES, SOCIAL_LINKS_URLS } from "@/constants/routes";
 import {
   FacebookIcon,
   GithubIcon,
@@ -11,14 +14,31 @@ import {
   LinkedinIcon,
 } from "@/components/common/icons/BrandIcons";
 
-const SOCIAL_LINKS = [
-  { label: "GitHub", href: "https://github.com", icon: GithubIcon },
-  { label: "LinkedIn", href: "https://linkedin.com", icon: LinkedinIcon },
-  { label: "Facebook", href: "https://facebook.com", icon: FacebookIcon },
-  { label: "Instagram", href: "https://instagram.com", icon: InstagramIcon },
+const SOCIAL_ITEMS = [
+  { label: "GitHub", href: SOCIAL_LINKS_URLS.GITHUB, icon: GithubIcon },
+  { label: "LinkedIn", href: SOCIAL_LINKS_URLS.LINKEDIN, icon: LinkedinIcon },
+  { label: "Facebook", href: SOCIAL_LINKS_URLS.FACEBOOK, icon: FacebookIcon },
+  {
+    label: "Instagram",
+    href: SOCIAL_LINKS_URLS.INSTAGRAM,
+    icon: InstagramIcon,
+  },
+];
+
+const WORDS_TO_TYPE = [
+  "a Software Developer",
+  "a Full-stack Engineer",
+  "a Tech Creator",
 ];
 
 export function HeroSection() {
+  const typedText = useTypewriter({
+    words: WORDS_TO_TYPE,
+    typingSpeed: 100,
+    deletingSpeed: 50,
+    delayDuration: 1500,
+  });
+
   return (
     <div className="space-y-6 lg:col-span-7">
       <div className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-3 py-1.5 text-xs font-medium text-success">
@@ -29,16 +49,28 @@ export function HeroSection() {
         Available for work
       </div>
 
-      <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-foreground">
-        Xin chào, tôi là{" "}
-        <span className="bg-linear-to-r from-primary to-indigo-400 bg-clip-text text-transparent">
-          Software Developer
-        </span>
-      </h1>
+      <div className="space-y-2">
+        <h1 className="text-display tracking-tight text-foreground">
+          Hi! I&apos;m{" "}
+          <span className="bg-linear-to-r from-primary to-indigo-400 bg-clip-text text-transparent">
+            ShanDev
+          </span>
+        </h1>
+
+        <div className="text-display tracking-tight text-foreground-secondary min-h-24 sm:min-h-12 md:min-h-14 flex items-center">
+          <p className="leading-tight">
+            And I am <br />
+            <span className="text-primary border-r-2 border-primary animate-pulse pr-1 inline-block">
+              {typedText}
+            </span>
+          </p>
+        </div>
+      </div>
 
       <p className="text-lg text-foreground-secondary leading-relaxed max-w-2xl">
-        Tôi biến những vấn đề phức tạp thành sản phẩm đơn giản, hữu ích. Tôi
-        viết về kỹ nghệ phần mềm và những hệ thống đứng sau nó.
+        I&apos;m a software engineer building full-stack products and writing
+        about frontend architecture, backend systems, and practical AI
+        workflows. I care about interfaces that stay readable as products grow.
       </p>
 
       <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -53,7 +85,7 @@ export function HeroSection() {
       </div>
 
       <div className="flex items-center gap-4 pt-2">
-        {SOCIAL_LINKS.map(({ label, href, icon: Icon }) => (
+        {SOCIAL_ITEMS.map(({ label, href, icon: Icon }) => (
           <a
             key={label}
             href={href}

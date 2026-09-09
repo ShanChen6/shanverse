@@ -4,9 +4,13 @@ export type Post = {
 	slug: string;
 	excerpt: string;
 	content: string;
+	thumbnailImage: string | null;
 	coverImage: string | null;
 	category: string | null;
 	tags: string[];
+	authorName: string | null;
+	authorAvatar: string | null;
+	createdAt: string;
 	publishedAt: string | null;
 	updatedAt: string;
 	featured: boolean;

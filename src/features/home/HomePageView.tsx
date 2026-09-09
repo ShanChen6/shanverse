@@ -30,16 +30,26 @@ export async function HomePageView() {
   ]);
 
   const publishedPosts = posts.filter((post) => post.published);
-  const featuredPosts = publishedPosts
+  const highlightedPosts = publishedPosts
     .filter((post) => post.featured)
-    .slice(0, 3);
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
   const latestPosts = [...publishedPosts]
     .sort(
       (a, b) =>
-        new Date(b.publishedAt ?? b.updatedAt).getTime() -
-        new Date(a.publishedAt ?? a.updatedAt).getTime(),
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )
     .slice(0, 6);
+
+  const featuredPosts = [
+    ...highlightedPosts,
+    ...latestPosts.filter(
+      (post) =>
+        !highlightedPosts.some((highlighted) => highlighted.id === post.id),
+    ),
+  ].slice(0, 4);
 
   const publishedProjects = projects.filter((project) => project.published);
   const featuredProjects = publishedProjects
@@ -66,7 +76,7 @@ export async function HomePageView() {
           posts={
             featuredPosts.length > 0
               ? featuredPosts
-              : publishedPosts.slice(0, 3)
+              : publishedPosts.slice(0, 4)
           }
         />
 

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { CodeEditorMock } from "@/components/common/CodeEditorMock";
+import { CodeEditorMock } from "@/features/home/components/CodeEditorMock";
 
 export function HeroProfileCard() {
   return (

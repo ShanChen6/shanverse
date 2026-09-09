@@ -48,22 +48,24 @@ export function CodeEditorMock({
           <Punct>{"{"}</Punct>
           {"\n  "}
           <Prop>name</Prop>
-          <Punct>:</Punct> <Str>&quot;Shan Nguyen&quot;</Str>
+          <Punct>:</Punct> <Str>&quot;ShanDev&quot;</Str>
           <Punct>,</Punct>
           {"\n  "}
           <Prop>role</Prop>
-          <Punct>:</Punct> <Str>&quot;Software Developer&quot;</Str>
+          <Punct>:</Punct> <Str>&quot;Fullstack Developer&quot;</Str>
+          <Punct>,</Punct>
+          {"\n  "}
+          <Prop>experience</Prop>
+          <Punct>:</Punct> <Str>&quot;3+ years&quot;</Str>
           <Punct>,</Punct>
           {"\n  "}
           <Prop>location</Prop>
-          <Punct>:</Punct> <Str>&quot;Ho Chi Minh City&quot;</Str>
+          <Punct>:</Punct> <Str>&quot;Ha Noi&quot;</Str>
           <Punct>,</Punct>
           {"\n  "}
           <Prop>focus</Prop>
-          <Punct>:</Punct> <Punct>[</Punct>
-          <Str>&quot;web&quot;</Str>
-          <Punct>,</Punct> <Str>&quot;systems&quot;</Str>
-          <Punct>]</Punct>
+          <Punct>:</Punct>
+          <Str>&quot;[Web Performance, AI, Systems]&quot;</Str>
           <Punct>,</Punct>
           {"\n  "}
           <Prop>coffee</Prop>

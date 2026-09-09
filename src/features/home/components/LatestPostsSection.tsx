@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { PostCard } from "@/components/common/PostCard";
+import { PostCard } from "@/features/home/common/PostCard";
 import type { Post } from "@/types/post";
 
 interface LatestPostsSectionProps {

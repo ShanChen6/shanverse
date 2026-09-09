@@ -2,7 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 
-import { PostCard } from "@/components/common/PostCard";
+import { PostCard } from "@/features/home/common/PostCard";
 import { ROUTES } from "@/constants/routes";
 import type { Post } from "@/types/post";
 
@@ -12,6 +12,8 @@ interface FeaturedPostsSectionProps {
 
 export function FeaturedPostsSection({ posts }: FeaturedPostsSectionProps) {
   if (posts.length === 0) return null;
+
+  const [leadPost, ...supportingPosts] = posts;
 
   return (
     <section className="space-y-6">
@@ -30,10 +32,16 @@ export function FeaturedPostsSection({ posts }: FeaturedPostsSectionProps) {
         </Link>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
-        ))}
+      <div className="space-y-6">
+        <PostCard post={leadPost} variant="featured" />
+
+        {supportingPosts.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-3">
+            {supportingPosts.slice(0, 3).map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );

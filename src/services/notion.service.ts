@@ -33,6 +33,8 @@ const propertyText = (property: NotionProperty | undefined): string => {
 	if (property.type === "rich_text") return richText(property.rich_text);
 	if (property.type === "select") return property.select?.name ?? "";
 	if (property.type === "status") return property.status?.name ?? "";
+	if (property.type === "multi_select") return property.multi_select.map((item) => item.name).join(", ");
+	if (property.type === "people") return property.people.map((person) => ("name" in person ? person.name ?? "" : "")).filter(Boolean).join(", ");
 	if (property.type === "url") return property.url ?? "";
 	if (property.type === "email") return property.email ?? "";
 	if (property.type === "formula" && property.formula.type === "string") return property.formula.string ?? "";
@@ -80,6 +82,12 @@ const imageUrl = (property: NotionProperty | undefined): string | null => {
 		return file.type === "external" ? file.external.url : file.file.url;
 	}
 	return propertyText(property) || null;
+};
+
+const personAvatar = (property: NotionProperty | undefined): string | null => {
+	if (!property || property.type !== "people") return null;
+	const person = property.people[0];
+	return person && "avatar_url" in person ? person.avatar_url ?? null : null;
 };
 
 export class NotionService {
@@ -169,18 +177,36 @@ export class NotionService {
 		}
 	}
 
-	private async mapPost(page: NotionPage, includeContent = false): Promise<Post> {
+	private async mapPost(
+		page: NotionPage,
+		includeContent = false,
+		authorLookup?: Map<string, NotionAuthor>,
+		categoryLookup?: Map<string, string>,
+		tagLookup?: Map<string, string>,
+	): Promise<Post> {
 		const { properties } = page;
+		const authorProperty = firstProperty(properties, notionPropertyNames.author);
+		const authorRelationId = authorProperty?.type === "relation" ? authorProperty.relation[0]?.id : undefined;
+		const relatedAuthor = authorRelationId ? authorLookup?.get(authorRelationId) : undefined;
+		const categoryProperty = firstProperty(properties, notionPropertyNames.category);
+		const categoryRelationId = categoryProperty?.type === "relation" ? categoryProperty.relation[0]?.id : undefined;
+		const tagProperty = firstProperty(properties, notionPropertyNames.tags);
+		const rawTags = propertyMultiText(tagProperty);
+		const description = propertyText(firstProperty(properties, notionPropertyNames.description));
 		const content = includeContent ? await this.getContent(page.id) : propertyText(firstProperty(properties, notionPropertyNames.content));
 		return {
 			id: page.id,
 			title: propertyText(firstProperty(properties, notionPropertyNames.title)),
 			slug: propertyText(firstProperty(properties, notionPropertyNames.slug)),
-			excerpt: propertyText(firstProperty(properties, notionPropertyNames.excerpt)),
+			excerpt: description || propertyText(firstProperty(properties, notionPropertyNames.excerpt)),
 			content,
+			thumbnailImage: imageUrl(firstProperty(properties, notionPropertyNames.thumbnailImage)),
 			coverImage: imageUrl(firstProperty(properties, notionPropertyNames.coverImage)) ?? (page.cover?.type === "external" ? page.cover.external.url : page.cover?.type === "file" ? page.cover.file.url : null),
-			category: propertyText(firstProperty(properties, notionPropertyNames.category)) || null,
-			tags: propertyMultiText(firstProperty(properties, notionPropertyNames.tags)),
+			category: categoryRelationId ? categoryLookup?.get(categoryRelationId) ?? null : propertyText(categoryProperty) || null,
+			tags: rawTags.map((tag) => tagLookup?.get(tag) ?? tag),
+			authorName: relatedAuthor?.name ?? (propertyText(authorProperty) || null),
+			authorAvatar: relatedAuthor?.avatar ?? personAvatar(authorProperty),
+			createdAt: page.created_time,
 			publishedAt: propertyDate(firstProperty(properties, notionPropertyNames.publishedAt)),
 			updatedAt: page.last_edited_time,
 			featured: propertyBoolean(firstProperty(properties, notionPropertyNames.featured)),
@@ -190,7 +216,16 @@ export class NotionService {
 	}
 
 	async getPosts(): Promise<Post[]> {
-		return Promise.all((await this.queryPages("posts")).map((page) => this.mapPost(page)));
+		const [pages, authors, categories, tags] = await Promise.all([
+			this.queryPages("posts"),
+			this.getAuthors().catch(() => [] as NotionAuthor[]),
+			this.getCategories().catch(() => [] as NotionCategory[]),
+			this.getTags().catch(() => [] as NotionTag[]),
+		]);
+		const authorLookup = new Map(authors.map((author) => [author.id, author]));
+		const categoryLookup = new Map(categories.map((category) => [category.id, category.name]));
+		const tagLookup = new Map(tags.map((tag) => [tag.id, tag.name]));
+		return Promise.all(pages.map((page) => this.mapPost(page, false, authorLookup, categoryLookup, tagLookup)));
 	}
 
 	async getPostBySlug(slug: string): Promise<Post | null> {
