@@ -27,7 +27,7 @@ const sampleProjects = [
     description:
       "Trang cá nhân tích hợp thư viện UI component token-first, Next.js 16 và Tailwind CSS v4.",
     tags: ["Next.js 16", "React 19", "Tailwind CSS v4", "TypeScript"],
-    category: "Web",
+    techStack: ["Next.js 16", "React 19", "TypeScript"],
     featured: true,
     githubUrl: "https://github.com",
     liveUrl: "https://shanverse.com",
@@ -39,7 +39,7 @@ const sampleProjects = [
     description:
       "Ứng dụng theo dõi tín hiệu đầu tư và danh mục chứng khoán thời gian thực.",
     tags: ["React Native", "Expo v57", "TypeScript", "WebSocket"],
-    category: "Mobile",
+    techStack: ["React Native", "Expo v57", "TypeScript"],
     featured: true,
     githubUrl: "https://github.com",
     liveUrl: "https://signal-app.com",
@@ -51,7 +51,7 @@ const sampleProjects = [
     description:
       "Công cụ tự động hóa quy trình phát triển phần mềm với AI subagent và custom skills.",
     tags: ["VS Code Extension", "Node.js", "AI Agent"],
-    category: "AI",
+    techStack: ["Node.js", "AI Agent", "TypeScript"],
     featured: false,
     githubUrl: "https://github.com",
     liveUrl: "",
@@ -129,7 +129,13 @@ export default function ProjectsPage() {
                 >
                   <CardHeader>
                     <div className="flex items-center justify-between gap-2 mb-2">
-                      <Badge variant="outline">{project.category}</Badge>
+                      <div className="flex flex-wrap gap-1.5">
+                        {project.techStack.slice(0, 2).map((technology) => (
+                          <Badge key={technology} variant="outline">
+                            {technology}
+                          </Badge>
+                        ))}
+                      </div>
                       <span className="text-xs text-muted-foreground font-mono">
                         Featured
                       </span>
@@ -205,9 +211,13 @@ export default function ProjectsPage() {
             {sampleProjects.map((project) => (
               <Card key={project.id} className="flex flex-col justify-between">
                 <CardHeader>
-                  <Badge variant="outline" className="w-fit mb-2">
-                    {project.category}
-                  </Badge>
+                  <div className="mb-2 flex flex-wrap gap-1.5">
+                    {project.techStack.slice(0, 2).map((technology) => (
+                      <Badge key={technology} variant="outline">
+                        {technology}
+                      </Badge>
+                    ))}
+                  </div>
                   <CardTitle className="text-lg">
                     <Link
                       href={ROUTES.PROJECT_DETAIL(project.slug)}
