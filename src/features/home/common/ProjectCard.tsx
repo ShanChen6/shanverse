@@ -25,12 +25,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
   return (
     <Card className="flex h-full flex-col overflow-hidden hover:border-primary/50 transition-colors">
-      <div className="flex h-40 items-center justify-center overflow-hidden bg-linear-to-br from-primary/20 via-primary/10 to-transparent text-muted-foreground">
+      <div className="relative h-50 items-center justify-center overflow-hidden bg-linear-to-br from-primary/20 via-primary/10 to-transparent text-muted-foreground">
         {thumbnailImage ? (
-          <img
+          <Image
             src={thumbnailImage}
             alt=""
-            className="h-full w-full object-cover"
+            className="object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            unoptimized
           />
         ) : (
           <Image
@@ -40,8 +43,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
           />
         )}
       </div>
-      <CardHeader className="space-y-1">
-        <div className="flex min-h-7 items-start justify-between gap-2">
+      <CardHeader className="flex flex-col flex-1 space-y-3 overflow-hidden">
+        <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">
             {project.techStack.slice(0, 2).map((technology) => (
               <Badge
@@ -60,26 +63,26 @@ export function ProjectCard({ project }: ProjectCardProps) {
             {project.liveUrl ? "Live" : "In Progress"}
           </Badge>
         </div>
-        <CardTitle className="min-h-14 px-0 text-lg leading-snug">
+        <CardTitle className="line-clamp-1 text-lg leading-snug py-0 px-0">
           <Link
             href={ROUTES.PROJECT_DETAIL(project.slug)}
-            className="line-clamp-2 hover:text-primary transition-colors"
+            className="block hover:text-primary transition-colors"
           >
             {project.title}
           </Link>
         </CardTitle>
-        <CardDescription className="min-h-10 px-0 line-clamp-2">
+        <CardDescription className="line-clamp-3 py-0 px-0">
           {project.description}
         </CardDescription>
       </CardHeader>
-      <CardContent className="mt-auto min-h-7 flex flex-wrap items-start gap-1.5">
+      <CardContent className="flex flex-wrap items-start gap-1.5 pt-0">
         {project.tags.slice(0, 3).map((tag) => (
           <Badge key={tag} variant="secondary" className="text-[10px]">
             {tag}
           </Badge>
         ))}
       </CardContent>
-      <CardFooter className="flex items-center gap-3 border-t border-border pt-3">
+      <CardFooter className="flex items-center gap-3 border-t border-border pt-3 mt-auto">
         {project.githubUrl ? (
           <Button asChild size="sm" variant="ghost">
             <a href={project.githubUrl} target="_blank" rel="noreferrer">

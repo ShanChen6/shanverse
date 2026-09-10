@@ -86,7 +86,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
           variant === "featured" && "md:col-span-7",
         )}
       >
-        <CardHeader className="space-y-1">
+        <CardHeader className="space-y-3">
           <div className="flex min-h-6 flex-wrap gap-1.5">
             {visibleTags.map((tag) => (
               <Badge key={tag} variant="secondary" className="text-[10px]">
@@ -99,15 +99,15 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
               </Badge>
             ) : null}
           </div>
-          <CardTitle className="min-h-12 px-0 text-base leading-snug">
+          <CardTitle className="p-0 leading-snug line-clamp-2">
             <Link
               href={ROUTES.BLOG_DETAIL(post.slug)}
-              className="line-clamp-2 hover:text-primary transition-colors"
+              className="block hover:text-primary transition-colors"
             >
               {post.title}
             </Link>
           </CardTitle>
-          <CardDescription className="px-0 line-clamp-4">
+          <CardDescription className="p-0 line-clamp-3">
             {post.excerpt}
           </CardDescription>
         </CardHeader>
