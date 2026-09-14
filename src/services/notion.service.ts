@@ -1,4 +1,6 @@
-import { Client, isFullPage } from "@notionhq/client";
+import "server-only";
+
+import { Client, isFullPage, isNotionClientError } from "@notionhq/client";
 import type {
 	PageObjectResponse,
 	RichTextItemResponse,
@@ -15,8 +17,8 @@ type NotionPage = PageObjectResponse;
 
 export class NotionServiceError extends Error {
 	constructor(message: string, options?: { cause?: unknown }) {
-		const causeMessage = options?.cause instanceof Error ? `: ${options.cause.message}` : "";
-		super(`${message}${causeMessage}`, options);
+		const causeCode = isNotionClientError(options?.cause) ? ` (${options.cause.code})` : "";
+		super(`${message}${causeCode}`, options);
 		this.name = "NotionServiceError";
 	}
 }
@@ -102,7 +104,13 @@ export class NotionService {
 	private getClient(): Client {
 		if (!this.client || !this.databaseId) {
 			const env = getNotionEnv();
-			this.client = new Client({ auth: env.token });
+			this.client = new Client({
+				auth: env.token,
+				timeoutMs: 15_000,
+				retry: { maxRetries: 1, maxRetryDelayMs: 2_000 },
+				// Callers handle failures; never log SDK request or response details.
+				logger: () => undefined,
+			});
 			this.databaseId = env.databaseId;
 		}
 		return this.client;
@@ -203,7 +211,12 @@ export class NotionService {
 			thumbnailImage: imageUrl(firstProperty(properties, notionPropertyNames.thumbnailImage)),
 			coverImage: imageUrl(firstProperty(properties, notionPropertyNames.coverImage)) ?? (page.cover?.type === "external" ? page.cover.external.url : page.cover?.type === "file" ? page.cover.file.url : null),
 			category: categoryRelationId ? categoryLookup?.get(categoryRelationId) ?? null : propertyText(categoryProperty) || null,
-			tags: rawTags.map((tag) => tagLookup?.get(tag) ?? tag),
+			tags: tagProperty?.type === "relation"
+				? rawTags.flatMap((id) => {
+					const name = tagLookup?.get(id);
+					return name ? [name] : [];
+				})
+				: rawTags,
 			authorName: relatedAuthor?.name ?? (propertyText(authorProperty) || null),
 			authorAvatar: relatedAuthor?.avatar ?? personAvatar(authorProperty),
 			createdAt: page.created_time,

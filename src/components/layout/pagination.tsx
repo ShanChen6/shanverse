@@ -36,6 +36,7 @@ export function Pagination({
   hrefBuilder,
   className,
 }: PaginationProps) {
+  if (totalPages <= 1) return null;
   const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
   const pages = buildPages(safeCurrentPage, totalPages);
   const canGoPrev = safeCurrentPage > 1;
@@ -44,13 +45,14 @@ export function Pagination({
   return (
     <nav
       aria-label="Pagination"
-      className={cn("flex items-center gap-2", className)}
+      className={cn("flex flex-wrap items-center gap-2", className)}
     >
       <Link
         href={hrefBuilder(Math.max(1, safeCurrentPage - 1))}
         aria-disabled={!canGoPrev}
+        tabIndex={!canGoPrev ? -1 : undefined}
         className={cn(
-          "rounded-md border border-border px-3 py-2 text-sm transition-colors",
+          "rounded-md border border-border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary",
           canGoPrev
             ? "hover:bg-surface text-foreground"
             : "pointer-events-none text-muted opacity-60",
@@ -59,7 +61,7 @@ export function Pagination({
         Prev
       </Link>
 
-      <ul className="flex items-center gap-1">
+      <ul className="flex flex-wrap items-center justify-center gap-1">
         {pages.map((page, index) => {
           if (page === "dots") {
             return (
@@ -75,11 +77,12 @@ export function Pagination({
             <li key={page}>
               <Link
                 href={hrefBuilder(page)}
+                aria-label={`Page ${page}`}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "inline-flex min-w-9 items-center justify-center rounded-md border px-3 py-2 text-sm transition-colors",
+                  "inline-flex min-w-9 items-center justify-center rounded-md border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary",
                   isActive
-                    ? "border-primary bg-primary text-white"
+                    ? "border-primary/30 bg-primary/10 text-primary"
                     : "border-border text-foreground hover:bg-surface",
                 )}
               >
@@ -93,8 +96,9 @@ export function Pagination({
       <Link
         href={hrefBuilder(Math.min(totalPages, safeCurrentPage + 1))}
         aria-disabled={!canGoNext}
+        tabIndex={!canGoNext ? -1 : undefined}
         className={cn(
-          "rounded-md border border-border px-3 py-2 text-sm transition-colors",
+          "rounded-md border border-border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary",
           canGoNext
             ? "hover:bg-surface text-foreground"
             : "pointer-events-none text-muted opacity-60",

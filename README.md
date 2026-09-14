@@ -142,6 +142,70 @@ an empty array when Notion has no rows; detail methods return `null` when the
 slug is not found, while configuration and API failures throw
 `NotionServiceError` with the original error as its cause.
 
+### Blog listing (`/blog`)
+
+The blog is a Server Component. `src/features/blog/blog-data.ts` caches the
+existing `notionService.getPosts()`, `getCategories()`, and `getTags()` calls
+independently for 300 seconds. Filtering happens on the server using `q`,
+`category`, `tag`, and `page` query parameters; no public API route is needed.
+The Notion service is marked `server-only`, and credentials stay on the server.
+
+Only published posts with a nonblank title and slug are listed. Posts are sorted
+by `Published Date`, falling back to Notion's creation timestamp. Each page has
+up to six posts in total, split between featured writing and latest articles
+without duplicates. Search covers title, excerpt, category, and tags, ignoring
+case. Changing a filter or submitting a search resets the page; pagination keeps
+the current filters. Category/tag names from published posts supplement the
+taxonomy collections when available, including when those collections fail.
+Unresolved relation IDs are omitted instead of displayed as tag names.
+
+A Posts query failure shows a friendly retry state, while an empty published
+collection and a search with no matches have separate empty states. Failed
+requests are handled outside the cache so an initial failure can be retried.
+After a successful load, Next.js can serve cached data while refreshing it.
+
+The existing aliases in `src/config/notion.config.ts` remain the source of truth:
+
+| Posts property | Expected Notion type |
+| --- | --- |
+| Title | Title |
+| Slug, Description, Excerpt | Rich text |
+| Thumbnail, Cover | Files or URL |
+| Category | Relation to Categories, or Select/text |
+| Tags | Relation to Tags, or Multi-select/text |
+| Author | Relation to Authors, or People/text |
+| Published Date | Date (optional; falls back to creation time) |
+| Published, Featured | Checkbox |
+
+`PostCard` uses thumbnail, cover, then the existing placeholder; it displays up
+to two tags and the author's avatar. Dates use `en-GB` in UTC. Reading time is
+rounded up at 200 words/minute, using content when available and otherwise the
+excerpt. The supplied Hero stays in Vietnamese; card and filter labels are in
+English. The `/blog/[slug]` detail page is still the existing placeholder and is
+outside this listing implementation.
+
+#### Kiểm tra trên localhost
+
+1. Điền `.env.local` theo danh sách biến phía trên và cấp quyền integration cho
+   các database. Không thêm tiền tố `NEXT_PUBLIC_` vào token Notion.
+2. Chạy các lệnh sau từ thư mục dự án:
+
+   ```bash
+   pnpm install --frozen-lockfile
+   pnpm exec eslint src/app/blog/page.tsx src/features/home/common/PostCard.tsx
+   pnpm exec tsc --noEmit
+   pnpm build
+   pnpm dev
+   ```
+
+3. Mở `http://localhost:3000/blog`, rồi thử `?q=nextjs`,
+   `?category=Frontend`, `?tag=React`, và `?page=2`. Số kết quả phụ thuộc vào
+   dữ liệu đã publish trong Notion; không có bài khớp sẽ hiển thị empty state.
+4. Kết hợp các filter, chuyển trang, xóa từng filter hoặc chọn **Clear filters**.
+   Kiểm tra bằng phím Tab và thử cả light/dark mode trên mobile, tablet, desktop.
+5. Sau khi sửa nội dung Notion, chờ khoảng 5 phút rồi tải lại. Lần tải đầu sau
+   thời hạn cache có thể hiển thị dữ liệu cũ trong lúc server cập nhật nền.
+
 ---
 
 ## 📅 Roadmap
