@@ -348,18 +348,23 @@ export class NotionService {
 
 	private async mapProject(page: NotionPage, includeContent = false): Promise<Project> {
 		const { properties } = page;
+		const contentBlocks = includeContent ? await this.getContent(page.id) : undefined;
 		return {
 			id: page.id,
 			title: propertyText(firstProperty(properties, notionPropertyNames.title)),
 			slug: propertyText(firstProperty(properties, notionPropertyNames.slug)),
 			description: propertyText(firstProperty(properties, notionPropertyNames.description)),
-			content: includeContent ? blocksToText(await this.getContent(page.id)) : propertyText(firstProperty(properties, notionPropertyNames.content)),
+			content: contentBlocks ? blocksToText(contentBlocks) : propertyText(firstProperty(properties, notionPropertyNames.content)),
+			...(contentBlocks ? { contentBlocks } : {}),
 			thumbnailImage: imageUrl(firstProperty(properties, notionPropertyNames.thumbnailImage)),
 			coverImage: imageUrl(firstProperty(properties, notionPropertyNames.coverImage)) ?? (page.cover?.type === "external" ? page.cover.external.url : page.cover?.type === "file" ? page.cover.file.url : null),
 			techStack: propertyMultiText(firstProperty(properties, notionPropertyNames.techStack)),
 			tags: propertyMultiText(firstProperty(properties, notionPropertyNames.tags)),
 			githubUrl: propertyUrl(firstProperty(properties, notionPropertyNames.githubUrl)),
 			liveUrl: propertyUrl(firstProperty(properties, notionPropertyNames.liveUrl)),
+			role: propertyText(firstProperty(properties, notionPropertyNames.role)) || null,
+			timeline: propertyText(firstProperty(properties, notionPropertyNames.timeline)) || null,
+			status: propertyText(firstProperty(properties, notionPropertyNames.status)) || null,
 			featured: propertyBoolean(firstProperty(properties, notionPropertyNames.featured)),
 			published: propertyBoolean(firstProperty(properties, notionPropertyNames.published)),
 			createdAt: page.created_time,
