@@ -107,7 +107,45 @@ NOTION_TAGS_DATA_SOURCE_ID=
 NOTION_PROJECTS_DATA_SOURCE_ID=
 NOTION_AUTHORS_DATA_SOURCE_ID=
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+CONTACT_EMAIL=
+CONTACT_LOCATION=
+CONTACT_GITHUB_URL=
+CONTACT_LINKEDIN_URL=
+CONTACT_FACEBOOK_URL=
+RESEND_API_KEY=
+CONTACT_FROM_EMAIL="Onboarding <onboarding@resend.dev>"
+CONTACT_TO_EMAIL=
 ```
+
+The Contact page only displays channels configured through `CONTACT_EMAIL`,
+`CONTACT_LOCATION`, and the social URL variables above. `CONTACT_EMAIL` is the
+optional public contact address; `CONTACT_TO_EMAIL` is the private delivery inbox.
+The Resend adapter runs on the server, uses the visitor's email as `replyTo`,
+and only reports success when Resend accepts the message and returns an email ID.
+Delivery stays disabled if any of the three Resend settings is missing.
+
+### Contact email with a temporary Vercel domain
+
+1. Set `RESEND_API_KEY` in `.env.local` using your Resend API key with permission
+   to send emails. Keep this key server-only; never use a `NEXT_PUBLIC_` prefix.
+2. Set `CONTACT_FROM_EMAIL="Onboarding <onboarding@resend.dev>"` and set
+   `CONTACT_TO_EMAIL` to the **email address registered to your Resend account**.
+   The `resend.dev` sender is for testing and can only send to that address.
+   The website can stay on its temporary `*.vercel.app` URL.
+3. Restart `pnpm dev`, open `/contact`, and submit the form to check delivery
+   in your inbox and Resend dashboard. A provider failure shows a general error
+   and preserves the form contents. There is no automatic reply to the visitor.
+4. On Vercel, add the same three variables in **Project Settings → Environment
+   Variables** for the deployment environments you use, then **redeploy**.
+   Local `.env.local` settings are not automatically copied to Vercel.
+5. When you own a domain, verify its DNS records in Resend and change
+   `CONTACT_FROM_EMAIL` to an address on that domain. You can then use another
+   recipient in `CONTACT_TO_EMAIL`; no code changes are needed.
+
+Never commit `.env.local`. Honeypot and minimum submit time provide basic spam
+checks; use edge/provider rate limiting for a public production form.
+See [Resend's test domain restrictions](https://resend.com/docs/knowledge-base/403-error-resend-dev-domain)
+and [Vercel environment variables](https://vercel.com/docs/environment-variables).
 
 `NOTION_TOKEN` must have access to every Notion data source used by the app. The
 five collection-specific IDs are recommended when posts, categories, tags,
