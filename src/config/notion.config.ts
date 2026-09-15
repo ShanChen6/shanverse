@@ -17,6 +17,9 @@ export const notionPropertyNames = {
 	featured: ["Featured", "featured"],
 	githubUrl: ["GitHub", "Github", "githubUrl", "GitHub URL"],
 	liveUrl: ["Live URL", "Website", "liveUrl", "Demo URL"],
+	role: ["Role", "role"],
+	timeline: ["Timeline", "timeline"],
+	status: ["Status", "status"],
 	bio: ["Bio", "Biography", "bio", "biography"],
 	avatar: ["Avatar", "Profile Image", "avatar", "profileImage"],
 } as const;

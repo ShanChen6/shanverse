@@ -1,7 +1,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Code2, ExternalLink } from "lucide-react";
+import { ArrowUpRight, Code2, ExternalLink } from "lucide-react";
 
 import Badge from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,86 +18,112 @@ import type { Project } from "@/types/project";
 
 interface ProjectCardProps {
   project: Project;
+  variant?: "default" | "featured";
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+const PLACEHOLDER_IMAGE =
+  "https://res.cloudinary.com/mvzqdllb/image/upload/v1788945427/s0x8c5x20xuuyqek2egk.png";
+
+function safeExternalUrl(value: string | null) {
+  if (!value) return null;
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:"
+      ? url.toString()
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function formatProjectDate(project: Project) {
+  const date = new Date(project.updatedAt || project.createdAt);
+  return Number.isNaN(date.getTime())
+    ? null
+    : new Intl.DateTimeFormat("en-EN", {
+        month: "short",
+        year: "numeric",
+      }).format(date);
+}
+
+export function ProjectCard({ project, variant = "default" }: ProjectCardProps) {
   const thumbnailImage = project.thumbnailImage ?? project.coverImage;
+  const githubUrl = safeExternalUrl(project.githubUrl);
+  const liveUrl = safeExternalUrl(project.liveUrl);
+  const displayedTech = project.techStack.slice(0, 4);
+  const remainingTech = project.techStack.length - displayedTech.length;
+  const date = formatProjectDate(project);
+  const featured = variant === "featured";
 
   return (
-    <Card className="flex h-full flex-col overflow-hidden hover:border-primary/50 transition-colors">
-      <div className="relative h-50 items-center justify-center overflow-hidden bg-linear-to-br from-primary/20 via-primary/10 to-transparent text-muted-foreground">
-        {thumbnailImage ? (
-          <Image
-            src={thumbnailImage}
-            alt=""
-            className="object-cover"
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            unoptimized
-          />
-        ) : (
-          <Image
-            src="https://res.cloudinary.com/mvzqdllb/image/upload/v1788945427/s0x8c5x20xuuyqek2egk.png"
-            alt="Default thumbnail"
-            className="h-full w-full object-cover"
-          />
-        )}
+    <Card
+      className={`group flex h-full min-w-0 flex-col overflow-hidden transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30 ${featured ? "md:grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]" : ""}`}
+    >
+      <div className={`relative overflow-hidden bg-linear-to-br from-primary/20 via-primary/10 to-transparent ${featured ? "min-h-64 md:min-h-full" : "aspect-[16/10]"}`}>
+        <Image
+          src={thumbnailImage ?? PLACEHOLDER_IMAGE}
+          alt={`${project.title} project thumbnail`}
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+          fill
+          sizes={featured ? "(max-width: 768px) 100vw, 55vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"}
+          unoptimized
+        />
       </div>
-      <CardHeader className="flex flex-col flex-1 space-y-3 overflow-hidden">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-            {project.techStack.slice(0, 2).map((technology) => (
+      <div className="flex min-w-0 flex-col">
+      <CardHeader className="flex flex-1 flex-col space-y-3 border-b-0 p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          {featured && (
+            <Badge className="bg-primary/10 text-primary">Dự án nổi bật</Badge>
+          )}
+          {date && <time className="text-xs text-muted">Updated {date}</time>}
+        </div>
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+            {displayedTech.map((technology) => (
               <Badge
                 key={technology}
-                variant="secondary"
-                className="text-[10px]"
+                variant="outline"
+                className="max-w-full text-[10px]"
               >
-                {technology}
+                <span className="truncate">{technology}</span>
               </Badge>
             ))}
-          </div>
-          <Badge
-            variant={project.liveUrl ? "success" : "secondary"}
-            className="shrink-0 text-[10px]"
-          >
-            {project.liveUrl ? "Live" : "In Progress"}
-          </Badge>
+            {remainingTech > 0 && <Badge variant="outline" className="text-[10px]">+{remainingTech}</Badge>}
         </div>
-        <CardTitle className="line-clamp-1 text-lg leading-snug py-0 px-0">
+        <CardTitle className={`${featured ? "text-2xl" : "text-lg"} line-clamp-2 p-0 leading-snug`}>
           <Link
             href={ROUTES.PROJECT_DETAIL(project.slug)}
-            className="block hover:text-primary transition-colors"
+            className="block rounded-sm transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
           >
             {project.title}
           </Link>
         </CardTitle>
-        <CardDescription className="line-clamp-3 py-0 px-0">
+        <CardDescription className={`${featured ? "line-clamp-4" : "line-clamp-3"} p-0 leading-relaxed`}>
           {project.description}
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-wrap items-start gap-1.5 pt-0">
-        {project.tags.slice(0, 3).map((tag) => (
-          <Badge key={tag} variant="secondary" className="text-[10px]">
-            {tag}
-          </Badge>
-        ))}
-      </CardContent>
-      <CardFooter className="flex items-center gap-3 border-t border-border pt-3 mt-auto">
-        {project.githubUrl ? (
-          <Button asChild size="sm" variant="ghost">
-            <a href={project.githubUrl} target="_blank" rel="noreferrer">
+      <CardContent className="flex flex-wrap items-center gap-2 px-5 pb-4 pt-0 sm:px-6">
+        {githubUrl ? (
+          <Button asChild size="sm" variant="ghost" className="max-w-full">
+            <a href={githubUrl} target="_blank" rel="noopener noreferrer" aria-label={`View ${project.title} source code on GitHub`}>
               <Code2 className="h-4 w-4 mr-1" /> Code
             </a>
           </Button>
         ) : null}
-        {project.liveUrl ? (
+        {liveUrl ? (
           <Button asChild size="sm" variant="outline">
-            <a href={project.liveUrl} target="_blank" rel="noreferrer">
+            <a href={liveUrl} target="_blank" rel="noopener noreferrer" aria-label={`Open live demo for ${project.title}`}>
               <ExternalLink className="h-4 w-4 mr-1" /> Live Demo
             </a>
           </Button>
         ) : null}
+      </CardContent>
+      <CardFooter className="mt-auto flex items-center justify-end px-5 py-4 sm:px-6">
+        <Link href={ROUTES.PROJECT_DETAIL(project.slug)} className="inline-flex items-center gap-1 rounded-sm text-sm font-semibold text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary">
+          Xem chi tiết <ArrowUpRight aria-hidden="true" className="size-4" />
+        </Link>
       </CardFooter>
+      </div>
     </Card>
   );
 }
