@@ -1,9 +1,12 @@
+import type { NotionContentBlock } from "@/types/notion";
+
 export type Post = {
 	id: string;
 	title: string;
 	slug: string;
 	excerpt: string;
 	content: string;
+	contentBlocks?: NotionContentBlock[];
 	thumbnailImage: string | null;
 	coverImage: string | null;
 	category: string | null;

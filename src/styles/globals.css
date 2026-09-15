@@ -9,3 +9,12 @@
 @import "./base.css";
 @import "./typography.css";
 @import "./responsive.css";
+
+.dark .shiki-token {
+  color: var(--shiki-dark) !important;
+}
+
+.mermaid svg {
+  display: block;
+  max-width: none;
+}

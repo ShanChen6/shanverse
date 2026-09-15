@@ -9,6 +9,8 @@ export interface CodeBlockProps {
   language?: string;
   fileName?: string;
   className?: string;
+  copyLabel?: string;
+  copiedLabel?: string;
 }
 
 export function CodeBlock({
@@ -16,6 +18,8 @@ export function CodeBlock({
   language,
   fileName,
   className,
+  copyLabel = "Copy",
+  copiedLabel = "Copied",
 }: CodeBlockProps) {
   const [copied, setCopied] = React.useState(false);
 
@@ -48,9 +52,9 @@ export function CodeBlock({
           type="button"
           onClick={copyCode}
           className="rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
-          aria-label="Copy code block"
+          aria-label={`${copyLabel} code`}
         >
-          {copied ? "Copied" : "Copy"}
+          {copied ? copiedLabel : copyLabel}
         </button>
       </figcaption>
 

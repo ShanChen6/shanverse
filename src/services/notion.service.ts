@@ -2,13 +2,14 @@ import "server-only";
 
 import { Client, isFullPage, isNotionClientError } from "@notionhq/client";
 import type {
+	BlockObjectResponse,
 	PageObjectResponse,
 	RichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 
 import { notionDataSourceEnv, notionPropertyNames } from "@/config/notion.config";
 import { getNotionEnv } from "@/lib/env";
-import type { NotionAuthor, NotionCategory, NotionTag } from "@/types/notion";
+import type { NotionAuthor, NotionCategory, NotionContentBlock, NotionIcon, NotionRichText, NotionTag } from "@/types/notion";
 import type { Post } from "@/types/post";
 import type { Project } from "@/types/project";
 
@@ -28,6 +29,26 @@ const firstProperty = (properties: NotionPage["properties"], names: readonly str
 
 const richText = (value: RichTextItemResponse[] | undefined): string =>
 	value?.map((item) => item.plain_text).join("") ?? "";
+
+const mapRichText = (items: RichTextItemResponse[] | undefined): NotionRichText[] =>
+	(items ?? []).map((item) => ({
+		plainText: item.plain_text,
+		href: item.href,
+		annotations: item.annotations,
+	}));
+
+const blocksToText = (blocks: NotionContentBlock[]): string =>
+	blocks
+		.flatMap((block) => [block.richText.map((item) => item.plainText).join(""), blocksToText(block.children)])
+		.filter(Boolean)
+		.join("\n\n");
+
+const blockIcon = (icon: { type?: string; emoji?: string; external?: { url?: string }; file?: { url?: string } } | undefined): NotionIcon | null => {
+	if (icon?.type === "emoji" && icon.emoji) return { type: "emoji", value: icon.emoji };
+	if (icon?.type === "external" && icon.external?.url) return { type: "external", url: icon.external.url };
+	if (icon?.type === "file" && icon.file?.url) return { type: "file", url: icon.file.url };
+	return null;
+};
 
 const propertyText = (property: NotionProperty | undefined): string => {
 	if (!property) return "";
@@ -169,19 +190,49 @@ export class NotionService {
 		}
 	}
 
-	private async getContent(pageId: string): Promise<string> {
+	private async getContent(blockId: string): Promise<NotionContentBlock[]> {
 		try {
-			const response = await this.getClient().blocks.children.list({ block_id: pageId, page_size: 100 });
-			return response.results
-				.map((block) => {
-					  if (!("type" in block)) return "";
-					  const value = block as unknown as Record<string, { rich_text?: RichTextItemResponse[] }>;
-					  return richText(value[block.type]?.rich_text);
-				})
-				.filter(Boolean)
-				.join("\n\n");
+			const blocks: BlockObjectResponse[] = [];
+			let cursor: string | undefined;
+			do {
+				const response = await this.getClient().blocks.children.list({
+					block_id: blockId,
+					page_size: 100,
+					...(cursor ? { start_cursor: cursor } : {}),
+				});
+				blocks.push(...response.results.filter((block): block is BlockObjectResponse => "type" in block));
+				cursor = response.has_more && response.next_cursor ? response.next_cursor : undefined;
+			} while (cursor);
+
+			return Promise.all(blocks.map(async (block) => {
+				const value = block as unknown as Record<string, unknown>;
+				const data = (value[block.type] ?? {}) as Record<string, unknown>;
+				const rawRichText = (data.rich_text ?? []) as RichTextItemResponse[];
+				const rawCaption = (data.caption ?? []) as RichTextItemResponse[];
+				const source = data.type === "external" || data.type === "file" ? data.type : undefined;
+				const file = source === "external"
+					? (data.external as { url?: string } | undefined)?.url
+					: source === "file"
+						? (data.file as { url?: string } | undefined)?.url
+						: undefined;
+				const icon = data.icon as { type?: string; emoji?: string; external?: { url?: string }; file?: { url?: string } } | undefined;
+				return {
+					id: block.id,
+					type: block.type,
+					richText: mapRichText(rawRichText),
+					children: block.has_children ? await this.getContent(block.id) : [],
+					...(typeof data.color === "string" ? { color: data.color } : {}),
+					...(typeof data.checked === "boolean" ? { checked: data.checked } : {}),
+					...(block.type === "code" ? { code: richText(rawRichText) } : {}),
+					...(typeof data.language === "string" ? { language: data.language } : {}),
+					...(rawCaption.length ? { caption: mapRichText(rawCaption) } : {}),
+					...(typeof data.url === "string" ? { url: data.url } : file ? { url: file } : {}),
+					...(source ? { source } : {}),
+					...(icon ? { icon: blockIcon(icon) } : {}),
+				} satisfies NotionContentBlock;
+			}));
 		} catch (error) {
-			throw new NotionServiceError(`Unable to load content for Notion page ${pageId}`, { cause: error });
+			throw new NotionServiceError("Unable to load Notion page content", { cause: error });
 		}
 	}
 
@@ -201,13 +252,15 @@ export class NotionService {
 		const tagProperty = firstProperty(properties, notionPropertyNames.tags);
 		const rawTags = propertyMultiText(tagProperty);
 		const description = propertyText(firstProperty(properties, notionPropertyNames.description));
-		const content = includeContent ? await this.getContent(page.id) : propertyText(firstProperty(properties, notionPropertyNames.content));
+		const contentBlocks = includeContent ? await this.getContent(page.id) : undefined;
+		const content = contentBlocks ? blocksToText(contentBlocks) : propertyText(firstProperty(properties, notionPropertyNames.content));
 		return {
 			id: page.id,
 			title: propertyText(firstProperty(properties, notionPropertyNames.title)),
 			slug: propertyText(firstProperty(properties, notionPropertyNames.slug)),
 			excerpt: description || propertyText(firstProperty(properties, notionPropertyNames.excerpt)),
 			content,
+			...(contentBlocks ? { contentBlocks } : {}),
 			thumbnailImage: imageUrl(firstProperty(properties, notionPropertyNames.thumbnailImage)),
 			coverImage: imageUrl(firstProperty(properties, notionPropertyNames.coverImage)) ?? (page.cover?.type === "external" ? page.cover.external.url : page.cover?.type === "file" ? page.cover.file.url : null),
 			category: categoryRelationId ? categoryLookup?.get(categoryRelationId) ?? null : propertyText(categoryProperty) || null,
@@ -243,7 +296,19 @@ export class NotionService {
 
 	async getPostBySlug(slug: string): Promise<Post | null> {
 		const page = (await this.queryPages("posts")).find((item) => propertyText(firstProperty(item.properties, notionPropertyNames.slug)) === slug);
-		return page ? this.mapPost(page, true) : null;
+		if (!page) return null;
+		const [authors, categories, tags] = await Promise.all([
+			this.getAuthors().catch(() => [] as NotionAuthor[]),
+			this.getCategories().catch(() => [] as NotionCategory[]),
+			this.getTags().catch(() => [] as NotionTag[]),
+		]);
+		return this.mapPost(
+			page,
+			true,
+			new Map(authors.map((author) => [author.id, author])),
+			new Map(categories.map((category) => [category.id, category.name])),
+			new Map(tags.map((tag) => [tag.id, tag.name])),
+		);
 	}
 
 	async getFeaturedPosts(): Promise<Post[]> {
@@ -288,7 +353,7 @@ export class NotionService {
 			title: propertyText(firstProperty(properties, notionPropertyNames.title)),
 			slug: propertyText(firstProperty(properties, notionPropertyNames.slug)),
 			description: propertyText(firstProperty(properties, notionPropertyNames.description)),
-			content: includeContent ? await this.getContent(page.id) : propertyText(firstProperty(properties, notionPropertyNames.content)),
+			content: includeContent ? blocksToText(await this.getContent(page.id)) : propertyText(firstProperty(properties, notionPropertyNames.content)),
 			thumbnailImage: imageUrl(firstProperty(properties, notionPropertyNames.thumbnailImage)),
 			coverImage: imageUrl(firstProperty(properties, notionPropertyNames.coverImage)) ?? (page.cover?.type === "external" ? page.cover.external.url : page.cover?.type === "file" ? page.cover.file.url : null),
 			techStack: propertyMultiText(firstProperty(properties, notionPropertyNames.techStack)),
