@@ -5,7 +5,7 @@ import { AlertTriangle } from "lucide-react";
 import { useTheme } from "next-themes";
 import { CodeBlock } from "@/components/common/markdown/code-block";
 import { CopyCodeButton } from "@/components/common/markdown/copy-code-button";
-import { notionMessages, type NotionLocale } from "@/features/blog/notion-messages";
+import { notionMessages, type NotionLocale } from "./notion-messages";
 
 let initialized = false;
 

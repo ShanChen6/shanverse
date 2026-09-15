@@ -2,7 +2,7 @@ import * as React from "react";
 import { codeToTokens, type BundledLanguage } from "shiki";
 
 import { CopyCodeButton } from "@/components/common/markdown/copy-code-button";
-import { notionMessages, type NotionLocale } from "@/features/blog/notion-messages";
+import { notionMessages, type NotionLocale } from "../notion-messages";
 
 const LANGUAGE_ALIASES: Record<string, string> = {
   js: "javascript", jsx: "jsx", ts: "typescript", tsx: "tsx",

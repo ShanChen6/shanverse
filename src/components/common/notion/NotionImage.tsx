@@ -3,7 +3,7 @@
 import * as React from "react";
 import { ImageOff } from "lucide-react";
 import type { NotionRichText } from "@/types/notion";
-import { NotionRichText as RichText } from "@/features/blog/components/notion-renderer/NotionRichText";
+import { NotionRichText as RichText } from "./renderer/NotionRichText";
 
 function safeWebUrl(value: string): string | null {
   try { const parsed = new URL(value); return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.toString() : null; } catch { return null; }

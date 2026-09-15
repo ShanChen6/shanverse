@@ -10,9 +10,9 @@ import { Breadcrumb } from "@/components/layout/breadcrumb";
 import Badge from "@/components/ui/badge";
 import { ROUTES } from "@/constants/routes";
 import { getBlogPost, getRelatedPosts } from "@/features/blog/blog-detail-data";
-import { createTableOfContents } from "@/features/blog/notion-content";
+import { createTableOfContents } from "@/components/common/notion/table-of-contents";
 import { ShareArticleButton } from "@/features/blog/components/ShareArticleButton";
-import { NotionRenderer } from "@/features/blog/components/notion-renderer";
+import { NotionRenderer } from "@/components/common/notion/renderer";
 import { PostCard } from "@/features/home/common/PostCard";
 
 type Props = { params: Promise<{ slug: string }> };

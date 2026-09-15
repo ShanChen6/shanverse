@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { NotionBlock } from "./NotionBlock";
 import type { NotionContentBlock } from "@/types/notion";
-import type { NotionLocale } from "@/features/blog/notion-messages";
+import type { NotionLocale } from "../notion-messages";
 
 export function NotionRenderer({ blocks, headingIds, articleTitle, locale = "en" }: { blocks: NotionContentBlock[]; headingIds: Map<string, string>; articleTitle: string; locale?: NotionLocale }) {
   const renderBlocks = (entries: NotionContentBlock[]): React.ReactNode[] => {

@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { MermaidDiagram, NotionCallout, NotionImage } from "@/components/common/notion";
-import { notionMessages, type NotionLocale } from "@/features/blog/notion-messages";
+import { notionMessages, type NotionLocale } from "../notion-messages";
 import { HighlightedCodeBlock } from "./HighlightedCodeBlock";
 import { NotionRichText } from "./NotionRichText";
 import type { NotionContentBlock } from "@/types/notion";
