@@ -4,7 +4,7 @@ import { CodeEditorMock } from "@/features/home/components/CodeEditorMock";
 
 export function HeroProfileCard() {
   return (
-    <div className="lg:col-span-5">
+    <div className="min-w-0 lg:col-span-5">
       <CodeEditorMock />
     </div>
   );

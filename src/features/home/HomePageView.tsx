@@ -60,20 +60,22 @@ export async function HomePageView() {
 
   return (
     <LandingLayout>
-      {/* HERO SECTION */}
-      <section className="container mx-auto grid gap-12 px-4 py-12 lg:grid-cols-12 lg:items-center">
-        <HeroSection socialLinks={socialLinks} />
-        <HeroProfileCard />
+      <section className="relative overflow-hidden border-b border-border bg-surface/30">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-32 -top-40 size-96 rounded-full bg-primary/5 blur-3xl"
+        />
+        <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-12 lg:items-center lg:gap-14 lg:py-20">
+          <HeroSection socialLinks={socialLinks} />
+          <HeroProfileCard />
+        </div>
       </section>
 
-      {/* TECH STACK TICKER (mock data) */}
       <TechTicker />
 
-      <div className="container mx-auto px-4 py-12 space-y-20">
-        {/* SEARCH: powered by Notion categories */}
+      <div className="mx-auto max-w-6xl space-y-16 px-4 py-16 sm:px-6 lg:space-y-24 lg:py-24">
         <HomeSearchSection categories={categories} />
 
-        {/* FEATURED POSTS: powered by Notion posts db */}
         <FeaturedPostsSection
           posts={
             featuredPosts.length > 0
@@ -82,10 +84,6 @@ export async function HomePageView() {
           }
         />
 
-        {/* LATEST POSTS: powered by Notion posts db */}
-        <LatestPostsSection posts={latestPosts} />
-
-        {/* FEATURED PROJECTS: powered by Notion projects db */}
         <FeaturedProjectsSection
           projects={
             featuredProjects.length > 0
@@ -94,7 +92,8 @@ export async function HomePageView() {
           }
         />
 
-        {/* CONTACT */}
+        <LatestPostsSection posts={latestPosts} />
+
         <ContactSection socialLinks={socialLinks} />
       </div>
     </LandingLayout>

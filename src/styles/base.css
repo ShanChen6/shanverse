@@ -110,7 +110,7 @@
   }
 }
 
-@keyframes marquee {
+@keyframes tech-ticker {
   from {
     transform: translateX(0);
   }
@@ -119,6 +119,45 @@
   }
 }
 
-.animate-marquee {
-  animation: marquee 30s linear infinite;
+.tech-ticker-mask {
+  mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+}
+
+.tech-ticker-track {
+  animation: tech-ticker 36s linear infinite;
+}
+
+.tech-ticker-group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2rem;
+  padding-right: 2rem;
+}
+
+.tech-ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-ticker-mask {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+
+  .tech-ticker-track {
+    width: auto;
+    animation: none;
+  }
+
+  .tech-ticker-group {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 1rem;
+  }
+
+  .tech-ticker-copy {
+    display: none;
+  }
 }

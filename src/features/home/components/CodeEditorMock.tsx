@@ -1,85 +1,38 @@
 import * as React from "react";
+import { Code2 } from "lucide-react";
+
 import { cn } from "@/lib/cn";
+import { HOME_HERO_CODE_PROFILE } from "../home.data";
 
-function Kw({ children }: { children: React.ReactNode }) {
-  return <span className="text-purple-400">{children}</span>;
-}
-function Prop({ children }: { children: React.ReactNode }) {
-  return <span className="text-sky-300">{children}</span>;
-}
-function Str({ children }: { children: React.ReactNode }) {
-  return <span className="text-emerald-400">{children}</span>;
-}
-function Bool({ children }: { children: React.ReactNode }) {
-  return <span className="text-orange-400">{children}</span>;
-}
-function Punct({ children }: { children: React.ReactNode }) {
-  return <span className="text-zinc-500">{children}</span>;
+function Token({ tone, children }: { tone: "keyword" | "property" | "string" | "boolean" | "punctuation"; children: React.ReactNode }) {
+  const colors = {
+    keyword: "text-primary",
+    property: "text-foreground",
+    string: "text-success",
+    boolean: "text-accent",
+    punctuation: "text-muted",
+  };
+  return <span className={colors[tone]}>{children}</span>;
 }
 
-interface CodeEditorMockProps {
-  fileName?: string;
-  className?: string;
-}
-
-export function CodeEditorMock({
-  fileName = "developer.ts",
-  className,
-}: CodeEditorMockProps) {
+export function CodeEditorMock({ className }: { className?: string }) {
+  const profile = HOME_HERO_CODE_PROFILE;
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl",
-        className,
-      )}
-    >
-      <div className="flex items-center gap-3 border-b border-zinc-800 bg-zinc-900 px-4 py-3">
-        <div className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded-full bg-red-500" />
-          <span className="h-3 w-3 rounded-full bg-yellow-500" />
-          <span className="h-3 w-3 rounded-full bg-green-500" />
-        </div>
-        <span className="text-xs text-zinc-400">{fileName}</span>
-      </div>
-
-      <pre className="overflow-x-auto p-6 font-mono text-sm leading-relaxed">
-        <code>
-          <Kw>const</Kw> <Prop>developer</Prop> <Punct>=</Punct>{" "}
-          <Punct>{"{"}</Punct>
-          {"\n  "}
-          <Prop>name</Prop>
-          <Punct>:</Punct> <Str>&quot;ShanDev&quot;</Str>
-          <Punct>,</Punct>
-          {"\n  "}
-          <Prop>role</Prop>
-          <Punct>:</Punct> <Str>&quot;Fullstack Developer&quot;</Str>
-          <Punct>,</Punct>
-          {"\n  "}
-          <Prop>experience</Prop>
-          <Punct>:</Punct> <Str>&quot;3+ years&quot;</Str>
-          <Punct>,</Punct>
-          {"\n  "}
-          <Prop>location</Prop>
-          <Punct>:</Punct> <Str>&quot;Ha Noi&quot;</Str>
-          <Punct>,</Punct>
-          {"\n  "}
-          <Prop>focus</Prop>
-          <Punct>:</Punct>
-          <Str>&quot;[Web Performance, AI, Systems]&quot;</Str>
-          <Punct>,</Punct>
-          {"\n  "}
-          <Prop>coffee</Prop>
-          <Punct>:</Punct> <Bool>true</Bool>
-          <Punct>,</Punct>
-          {"\n  "}
-          <Prop>available</Prop>
-          <Punct>:</Punct> <Bool>true</Bool>
-          <Punct>,</Punct>
-          {"\n"}
-          <Punct>{"}"}</Punct>
-          <Punct>;</Punct>
-        </code>
-      </pre>
-    </div>
+    <figure aria-label="Developer profile shown as TypeScript" className={cn("min-w-0 overflow-hidden rounded-2xl border border-border bg-surface-elevated shadow-lg", className)}>
+      <figcaption className="flex items-center gap-2 border-b border-border bg-surface px-4 py-3 text-xs font-medium text-foreground-secondary">
+        <Code2 aria-hidden="true" className="size-4 text-primary" /> developer.ts
+      </figcaption>
+      <pre className="max-w-full overflow-x-auto p-5 font-mono text-[12px] leading-6 sm:p-6 sm:text-sm sm:leading-7"><code>
+        <Token tone="keyword">const</Token>{" "}<Token tone="property">developer</Token>{" "}<Token tone="punctuation">= {"{"}</Token>
+        {"\n  "}<Token tone="property">name</Token><Token tone="punctuation">: </Token><Token tone="string">&quot;{profile.name}&quot;</Token><Token tone="punctuation">,</Token>
+        {"\n  "}<Token tone="property">role</Token><Token tone="punctuation">: </Token><Token tone="string">&quot;{profile.role}&quot;</Token><Token tone="punctuation">,</Token>
+        {"\n  "}<Token tone="property">experience</Token><Token tone="punctuation">: </Token><Token tone="string">&quot;{profile.experience}&quot;</Token><Token tone="punctuation">,</Token>
+        {"\n  "}<Token tone="property">location</Token><Token tone="punctuation">: </Token><Token tone="string">&quot;{profile.location}&quot;</Token><Token tone="punctuation">,</Token>
+        {"\n  "}<Token tone="property">focus</Token><Token tone="punctuation">: </Token><Token tone="string">&quot;{profile.focus}&quot;</Token><Token tone="punctuation">,</Token>
+        {"\n  "}<Token tone="property">coffee</Token><Token tone="punctuation">: </Token><Token tone="boolean">{String(profile.coffee)}</Token><Token tone="punctuation">,</Token>
+        {"\n  "}<Token tone="property">available</Token><Token tone="punctuation">: </Token><Token tone="boolean">{String(profile.available)}</Token><Token tone="punctuation">,</Token>
+        {"\n"}<Token tone="punctuation">{"}"};</Token>
+      </code></pre>
+    </figure>
   );
 }

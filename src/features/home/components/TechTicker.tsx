@@ -1,34 +1,38 @@
 import * as React from "react";
 
-// Mock data: no API backs the tech ticker, it's purely decorative.
-const TECH_STACK = [
-  "TypeScript",
-  "Next.js",
-  "React",
-  "Tailwind CSS",
-  "Node.js",
-  "NestJS",
-  "PostgreSQL",
-  "Docker",
-  "Git",
-];
+import { HOME_TECH_STACK } from "../home.data";
+
+function TickerItems({ duplicate = false }: { duplicate?: boolean }) {
+  return (
+    <ul
+      aria-hidden={duplicate ? "true" : undefined}
+      className={duplicate ? "tech-ticker-group tech-ticker-copy" : "tech-ticker-group"}
+    >
+      {HOME_TECH_STACK.map((technology) => (
+        <li
+          key={technology}
+          className="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-medium text-foreground-secondary"
+        >
+          <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
+          {technology}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function TechTicker() {
-  const items = [...TECH_STACK, ...TECH_STACK];
-
   return (
-    <div className="relative overflow-hidden border-y border-border/60 bg-surface/40 py-4">
-      <div className="flex w-max animate-marquee gap-10">
-        {items.map((tech, index) => (
-          <span
-            key={`${tech}-${index}`}
-            className="flex items-center gap-2 text-sm font-medium text-foreground-secondary whitespace-nowrap"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            {tech}
-          </span>
-        ))}
+    <section
+      aria-label="Technologies I work with"
+      className="border-y border-border bg-surface/60 py-4"
+    >
+      <div className="tech-ticker-mask overflow-hidden">
+        <div className="tech-ticker-track flex w-max">
+          <TickerItems />
+          <TickerItems duplicate />
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
