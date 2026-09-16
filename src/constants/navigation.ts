@@ -1,11 +1,13 @@
+import { FolderKanban, Home, Mail, Newspaper, UserRound } from "lucide-react";
+
 import { ROUTES } from "./routes";
 
 export const NAVIGATION_ITEMS = [
-  { href: ROUTES.HOME, label: "Home" },
-  { href: ROUTES.BLOG, label: "Blog" },
-  { href: ROUTES.PROJECTS, label: "Projects" },
-  { href: ROUTES.ABOUT, label: "About" },
-  { href: ROUTES.CONTACT, label: "Contact" },
+  { href: ROUTES.HOME, label: "Home", icon: Home },
+  { href: ROUTES.BLOG, label: "Blog", icon: Newspaper },
+  { href: ROUTES.PROJECTS, label: "Projects", icon: FolderKanban },
+  { href: ROUTES.ABOUT, label: "About", icon: UserRound },
+  { href: ROUTES.CONTACT, label: "Contact", icon: Mail },
 ] as const;
 
 export const FOOTER_EXPLORE_ITEMS = [

@@ -3,6 +3,8 @@
 ========================================================== */
 
 :root {
+  --mobile-bottom-nav-height: 4rem;
+
   /* BRAND */
   --primary: var(--color-blue-600);
   --secondary: var(--color-amber-500);

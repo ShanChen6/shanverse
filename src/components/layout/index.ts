@@ -4,6 +4,6 @@ export * from "./breadcrumb";
 export * from "./Footer";
 export * from "./Header";
 export * from "./LandingLayout";
-export * from "./MobileNavigation";
+export * from "./MobileBottomNavigation";
 export * from "./pagination";
 export * from "./theme-toggle";

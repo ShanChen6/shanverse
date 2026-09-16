@@ -42,7 +42,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div>
+          <div className="hidden md:block">
             <h2 className="mb-4 text-sm font-semibold text-foreground">Navigation</h2>
             <nav aria-label="Footer navigation" className="flex flex-col items-start gap-3">
               {NAVIGATION_ITEMS.map((item) => (
@@ -53,7 +53,7 @@ export function Footer() {
             </nav>
           </div>
 
-          <div>
+          <div className="hidden md:block">
             <h2 className="mb-4 text-sm font-semibold text-foreground">Explore</h2>
             <nav aria-label="Explore" className="flex flex-col items-start gap-3">
               {FOOTER_EXPLORE_ITEMS.map((item) => (
