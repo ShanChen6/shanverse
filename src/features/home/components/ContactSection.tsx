@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Globe, Mail, MapPin, Phone, Send } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, AtSign } from "lucide-react";
 
 import {
   FacebookIcon,
@@ -7,133 +8,77 @@ import {
   InstagramIcon,
   LinkedinIcon,
 } from "@/components/common/icons/BrandIcons";
-
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import Badge from "@/components/ui/badge";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { ROUTES } from "@/constants/routes";
+import type { SocialLink } from "@/constants/social";
 
-export function ContactSection() {
+const socialIcons = {
+  GitHub: GithubIcon,
+  LinkedIn: LinkedinIcon,
+  Facebook: FacebookIcon,
+  Instagram: InstagramIcon,
+  Email: AtSign,
+};
+
+export function ContactSection({ socialLinks }: { socialLinks: SocialLink[] }) {
   return (
-    <section className="grid gap-6 lg:grid-cols-12">
-      <div className="space-y-2 lg:col-span-12">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-          Say Hello
-        </p>
-        <h2 className="text-2xl font-bold tracking-tight">
-          Let&apos;s Work Together
-        </h2>
-        <p className="text-foreground-secondary">
-          Have an idea? Let&apos;s turn it into something people love to use.
-        </p>
+    <section
+      aria-labelledby="home-contact-heading"
+      className="relative overflow-hidden rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-8 lg:p-10"
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-16 -top-24 size-64 rounded-full border border-primary/10"
+      />
+      <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+        <div className="max-w-2xl">
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+            Let&apos;s build something useful
+          </p>
+          <h2
+            id="home-contact-heading"
+            className="mt-3 text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
+          >
+            Bạn có một ý tưởng muốn cùng xây dựng?
+          </h2>
+          <p className="mt-4 text-pretty leading-7 text-foreground-secondary">
+            Mình luôn sẵn sàng trao đổi về Frontend, sản phẩm, cơ hội thực tập và
+            những dự án thú vị.
+          </p>
+
+          {socialLinks.length ? (
+            <nav className="mt-6 flex flex-wrap gap-2" aria-label="Contact channels">
+              {socialLinks.map(({ label, href }) => {
+                const Icon = socialIcons[label];
+                const external = !href.startsWith("mailto:");
+                return (
+                  <a
+                    key={label}
+                    href={href}
+                    target={external ? "_blank" : undefined}
+                    rel={external ? "noopener noreferrer" : undefined}
+                    aria-label={label}
+                    className="inline-flex size-10 items-center justify-center rounded-lg border border-border bg-background text-foreground-secondary hover:border-primary/40 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    <Icon aria-hidden="true" className="size-4" />
+                  </a>
+                );
+              })}
+            </nav>
+          ) : null}
+        </div>
+
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row lg:flex-col">
+          <Button asChild size="lg" className="w-full gap-2 sm:w-auto">
+            <Link href={ROUTES.CONTACT}>
+              Liên hệ với mình <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="lg" className="w-full bg-background sm:w-auto">
+            <Link href={ROUTES.PROJECTS}>Xem dự án</Link>
+          </Button>
+        </div>
       </div>
-
-      <Card className="overflow-hidden lg:col-span-12">
-        <CardContent className="grid gap-8 p-5 sm:p-6 lg:grid-cols-12 lg:p-8">
-          <div className="space-y-4 lg:col-span-7">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="space-y-2 text-sm font-medium">
-                <span>Your name</span>
-                <Input placeholder="Your name" />
-              </label>
-              <label className="space-y-2 text-sm font-medium">
-                <span>Email address</span>
-                <Input type="email" placeholder="you@example.com" />
-              </label>
-            </div>
-            <label className="block space-y-2 text-sm font-medium">
-              <span>Tell me about your project</span>
-              <Textarea placeholder="Tell me about your project" rows={5} />
-            </label>
-            <Button className="gap-2" type="button">
-              <Send className="h-4 w-4" /> Send Message
-            </Button>
-          </div>
-
-          <div className="flex flex-col justify-between gap-6 border-t border-border pt-6 lg:col-span-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
-            <div className="space-y-5">
-              <Badge variant="success">Available for projects</Badge>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <Phone className="mt-0.5 h-4 w-4 text-primary" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Phone</p>
-                    <p className="text-sm font-medium">+84 777 888 999</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Mail className="mt-0.5 h-4 w-4 text-primary" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Email</p>
-                    <p className="text-sm font-medium">hello@shandev.dev</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <MapPin className="mt-0.5 h-4 w-4 text-primary" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Based in</p>
-                    <p className="text-sm font-medium">
-                      Ho Chi Minh City, Vietnam
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 text-muted-foreground">
-              <a
-                href="https://github.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="GitHub"
-                className="hover:text-primary"
-              >
-                <GithubIcon className="h-5 w-5" />
-              </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="LinkedIn"
-                className="hover:text-primary"
-              >
-                <LinkedinIcon className="h-5 w-5" />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Facebook"
-                className="hover:text-primary"
-              >
-                <FacebookIcon className="h-5 w-5" />
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Instagram"
-                className="hover:text-primary"
-              >
-                <InstagramIcon className="h-5 w-5" />
-              </a>
-              <a
-                href="https://shanverse.dev"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Website"
-                className="hover:text-primary"
-              >
-                <Globe className="h-5 w-5" />
-              </a>
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter className="justify-end border-t border-border text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Shan Kinh Can
-        </CardFooter>
-      </Card>
     </section>
   );
 }

@@ -12,6 +12,7 @@ import { notionService } from "@/services/notion.service";
 import type { Post } from "@/types/post";
 import type { Project } from "@/types/project";
 import type { NotionCategory } from "@/types/notion";
+import { getSocialLinks } from "@/config/social.config";
 
 // Notion may be unreachable/unconfigured locally, fall back to empty data instead of failing the page.
 async function safe<T>(promise: Promise<T>, fallback: T): Promise<T> {
@@ -22,78 +23,91 @@ async function safe<T>(promise: Promise<T>, fallback: T): Promise<T> {
   }
 }
 
+function postTimestamp(post: Post) {
+  const value = Date.parse(post.publishedAt ?? post.createdAt);
+  return Number.isNaN(value) ? 0 : value;
+}
+
+function projectTimestamp(project: Project) {
+  const value = Date.parse(project.updatedAt || project.createdAt);
+  return Number.isNaN(value) ? 0 : value;
+}
+
 export async function HomePageView() {
+  const socialLinks = getSocialLinks();
   const [posts, projects, categories] = await Promise.all([
     safe(notionService.getPosts(), [] as Post[]),
     safe(notionService.getProjects(), [] as Project[]),
     safe(notionService.getCategories(), [] as NotionCategory[]),
   ]);
 
-  const publishedPosts = posts.filter((post) => post.published);
+  const publishedPosts = posts
+    .filter(
+      (post) =>
+        post.published &&
+        post.title.trim().length > 0 &&
+        post.slug.trim().length > 0,
+    )
+    .sort((a, b) => postTimestamp(b) - postTimestamp(a));
   const highlightedPosts = publishedPosts
     .filter((post) => post.featured)
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-  const latestPosts = [...publishedPosts]
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    )
-    .slice(0, 6);
+    .slice(0, 3);
 
   const featuredPosts = [
     ...highlightedPosts,
-    ...latestPosts.filter(
+    ...publishedPosts.filter(
       (post) =>
         !highlightedPosts.some((highlighted) => highlighted.id === post.id),
     ),
-  ].slice(0, 4);
+  ].slice(0, 3);
+  const featuredPostIds = new Set(featuredPosts.map((post) => post.id));
+  const latestPosts = publishedPosts
+    .filter((post) => !featuredPostIds.has(post.id))
+    .slice(0, 6);
 
-  const publishedProjects = projects.filter((project) => project.published);
+  const publishedProjects = projects
+    .filter(
+      (project) =>
+        project.published &&
+        project.title.trim().length > 0 &&
+        project.slug.trim().length > 0,
+    )
+    .sort((a, b) => projectTimestamp(b) - projectTimestamp(a));
   const featuredProjects = publishedProjects
     .filter((project) => project.featured)
-    .slice(0, 4);
+    .slice(0, 3);
 
   return (
     <LandingLayout>
-      {/* HERO SECTION */}
-      <section className="container mx-auto grid gap-12 px-4 py-12 lg:grid-cols-12 lg:items-center">
-        <HeroSection />
-        <HeroProfileCard />
+      <section className="relative overflow-hidden border-b border-border bg-surface/30">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-32 -top-40 size-96 rounded-full bg-primary/5 blur-3xl"
+        />
+        <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-12 lg:items-center lg:gap-14 lg:py-20">
+          <HeroSection socialLinks={socialLinks} />
+          <HeroProfileCard />
+        </div>
       </section>
 
-      {/* TECH STACK TICKER (mock data) */}
       <TechTicker />
 
-      <div className="container mx-auto px-4 py-12 space-y-20">
-        {/* SEARCH: powered by Notion categories */}
+      <div className="mx-auto max-w-6xl space-y-16 px-4 py-16 sm:px-6 lg:space-y-24 lg:py-24">
         <HomeSearchSection categories={categories} />
 
-        {/* FEATURED POSTS: powered by Notion posts db */}
-        <FeaturedPostsSection
-          posts={
-            featuredPosts.length > 0
-              ? featuredPosts
-              : publishedPosts.slice(0, 4)
-          }
-        />
+        <FeaturedPostsSection posts={featuredPosts} />
 
-        {/* LATEST POSTS: powered by Notion posts db */}
         <LatestPostsSection posts={latestPosts} />
 
-        {/* FEATURED PROJECTS: powered by Notion projects db */}
         <FeaturedProjectsSection
           projects={
             featuredProjects.length > 0
               ? featuredProjects
-              : publishedProjects.slice(0, 4)
+              : publishedProjects.slice(0, 1)
           }
         />
 
-        {/* CONTACT */}
-        <ContactSection />
+        <ContactSection socialLinks={socialLinks} />
       </div>
     </LandingLayout>
   );

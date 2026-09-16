@@ -1,5 +1,5 @@
 import React from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import "../styles/globals.css";
@@ -18,6 +18,12 @@ export const metadata: Metadata = {
   title: "Shanverse | Shan's Personal Website",
   description:
     "Shanverse is the personal website of Shan, a software engineer and technology enthusiast. Explore projects, notes, and UI components.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
