@@ -66,9 +66,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
     [post.publishedAt, post.createdAt].find(
       (value) => value && !Number.isNaN(new Date(value).getTime()),
     ) ?? null;
-  const readingText = post.content.trim() || post.excerpt.trim();
-  const wordCount = readingText ? readingText.split(/\s+/u).length : 0;
-  const readingMinutes = Math.max(1, Math.ceil(wordCount / 200));
+  const readingMinutes = post.readingTimeMinutes;
   const linkFocus =
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-elevated";
 
@@ -195,10 +193,12 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
                 <time dateTime={dateValue}>{formatDate(dateValue)}</time>
               ) : null}
             </span>
-            <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-              <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-              {readingMinutes} min read
-            </span>
+            {readingMinutes ? (
+              <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                {readingMinutes} min read
+              </span>
+            ) : null}
           </div>
           <Link
             href={ROUTES.BLOG_DETAIL(post.slug)}

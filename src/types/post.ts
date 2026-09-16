@@ -13,6 +13,7 @@ export type Post = {
 	tags: string[];
 	authorName: string | null;
 	authorAvatar: string | null;
+	readingTimeMinutes: number | null;
 	createdAt: string;
 	publishedAt: string | null;
 	updatedAt: string;

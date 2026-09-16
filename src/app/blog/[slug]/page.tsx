@@ -12,6 +12,7 @@ import { ROUTES } from "@/constants/routes";
 import { getBlogPost, getRelatedPosts } from "@/features/blog/blog-detail-data";
 import { createTableOfContents } from "@/components/common/notion/table-of-contents";
 import { ShareArticleButton } from "@/features/blog/components/ShareArticleButton";
+import { calculateReadingTime } from "@/features/blog/calculate-reading-time";
 import { NotionRenderer } from "@/components/common/notion/renderer";
 import { PostCard } from "@/features/home/common/PostCard";
 
@@ -88,7 +89,7 @@ export default async function BlogDetailPage({ params }: Props) {
   const { items: toc, headingIds } = createTableOfContents(blocks);
   const relatedPosts = await getRelatedPosts(post).catch(() => []);
   const publishedDate = post.publishedAt ?? post.createdAt;
-  const readingMinutes = Math.max(1, Math.ceil((post.content.trim() ? post.content.trim().split(/\s+/u).length : 0) / 200));
+  const readingMinutes = calculateReadingTime(post.content);
   const canonical = articleUrl(post.slug);
   const cover = post.coverImage ?? post.thumbnailImage;
 
