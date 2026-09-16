@@ -38,7 +38,7 @@ export function MobileBottomNavigation() {
                   active && "bg-primary/10",
                 )}
               >
-                <Icon className="size-[22px]" strokeWidth={active ? 2.25 : 1.8} />
+                <Icon className="size-5.5" strokeWidth={active ? 2.25 : 1.8} />
               </span>
               <span className="max-w-full truncate leading-none">{item.label}</span>
             </Link>

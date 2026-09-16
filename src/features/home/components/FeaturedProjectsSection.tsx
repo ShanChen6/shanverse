@@ -14,10 +14,11 @@ export function FeaturedProjectsSection({
   projects,
 }: FeaturedProjectsSectionProps) {
   if (projects.length === 0) return null;
+  const [leadProject, ...supportingProjects] = projects;
 
   return (
     <section className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-primary">
             Selected Work
@@ -25,19 +26,27 @@ export function FeaturedProjectsSection({
           <h2 className="text-2xl font-bold tracking-tight">
             Featured Projects
           </h2>
+          <p className="mt-1 text-sm text-foreground-secondary">
+            Products and technical experiments built with care.
+          </p>
         </div>
         <Link
           href={ROUTES.PROJECTS}
-          className="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1"
+          className="inline-flex items-center gap-1 rounded-sm text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
         >
           View all Projects <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2">
-        {projects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
+      <div className="space-y-6">
+        <ProjectCard project={leadProject} variant="featured" />
+        {supportingProjects.length > 0 ? (
+          <div className="grid gap-6 sm:grid-cols-2">
+            {supportingProjects.slice(0, 2).map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );
