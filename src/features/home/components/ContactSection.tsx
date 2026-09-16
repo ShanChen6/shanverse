@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Globe, Mail, MapPin, Phone, Send } from "lucide-react";
+import { Mail, MapPin, Phone, Send } from "lucide-react";
+import type { SocialLink } from "@/constants/social";
 
 import {
   FacebookIcon,
@@ -14,7 +15,14 @@ import { Textarea } from "@/components/ui/textarea";
 import Badge from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
-export function ContactSection() {
+const socialIcons = {
+  GitHub: GithubIcon,
+  LinkedIn: LinkedinIcon,
+  Facebook: FacebookIcon,
+  Instagram: InstagramIcon,
+};
+
+export function ContactSection({ socialLinks }: { socialLinks: SocialLink[] }) {
   return (
     <section className="grid gap-6 lg:grid-cols-12">
       <div className="space-y-2 lg:col-span-12">
@@ -81,53 +89,27 @@ export function ContactSection() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4 text-muted-foreground">
-              <a
-                href="https://github.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="GitHub"
-                className="hover:text-primary"
-              >
-                <GithubIcon className="h-5 w-5" />
-              </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="LinkedIn"
-                className="hover:text-primary"
-              >
-                <LinkedinIcon className="h-5 w-5" />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Facebook"
-                className="hover:text-primary"
-              >
-                <FacebookIcon className="h-5 w-5" />
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Instagram"
-                className="hover:text-primary"
-              >
-                <InstagramIcon className="h-5 w-5" />
-              </a>
-              <a
-                href="https://shanverse.dev"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Website"
-                className="hover:text-primary"
-              >
-                <Globe className="h-5 w-5" />
-              </a>
-            </div>
+            {socialLinks.some((link) => link.label !== "Email") ? (
+              <div className="flex items-center gap-4 text-muted-foreground">
+                {socialLinks
+                  .filter((link) => link.label !== "Email")
+                  .map(({ label, href }) => {
+                    const Icon = socialIcons[label as keyof typeof socialIcons];
+                    return (
+                      <a
+                        key={label}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={label}
+                        className="hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
+                      >
+                        <Icon aria-hidden="true" className="h-5 w-5" />
+                      </a>
+                    );
+                  })}
+              </div>
+            ) : null}
           </div>
         </CardContent>
         <CardFooter className="justify-end border-t border-border text-xs text-muted-foreground">

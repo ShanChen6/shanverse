@@ -13,7 +13,6 @@ import {
   User,
 } from "lucide-react";
 
-import { LandingLayout } from "@/components/layout/LandingLayout";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { Pagination } from "@/components/layout/pagination";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -104,11 +103,10 @@ import {
 const logoSrc = "/logo/logo_shanverse.png";
 
 export default function ComponentTestPage() {
-  const [currentPage, setCurrentPage] = React.useState(1);
+  const [currentPage] = React.useState(1);
 
   return (
-    <LandingLayout>
-      <div className="container mx-auto px-4 py-10 space-y-16">
+    <div className="container mx-auto px-4 py-10 space-y-16">
         {/* Page Header */}
         <header className="space-y-4 border-b border-border pb-8">
           <Breadcrumb
@@ -803,7 +801,6 @@ export function Example() {
             </Table>
           </div>
         </section>
-      </div>
-    </LandingLayout>
+    </div>
   );
 }

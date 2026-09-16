@@ -6,7 +6,8 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { ROUTES, SOCIAL_LINKS_URLS } from "@/constants/routes";
+import { ROUTES } from "@/constants/routes";
+import type { SocialLink } from "@/constants/social";
 import {
   FacebookIcon,
   GithubIcon,
@@ -14,16 +15,12 @@ import {
   LinkedinIcon,
 } from "@/components/common/icons/BrandIcons";
 
-const SOCIAL_ITEMS = [
-  { label: "GitHub", href: SOCIAL_LINKS_URLS.GITHUB, icon: GithubIcon },
-  { label: "LinkedIn", href: SOCIAL_LINKS_URLS.LINKEDIN, icon: LinkedinIcon },
-  { label: "Facebook", href: SOCIAL_LINKS_URLS.FACEBOOK, icon: FacebookIcon },
-  {
-    label: "Instagram",
-    href: SOCIAL_LINKS_URLS.INSTAGRAM,
-    icon: InstagramIcon,
-  },
-];
+const socialIcons = {
+  GitHub: GithubIcon,
+  LinkedIn: LinkedinIcon,
+  Facebook: FacebookIcon,
+  Instagram: InstagramIcon,
+};
 
 const WORDS_TO_TYPE = [
   "a Software Developer",
@@ -31,7 +28,7 @@ const WORDS_TO_TYPE = [
   "a Tech Creator",
 ];
 
-export function HeroSection() {
+export function HeroSection({ socialLinks }: { socialLinks: SocialLink[] }) {
   const typedText = useTypewriter({
     words: WORDS_TO_TYPE,
     typingSpeed: 100,
@@ -84,20 +81,25 @@ export function HeroSection() {
         </Button>
       </div>
 
-      <div className="flex items-center gap-4 pt-2">
-        {SOCIAL_ITEMS.map(({ label, href, icon: Icon }) => (
-          <a
-            key={label}
-            href={href}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={label}
-            className="text-foreground-secondary transition-colors hover:text-primary"
-          >
-            <Icon className="h-5 w-5" />
-          </a>
-        ))}
-      </div>
+      {socialLinks.some((link) => link.label !== "Email") ? (
+        <div className="flex items-center gap-4 pt-2">
+          {socialLinks.filter((link) => link.label !== "Email").map(({ label, href }) => {
+            const Icon = socialIcons[label as keyof typeof socialIcons];
+            return (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="text-foreground-secondary transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <Icon aria-hidden="true" className="h-5 w-5" />
+              </a>
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }

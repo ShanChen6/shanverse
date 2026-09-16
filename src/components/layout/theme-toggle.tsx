@@ -34,12 +34,12 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={toggleLabel}
       disabled={!isMounted}
+      className="relative"
     >
-      <span className="sr-only">Toggle theme</span>
       {isDarkMode ? (
-        <Sun className="h-6 w-6" aria-hidden="true" />
+        <Sun className="size-5" aria-hidden="true" />
       ) : (
-        <Moon className="h-6 w-6" aria-hidden="true" />
+        <Moon className="size-5" aria-hidden="true" />
       )}
     </Button>
   );

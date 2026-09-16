@@ -8,10 +8,3 @@ export const ROUTES = {
   BLOG_DETAIL: (slug: string) => `/blog/${slug}`,
   CONTACT: "/contact",
 } as const;
-
-export const SOCIAL_LINKS_URLS = {
-  GITHUB: "https://github.com",
-  LINKEDIN: "https://linkedin.com",
-  FACEBOOK: "https://facebook.com",
-  INSTAGRAM: "https://instagram.com",
-};

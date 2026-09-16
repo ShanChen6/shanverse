@@ -1,0 +1,41 @@
+import * as React from "react";
+import Image from "next/image";
+import Link from "next/link";
+
+import { SITE_CONFIG } from "@/config/site.config";
+import { ROUTES } from "@/constants/routes";
+import { cn } from "@/lib/cn";
+
+export function BrandLogo({
+  compact = false,
+  priority = false,
+  className,
+}: {
+  compact?: boolean;
+  priority?: boolean;
+  className?: string;
+}) {
+  return (
+    <Link
+      href={ROUTES.HOME}
+      aria-label={`${SITE_CONFIG.name} home`}
+      className={cn(
+        "inline-flex min-h-10 items-center gap-2.5 rounded-lg text-foreground transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-primary",
+        className,
+      )}
+    >
+      <Image
+        src={SITE_CONFIG.logo}
+        alt=""
+        width={36}
+        height={36}
+        sizes="36px"
+        className="size-9 shrink-0 rounded-full object-cover"
+        priority={priority}
+      />
+      {!compact ? (
+        <span className="text-lg font-bold tracking-tight">{SITE_CONFIG.name}</span>
+      ) : null}
+    </Link>
+  );
+}
