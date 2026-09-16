@@ -1,8 +1,13 @@
 import * as React from "react";
-import { FacebookIcon, GithubIcon, LinkedinIcon } from "@/components/common/icons/BrandIcons";
+import { FacebookIcon, GithubIcon, InstagramIcon, LinkedinIcon } from "@/components/common/icons/BrandIcons";
 import type { ContactConfig } from "../contact-config";
 
-const icons = { GitHub: GithubIcon, LinkedIn: LinkedinIcon, Facebook: FacebookIcon };
+const icons = {
+  GitHub: GithubIcon,
+  LinkedIn: LinkedinIcon,
+  Facebook: FacebookIcon,
+  Instagram: InstagramIcon,
+};
 
 export function SocialLinks({ socials }: { socials: ContactConfig["socials"] }) {
   if (!socials.length) return null;

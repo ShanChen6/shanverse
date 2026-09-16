@@ -12,6 +12,7 @@ import { notionService } from "@/services/notion.service";
 import type { Post } from "@/types/post";
 import type { Project } from "@/types/project";
 import type { NotionCategory } from "@/types/notion";
+import { getSocialLinks } from "@/config/social.config";
 
 // Notion may be unreachable/unconfigured locally, fall back to empty data instead of failing the page.
 async function safe<T>(promise: Promise<T>, fallback: T): Promise<T> {
@@ -23,6 +24,7 @@ async function safe<T>(promise: Promise<T>, fallback: T): Promise<T> {
 }
 
 export async function HomePageView() {
+  const socialLinks = getSocialLinks();
   const [posts, projects, categories] = await Promise.all([
     safe(notionService.getPosts(), [] as Post[]),
     safe(notionService.getProjects(), [] as Project[]),
@@ -60,7 +62,7 @@ export async function HomePageView() {
     <LandingLayout>
       {/* HERO SECTION */}
       <section className="container mx-auto grid gap-12 px-4 py-12 lg:grid-cols-12 lg:items-center">
-        <HeroSection />
+        <HeroSection socialLinks={socialLinks} />
         <HeroProfileCard />
       </section>
 
@@ -93,7 +95,7 @@ export async function HomePageView() {
         />
 
         {/* CONTACT */}
-        <ContactSection />
+        <ContactSection socialLinks={socialLinks} />
       </div>
     </LandingLayout>
   );

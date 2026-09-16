@@ -1,104 +1,99 @@
-"use client";
-
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowUp, Rss } from "lucide-react";
-import { NAVIGATION_ITEMS } from "@/constants/navigation";
+import { AtSign } from "lucide-react";
+
+import {
+  FacebookIcon,
+  GithubIcon,
+  InstagramIcon,
+  LinkedinIcon,
+} from "@/components/common/icons/BrandIcons";
+import { SITE_CONFIG } from "@/config/site.config";
+import { getSocialLinks } from "@/config/social.config";
+import {
+  FOOTER_EXPLORE_ITEMS,
+  NAVIGATION_ITEMS,
+} from "@/constants/navigation";
+import { ROUTES } from "@/constants/routes";
+import { BrandLogo } from "./BrandLogo";
+
+const socialIcons = {
+  GitHub: GithubIcon,
+  LinkedIn: LinkedinIcon,
+  Facebook: FacebookIcon,
+  Instagram: InstagramIcon,
+  Email: AtSign,
+};
+
+const footerLinkClass =
+  "rounded-sm text-sm text-foreground-secondary hover:text-primary focus-visible:ring-2 focus-visible:ring-primary";
 
 export function Footer() {
-  return (
-    <footer className="border-t border-border bg-surface/70">
-      <div className="container mx-auto grid gap-10 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8 lg:py-14">
-        <div className="space-y-4">
-          <Link href={"/"} className="inline-flex items-center gap-2">
-            <Image
-              src="/logo/logo_shanverse.png"
-              alt="ShanDev logo"
-              width={32}
-              height={32}
-              className="h-8 w-8 rounded-lg object-cover"
-            />
-            <span className="text-lg font-bold tracking-tight text-foreground">
-              ShanDev<span className="text-primary">.</span>
-            </span>
-          </Link>
-          <p className="max-w-xs text-sm leading-relaxed text-foreground-secondary">
-            Engineering notes, AI workflows, and practical ideas for building
-            useful products on the modern web.
-          </p>
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Shan Kinh Can. All rights reserved.
-          </p>
-        </div>
+  const socialLinks = getSocialLinks();
 
-        <div>
-          <h2 className="mb-4 text-sm font-semibold text-foreground">
-            Navigation
-          </h2>
-          <nav
-            aria-label="Footer navigation"
-            className="flex flex-col items-start gap-3"
-          >
-            {NAVIGATION_ITEMS.filter((item) => item.label !== "Components").map(
-              (item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-sm text-foreground-secondary transition-colors hover:text-primary"
-                >
+  return (
+    <footer className="border-t border-border bg-surface">
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+          <div className="space-y-4">
+            <BrandLogo />
+            <p className="max-w-xs text-sm leading-relaxed text-foreground-secondary">
+              {SITE_CONFIG.description}
+            </p>
+          </div>
+
+          <div>
+            <h2 className="mb-4 text-sm font-semibold text-foreground">Navigation</h2>
+            <nav aria-label="Footer navigation" className="flex flex-col items-start gap-3">
+              {NAVIGATION_ITEMS.map((item) => (
+                <Link key={item.href} href={item.href} className={footerLinkClass}>
                   {item.label}
                 </Link>
-              ),
-            )}
-          </nav>
-        </div>
-
-        <div>
-          <h2 className="mb-4 text-sm font-semibold text-foreground">
-            Explore
-          </h2>
-          <nav
-            aria-label="Popular categories"
-            className="flex flex-col items-start gap-3"
-          >
-            {[
-              { label: "Frontend", href: "/blog?category=frontend" },
-              { label: "Backend", href: "/blog?category=backend" },
-              { label: "System Design", href: "/blog?category=system-design" },
-              { label: "AI & Workflow", href: "/blog?category=ai-workflow" },
-              { label: "Career", href: "/blog?category=career" },
-            ].map((category) => (
-              <Link
-                key={category.href}
-                href={category.href}
-                className="text-sm text-foreground-secondary transition-colors hover:text-primary"
-              >
-                {category.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-
-        <div>
-          <h2 className="mb-4 text-sm font-semibold text-foreground">
-            Elsewhere
-          </h2>
-          <div className="flex flex-col items-start gap-3">
-            <Link
-              href="/rss.xml"
-              className="inline-flex items-center gap-2 text-sm text-foreground-secondary transition-colors hover:text-primary"
-            >
-              <Rss className="h-4 w-4" /> RSS Feed
-            </Link>
-            <button
-              type="button"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="inline-flex items-center gap-2 text-sm text-foreground-secondary transition-colors hover:text-primary"
-            >
-              <ArrowUp className="h-4 w-4" /> Back to top
-            </button>
+              ))}
+            </nav>
           </div>
+
+          <div>
+            <h2 className="mb-4 text-sm font-semibold text-foreground">Explore</h2>
+            <nav aria-label="Explore" className="flex flex-col items-start gap-3">
+              {FOOTER_EXPLORE_ITEMS.map((item) => (
+                <Link key={item.href} href={item.href} className={footerLinkClass}>
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div>
+            <h2 className="mb-4 text-sm font-semibold text-foreground">Connect</h2>
+            {socialLinks.length ? (
+              <div className="flex flex-wrap gap-2">
+                {socialLinks.map(({ label, href }) => {
+                  const Icon = socialIcons[label];
+                  const external = !href.startsWith("mailto:");
+                  return (
+                    <a
+                      key={label}
+                      href={href}
+                      target={external ? "_blank" : undefined}
+                      rel={external ? "noopener noreferrer" : undefined}
+                      aria-label={label}
+                      className="inline-flex size-10 items-center justify-center rounded-lg border border-border bg-background text-foreground-secondary hover:border-primary/40 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      <Icon aria-hidden="true" className="size-4" />
+                    </a>
+                  );
+                })}
+              </div>
+            ) : (
+              <Link href={ROUTES.CONTACT} className={footerLinkClass}>Contact</Link>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-10 flex flex-col gap-2 border-t border-border pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved.</p>
+          <p>Built with Next.js and Notion.</p>
         </div>
       </div>
     </footer>
