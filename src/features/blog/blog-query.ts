@@ -1,4 +1,8 @@
 import type { Post } from "@/types/post";
+import {
+  normalizeSearchText,
+  scoreSearchMatch,
+} from "@/features/search/search-text";
 
 export const POSTS_PER_PAGE = 6;
 
@@ -41,12 +45,50 @@ export function publishedPosts(posts: Post[]): Post[] {
 }
 
 export function filterPosts(posts: Post[], query: BlogQuery): Post[] {
-  const q = query.q.toLowerCase();
-  return posts.filter((post) =>
-    (!query.category || post.category?.toLowerCase() === query.category.toLowerCase()) &&
-    (!query.tag || post.tags.some((tag) => tag.toLowerCase() === query.tag.toLowerCase())) &&
-    (!q || [post.title, post.excerpt, post.category ?? "", ...post.tags].some((value) => value.toLowerCase().includes(q))),
-  );
+  const q = normalizeSearchText(query.q);
+  const category = normalizeSearchText(query.category);
+  const tag = normalizeSearchText(query.tag);
+
+  return posts
+    .filter(
+      (post) =>
+        (!category || normalizeSearchText(post.category ?? "") === category) &&
+        (!tag ||
+          post.tags.some((value) => normalizeSearchText(value) === tag)),
+    )
+    .map((post) => ({
+      post,
+      score: q
+        ? scoreSearchMatch(
+            {
+              title: post.title,
+              description: post.excerpt,
+              keywords: [post.category ?? "", ...post.tags],
+              slug: post.slug,
+              featured: post.featured,
+            },
+            q,
+          )
+        : 1,
+    }))
+    .filter(({ score }) => score > 0)
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        postTime(b.post) - postTime(a.post) ||
+        a.post.id.localeCompare(b.post.id),
+    )
+    .map(({ post }) => post);
+}
+
+export function postTime(post: Post): number {
+  const published = Date.parse(post.publishedAt ?? "");
+  const created = Date.parse(post.createdAt);
+  return Number.isFinite(published)
+    ? published
+    : Number.isFinite(created)
+      ? created
+      : 0;
 }
 
 export function getFilterNames(names: string[], postNames: string[]): string[] {
