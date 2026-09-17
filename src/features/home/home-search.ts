@@ -15,16 +15,7 @@ export type HomeSearchCategory = {
   slug: string;
 };
 
-export function normalizeSearchText(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .replace(/đ/gu, "d")
-    .replace(/Đ/gu, "D")
-    .toLowerCase()
-    .replace(/\s+/gu, " ")
-    .trim();
-}
+export { normalizeSearchText } from "@/features/search/search-text";
 
 type IndexedSuggestion = HomeSearchSuggestion & {
   normalizedTitle: string;
@@ -53,18 +44,7 @@ export function rankSearchSuggestions(
 
   return suggestions
     .map((suggestion) => {
-      let score = 0;
-      if (suggestion.normalizedTitle.startsWith(normalizedQuery)) score += 100;
-      else if (suggestion.normalizedTitle.includes(normalizedQuery)) score += 70;
-      if (
-        suggestion.normalizedKeywords.some((keyword) =>
-          keyword.includes(normalizedQuery),
-        )
-      ) {
-        score += 45;
-      }
-      if (suggestion.normalizedDescription.includes(normalizedQuery)) score += 20;
-      if (score > 0 && suggestion.featured) score += 5;
+      const score = scoreSearchMatch(suggestion, normalizedQuery);
       return { suggestion, score };
     })
     .filter(({ score }) => score > 0)
@@ -77,3 +57,7 @@ export function rankSearchSuggestions(
     .slice(0, limit)
     .map(({ suggestion }) => suggestion);
 }
+import {
+  normalizeSearchText,
+  scoreSearchMatch,
+} from "@/features/search/search-text";
