@@ -1,0 +1,1 @@
+export default { title: "Những sản phẩm mình đã xây dựng.", description: "Các dự án cá nhân, thử nghiệm kỹ thuật và sản phẩm trong hành trình học tập và phát triển.", featured: "Dự án nổi bật", related: "Dự án liên quan", overview: "Tổng quan dự án", back: "Quay lại Dự án" } as const;

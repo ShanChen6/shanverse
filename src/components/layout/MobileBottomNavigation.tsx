@@ -1,18 +1,21 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { usePathname } from "next/navigation";
 
 import { isActiveRoute, NAVIGATION_ITEMS } from "@/constants/navigation";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n/client";
+import { localizeHref } from "@/i18n/config";
 
 export function MobileBottomNavigation() {
   const pathname = usePathname();
+  const { locale, t } = useI18n();
 
   return (
     <nav
-      aria-label="Mobile navigation"
+      aria-label={t("navigation.mobile")}
       className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur-xl md:hidden"
     >
       <div className="grid h-(--mobile-bottom-nav-height) grid-cols-5 px-1">
@@ -23,7 +26,7 @@ export function MobileBottomNavigation() {
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={localizeHref(item.href, locale)}
               aria-current={active ? "page" : undefined}
               className={cn(
                 "relative flex min-w-0 flex-col items-center justify-center gap-0.5 overflow-hidden px-0.5 text-[10px] font-medium whitespace-nowrap text-muted transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary min-[375px]:text-[11px]",
@@ -40,7 +43,7 @@ export function MobileBottomNavigation() {
               >
                 <Icon className="size-5.5" strokeWidth={active ? 2.25 : 1.8} />
               </span>
-              <span className="max-w-full truncate leading-none">{item.label}</span>
+              <span className="max-w-full truncate leading-none">{t(item.labelKey)}</span>
             </Link>
           );
         })}

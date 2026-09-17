@@ -2,9 +2,7 @@ import * as React from "react";
 import type { Metadata } from "next";
 
 import { AboutPageView, getAboutStats } from "@/features/about";
-
-const description =
-  "Tìm hiểu về Shan, hành trình phát triển Frontend, những công nghệ đang học hỏi và câu chuyện phía sau Shanverse.";
+import { getTranslator } from "@/i18n/server";
 
 function siteUrl() {
   try {
@@ -19,27 +17,19 @@ function siteUrl() {
   }
 }
 
-const canonical = new URL("/about", siteUrl()).toString();
 const image = new URL("/logo/logo_shanverse.png", siteUrl()).toString();
 
-export const metadata: Metadata = {
-  title: "About | Shanverse",
-  description,
-  alternates: { canonical },
-  openGraph: {
-    type: "website",
-    url: canonical,
-    title: "About | Shanverse",
-    description,
-    images: [{ url: image, alt: "Shanverse" }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "About | Shanverse",
-    description,
-    images: [image],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, t } = await getTranslator();
+  const canonical = new URL(`/${locale}/about`, siteUrl()).toString();
+  const title = t("metadata.aboutTitle");
+  const description = t("metadata.aboutDescription");
+  return {
+    title, description, alternates: { canonical, languages: { vi: "/vi/about", en: "/en/about" } },
+    openGraph: { type: "website", url: canonical, title, description, images: [{ url: image, alt: "Shanverse" }] },
+    twitter: { card: "summary_large_image", title, description, images: [image] },
+  };
+}
 
 export default async function AboutPage() {
   const stats = await getAboutStats();

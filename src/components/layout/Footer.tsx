@@ -1,5 +1,7 @@
+"use client";
+
 import * as React from "react";
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { AtSign } from "lucide-react";
 
 import {
@@ -9,13 +11,15 @@ import {
   LinkedinIcon,
 } from "@/components/common/icons/BrandIcons";
 import { SITE_CONFIG } from "@/config/site.config";
-import { getSocialLinks } from "@/config/social.config";
 import {
   FOOTER_EXPLORE_ITEMS,
   NAVIGATION_ITEMS,
 } from "@/constants/navigation";
 import { ROUTES } from "@/constants/routes";
 import { BrandLogo } from "./BrandLogo";
+import { useI18n } from "@/i18n/client";
+import { localizeHref } from "@/i18n/config";
+import { useRuntimeConfig } from "@/providers/RuntimeConfigProvider";
 
 const socialIcons = {
   GitHub: GithubIcon,
@@ -29,7 +33,8 @@ const footerLinkClass =
   "rounded-sm text-sm text-foreground-secondary hover:text-primary focus-visible:ring-2 focus-visible:ring-primary";
 
 export function Footer() {
-  const socialLinks = getSocialLinks();
+  const { locale, t } = useI18n();
+  const { socialLinks, currentYear } = useRuntimeConfig();
 
   return (
     <footer className="border-t border-border bg-surface">
@@ -43,29 +48,29 @@ export function Footer() {
           </div>
 
           <div className="hidden md:block">
-            <h2 className="mb-4 text-sm font-semibold text-foreground">Navigation</h2>
-            <nav aria-label="Footer navigation" className="flex flex-col items-start gap-3">
+            <h2 className="mb-4 text-sm font-semibold text-foreground">{t("footer.navigation")}</h2>
+            <nav aria-label={t("footer.navigation")} className="flex flex-col items-start gap-3">
               {NAVIGATION_ITEMS.map((item) => (
-                <Link key={item.href} href={item.href} className={footerLinkClass}>
-                  {item.label}
+                <Link key={item.href} href={localizeHref(item.href, locale)} className={footerLinkClass}>
+                  {t(item.labelKey)}
                 </Link>
               ))}
             </nav>
           </div>
 
           <div className="hidden md:block">
-            <h2 className="mb-4 text-sm font-semibold text-foreground">Explore</h2>
-            <nav aria-label="Explore" className="flex flex-col items-start gap-3">
+            <h2 className="mb-4 text-sm font-semibold text-foreground">{t("footer.explore")}</h2>
+            <nav aria-label={t("footer.explore")} className="flex flex-col items-start gap-3">
               {FOOTER_EXPLORE_ITEMS.map((item) => (
-                <Link key={item.href} href={item.href} className={footerLinkClass}>
-                  {item.label}
+                <Link key={item.href} href={localizeHref(item.href, locale)} className={footerLinkClass}>
+                  {t(item.labelKey)}
                 </Link>
               ))}
             </nav>
           </div>
 
           <div>
-            <h2 className="mb-4 text-sm font-semibold text-foreground">Connect</h2>
+            <h2 className="mb-4 text-sm font-semibold text-foreground">{t("footer.connect")}</h2>
             {socialLinks.length ? (
               <div className="flex flex-wrap gap-2">
                 {socialLinks.map(({ label, href }) => {
@@ -86,14 +91,14 @@ export function Footer() {
                 })}
               </div>
             ) : (
-              <Link href={ROUTES.CONTACT} className={footerLinkClass}>Contact</Link>
+              <Link href={localizeHref(ROUTES.CONTACT, locale)} className={footerLinkClass}>{t("common.contact")}</Link>
             )}
           </div>
         </div>
 
         <div className="mt-10 flex flex-col gap-2 border-t border-border pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved.</p>
-          <p>Built with Next.js and Notion.</p>
+          <p>© {currentYear} {SITE_CONFIG.name}. {t("footer.rights")}</p>
+          <p>{t("footer.builtWith")}</p>
         </div>
       </div>
     </footer>

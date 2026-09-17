@@ -1,0 +1,1 @@
+export default { title: "Products I have built.", description: "Personal projects, technical experiments, and products built along the way.", featured: "Featured Project", related: "Related Projects", overview: "Project overview", back: "Back to Projects" } as const;

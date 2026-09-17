@@ -1,0 +1,1 @@
+export default { home: "Trang chủ", blog: "Bài viết", projects: "Dự án", about: "Giới thiệu", contact: "Liên hệ", viewAll: "Xem tất cả", back: "Quay lại", retry: "Thử lại", clearAll: "Xóa tất cả", readMore: "Đọc tiếp", minutesRead: "phút đọc" } as const;

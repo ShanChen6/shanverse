@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import {
   BookOpen,
   SearchX,
@@ -30,6 +30,8 @@ import {
 import { BlogSearchPanel } from "@/features/blog/components/BlogSearchPanel";
 import { PostCard } from "@/features/home/common/PostCard";
 import { cn } from "@/lib/cn";
+import { getTranslator } from "@/i18n/server";
+import { localizeHref } from "@/i18n/config";
 
 const description =
   "Explore Shan's notes on Frontend, Backend, System Design, and the lessons learned from building real products.";
@@ -49,6 +51,7 @@ export default async function BlogPage({
   searchParams: Promise<BlogSearchParams>;
 }) {
   const query = parseBlogQuery(await searchParams);
+  const { locale, t } = await getTranslator();
   const data = await getBlogData();
   const categories = buildBlogFilterOptions(
     data.categories,
@@ -125,7 +128,7 @@ export default async function BlogPage({
     <LandingLayout>
       <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-12">
         <Breadcrumb
-          items={[{ label: "Home", href: ROUTES.HOME }, { label: "Blog" }]}
+          items={[{ label: t("common.home"), href: localizeHref(ROUTES.HOME, locale) }, { label: t("common.blog") }]}
         />
 
         <header className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/10 via-surface to-background p-6 sm:p-10 lg:p-12">
@@ -142,17 +145,22 @@ export default async function BlogPage({
               lang="vi"
               className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl"
             >
-              Ý tưởng, trải nghiệm và những điều mình học được.
+              {t("blog.title")}
             </h1>
             <p
               lang="vi"
               className="max-w-2xl text-pretty leading-relaxed text-foreground-secondary sm:text-lg"
             >
-              Ghi chép chuyên sâu về Frontend, Backend, System Design và hành trình
-              xây dựng sản phẩm thực tế.
+              {t("blog.description")}
             </p>
           </div>
         </header>
+
+        {locale === "en" ? (
+          <p role="note" className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground-secondary">
+            {t("blog.vietnameseOnly")}
+          </p>
+        ) : null}
 
         <BlogSearchPanel
           query={query}
@@ -176,27 +184,23 @@ export default async function BlogPage({
               We couldn&apos;t load the articles right now. Please try again in a
               moment.
             </p>
-            <a href={blogHref(query)} className={linkClass}>
-              Try again
+            <a href={localizeHref(blogHref(query), locale)} className={linkClass}>
+              {t("common.retry")}
             </a>
           </section>
         ) : (
           <>
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
               <p role="status" className="text-sm text-foreground-secondary">
-                <span className="font-semibold text-foreground">{filteredPosts.length}</span>{" "}
                 {query.q ? (
-                  <>
-                    {filteredPosts.length === 1 ? "result" : "results"} for “{query.q}”
-                    {query.category ? ` in ${resolvedQuery.category}` : ""}
-                  </>
+                  t(filteredPosts.length === 1 ? "blog.resultsForOne" : "blog.resultsForOther", { count: filteredPosts.length, query: query.q })
                 ) : (
-                  <>{filteredPosts.length === 1 ? "article" : "articles"}</>
+                  t(filteredPosts.length === 1 ? "blog.articleCountOne" : "blog.articleCountOther", { count: filteredPosts.length })
                 )}
               </p>
               {filteredPosts.length > 0 && (
                 <p className="text-xs text-muted">
-                  {query.q ? "Best match" : "Newest first"} · Page {currentPage} of {totalPages}
+                  {query.q ? t("blog.bestMatch") : t("blog.newest")} · Page {currentPage} of {totalPages}
                 </p>
               )}
             </div>
@@ -209,7 +213,7 @@ export default async function BlogPage({
                     id="featured-heading"
                     className="text-2xl font-semibold tracking-tight"
                   >
-                    Featured writing
+                    {t("blog.featured")}
                   </h2>
                 </div>
                 <div className="space-y-6">
@@ -234,7 +238,7 @@ export default async function BlogPage({
                     <h2 className="text-2xl font-semibold">
                       {data.posts.length === 0
                         ? "New ideas are taking root"
-                        : "No articles found"}
+                        : t("blog.noResults")}
                     </h2>
                     <p className="mx-auto mt-3 max-w-md text-foreground-secondary">
                       {data.posts.length === 0
@@ -245,8 +249,8 @@ export default async function BlogPage({
                     </p>
                     {hasFilters ? (
                       <div className="mt-6 flex flex-wrap justify-center gap-4">
-                        {query.q ? <Link href={blogHref(query, { q: "", page: 1 })} className={linkClass}>Clear search</Link> : null}
-                        {query.category || query.tag ? <Link href={blogHref(query, { category: "", tag: "", page: 1 })} className={linkClass}>Clear filters</Link> : null}
+                        {query.q ? <Link href={localizeHref(blogHref(query, { q: "", page: 1 }), locale)} className={linkClass}>{t("blog.clearSearch")}</Link> : null}
+                        {query.category || query.tag ? <Link href={localizeHref(blogHref(query, { category: "", tag: "", page: 1 }), locale)} className={linkClass}>{t("blog.clearFilters")}</Link> : null}
                       </div>
                     ) : null}
                   </section>
@@ -258,7 +262,7 @@ export default async function BlogPage({
                         id="latest-heading"
                         className="text-2xl font-semibold tracking-tight"
                       >
-                        Latest articles
+                        {t("blog.latest")}
                       </h2>
                     </div>
                     <div className="grid gap-6 sm:grid-cols-2">
@@ -304,10 +308,10 @@ export default async function BlogPage({
                       return (
                       <Link
                         key={tag.slug}
-                        href={blogHref(query, {
+                        href={localizeHref(blogHref(query, {
                           tag: active ? "" : tag.slug,
                           page: 1,
-                        })}
+                        }), locale)}
                         aria-current={active ? "true" : undefined}
                         className={cn(
                           "inline-flex min-h-9 max-w-full items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary",

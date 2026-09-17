@@ -7,6 +7,8 @@ import { BookOpen, CalendarDays, Clock, Search, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n/client";
+import { localizeHref } from "@/i18n/config";
 import { normalizeSearchText } from "@/features/search/search-text";
 import {
   blogHref,
@@ -50,6 +52,7 @@ export function BlogSearchPanel({
   totalPosts,
 }: Props) {
   const router = useRouter();
+  const { locale, t } = useI18n();
   const [input, setInput] = React.useState(query.q);
   const deferredInput = React.useDeferredValue(input);
   const [focused, setFocused] = React.useState(false);
@@ -122,14 +125,14 @@ export function BlogSearchPanel({
   }, [activeIndex, orderedResults]);
 
   const navigate = (next: Partial<BlogQuery>) => {
-    router.push(blogHref(query, { ...next, page: 1 }));
+    router.push(localizeHref(blogHref(query, { ...next, page: 1 }), locale));
     setFocused(false);
     setDismissed(true);
   };
 
   const selectSuggestion = (suggestion: BlogSearchSuggestion) => {
     if (suggestion.type === "article") {
-      router.push(suggestion.href);
+      router.push(localizeHref(suggestion.href, locale));
     } else if (suggestion.type === "category") {
       navigate({ category: suggestion.slug ?? suggestion.title });
     } else {
@@ -185,10 +188,10 @@ export function BlogSearchPanel({
     >
       <div>
         <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-          Find your next read
+          {locale === "vi" ? "Tìm nội dung bạn quan tâm" : "Find your next read"}
         </p>
         <h2 id="blog-search-heading" className="mt-1 text-xl font-semibold">
-          Search the garden
+          {t("blog.searchTitle")}
         </h2>
       </div>
 
@@ -196,7 +199,7 @@ export function BlogSearchPanel({
         <form role="search" onSubmit={submit} className="flex flex-col gap-3 sm:flex-row">
           <div className="relative min-w-0 flex-1">
             <label htmlFor="blog-search" className="sr-only">
-              Search articles, topics, or technologies
+              {t("blog.searchPlaceholder")}
             </label>
             <Search
               aria-hidden="true"
@@ -233,7 +236,7 @@ export function BlogSearchPanel({
               }
               aria-autocomplete="list"
               autoComplete="off"
-              placeholder="Search articles, topics, or technologies..."
+              placeholder={t("blog.searchPlaceholder")}
               inputSize="lg"
               className="h-12 bg-background pl-12 pr-20 text-base"
             />
@@ -243,7 +246,7 @@ export function BlogSearchPanel({
             {input ? (
               <button
                 type="button"
-                aria-label="Clear search"
+                aria-label={t("search.clear")}
                 onClick={() => {
                   setInput("");
                   setActiveIndex(-1);
@@ -256,7 +259,7 @@ export function BlogSearchPanel({
             ) : null}
           </div>
           <Button type="submit" size="lg" className="h-12 sm:px-6">
-            Search
+            {t("blog.searchButton")}
           </Button>
         </form>
 
@@ -265,7 +268,7 @@ export function BlogSearchPanel({
             <div
               id="blog-search-listbox"
               role="listbox"
-              aria-label="Blog search suggestions"
+              aria-label={t("search.suggestions")}
               className="max-h-[min(420px,50vh)] overflow-y-auto overscroll-contain p-2"
             >
               {groups.length ? (
@@ -339,7 +342,7 @@ export function BlogSearchPanel({
                 ))
               ) : (
                 <div className="px-4 py-5 text-center">
-                  <p className="text-sm font-medium">No suggestions found.</p>
+                  <p className="text-sm font-medium">{t("search.noSuggestions")}</p>
                   <p className="mt-1 text-xs text-foreground-secondary">
                     You can still search all articles for “{input.trim()}”.
                   </p>
@@ -351,7 +354,7 @@ export function BlogSearchPanel({
                 onClick={() => navigate({ q: input.trim() })}
                 className="mt-1 flex min-h-11 w-full items-center justify-center rounded-xl border-t border-border px-3 pt-3 text-sm font-semibold text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
               >
-                View all results for “{input.trim()}”
+                {t("search.viewAll")} “{input.trim()}”
               </button>
             </div>
           </div>
@@ -368,7 +371,7 @@ export function BlogSearchPanel({
 
       <div>
         <p id="blog-category-label" className="mb-2 text-xs font-medium text-muted">
-          Browse categories
+          {t("blog.categories")}
         </p>
         <div
           role="group"
@@ -386,7 +389,7 @@ export function BlogSearchPanel({
                 : "border-border bg-background text-foreground-secondary hover:border-primary/40 hover:text-primary",
             )}
           >
-            All posts <span className="ml-1 text-xs opacity-70">{totalPosts}</span>
+            {t("blog.allPosts")} <span className="ml-1 text-xs opacity-70">{totalPosts}</span>
           </button>
           {categories.map((category) => {
             const active =
@@ -434,8 +437,8 @@ export function BlogSearchPanel({
               #{query.tag} <X className="size-3.5" aria-hidden="true" />
             </button>
           ) : null}
-          <button type="button" onClick={() => router.push("/blog")} className="min-h-9 rounded-sm font-semibold text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary">
-            Clear all
+          <button type="button" onClick={() => router.push(localizeHref("/blog", locale))} className="min-h-9 rounded-sm font-semibold text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary">
+            {t("common.clearAll")}
           </button>
         </div>
       ) : null}

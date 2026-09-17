@@ -1,0 +1,1 @@
+export default { notFound: "Page not found", notFoundDescription: "The page you are looking for does not exist or has moved.", backHome: "Back home", generic: "Something went wrong. Please try again." } as const;

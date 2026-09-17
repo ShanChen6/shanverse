@@ -1,5 +1,7 @@
+"use client";
+
 import * as React from "react";
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import Image from "next/image";
 import {
   ArrowRight,
@@ -20,18 +22,9 @@ import {
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/cn";
 import type { Post } from "@/types/post";
-
-function formatDate(value: string | null): string {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleDateString("en-GB", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
+import { useI18n } from "@/i18n/client";
+import { localizeHref } from "@/i18n/config";
+import { formatDate } from "@/i18n/format";
 
 function imageSource(value: string | null): string | null {
   const source = value?.trim();
@@ -54,6 +47,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, variant = "default" }: PostCardProps) {
+  const { locale, t } = useI18n();
   const authorName = post.authorName?.trim() || "Shanverse";
   const authorAvatar = imageSource(post.authorAvatar);
   const tags = [...new Set(post.tags.map((tag) => tag.trim()).filter(Boolean))];
@@ -66,7 +60,10 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
     [post.publishedAt, post.createdAt].find(
       (value) => value && !Number.isNaN(new Date(value).getTime()),
     ) ?? null;
-  const readingMinutes = post.readingTimeMinutes;
+  const readingMinutes = Number.isInteger(post.readingTimeMinutes) && (post.readingTimeMinutes ?? 0) > 0
+    ? post.readingTimeMinutes
+    : null;
+  const postHref = localizeHref(ROUTES.BLOG_DETAIL(post.slug), locale);
   const linkFocus =
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-elevated";
 
@@ -80,7 +77,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
       )}
     >
       <Link
-        href={ROUTES.BLOG_DETAIL(post.slug)}
+        href={postHref}
         aria-label={`Read ${post.title}`}
         className={cn(
           "relative block aspect-video shrink-0 overflow-hidden border-b border-border bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
@@ -148,7 +145,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
             )}
           >
             <Link
-              href={ROUTES.BLOG_DETAIL(post.slug)}
+              href={postHref}
               className={cn(
                 "rounded-sm transition-colors hover:text-primary",
                 linkFocus,
@@ -189,26 +186,26 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
                 className="h-3.5 w-3.5 shrink-0"
                 aria-hidden="true"
               />
-              {dateValue && formatDate(dateValue) ? (
-                <time dateTime={dateValue}>{formatDate(dateValue)}</time>
+              {dateValue && formatDate(dateValue, locale) ? (
+                <time dateTime={dateValue}>{formatDate(dateValue, locale)}</time>
               ) : null}
             </span>
             {readingMinutes ? (
               <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
                 <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                {readingMinutes} min read
+                {t("blog.readingTime", { minutes: readingMinutes })}
               </span>
             ) : null}
           </div>
           <Link
-            href={ROUTES.BLOG_DETAIL(post.slug)}
+            href={postHref}
             aria-label={`Read more: ${post.title}`}
             className={cn(
               "inline-flex shrink-0 items-center gap-1 rounded-sm font-medium text-primary hover:underline",
               linkFocus,
             )}
           >
-            Read more
+            {t("common.readMore")}
             <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
           </Link>
         </CardFooter>
