@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 
 import { EmptyState } from "@/components/common/EmptyState";
-import { LandingLayout } from "@/components/layout/LandingLayout";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { Pagination } from "@/components/layout/pagination";
 import { ROUTES } from "@/constants/routes";
@@ -31,7 +30,6 @@ import { BlogSearchPanel } from "@/features/blog/components/BlogSearchPanel";
 import { PostCard } from "@/features/home/common/PostCard";
 import { cn } from "@/lib/cn";
 import { getTranslator } from "@/i18n/server";
-import { localizeHref } from "@/i18n/config";
 
 const description =
   "Explore Shan's notes on Frontend, Backend, System Design, and the lessons learned from building real products.";
@@ -125,10 +123,9 @@ export default async function BlogPage({
     : pagePosts.filter((post) => !post.featured);
 
   return (
-    <LandingLayout>
-      <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-12">
+    <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-12">
         <Breadcrumb
-          items={[{ label: t("common.home"), href: localizeHref(ROUTES.HOME, locale) }, { label: t("common.blog") }]}
+          items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("common.blog") }]}
         />
 
         <header className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/10 via-surface to-background p-6 sm:p-10 lg:p-12">
@@ -184,9 +181,9 @@ export default async function BlogPage({
               We couldn&apos;t load the articles right now. Please try again in a
               moment.
             </p>
-            <a href={localizeHref(blogHref(query), locale)} className={linkClass}>
+            <Link href={blogHref(query)} className={linkClass}>
               {t("common.retry")}
-            </a>
+            </Link>
           </section>
         ) : (
           <>
@@ -237,8 +234,8 @@ export default async function BlogPage({
                         : (locale === "vi" ? "Hãy xóa bộ lọc hiện tại để khám phá thêm bài viết." : "Try clearing the current filters to explore more writing.")}
                     action={hasFilters ? (
                       <>
-                        {query.q ? <Link href={localizeHref(blogHref(query, { q: "", page: 1 }), locale)} className={linkClass}>{t("blog.clearSearch")}</Link> : null}
-                        {query.category || query.tag ? <Link href={localizeHref(blogHref(query, { category: "", tag: "", page: 1 }), locale)} className={linkClass}>{t("blog.clearFilters")}</Link> : null}
+                        {query.q ? <Link href={blogHref(query, { q: "", page: 1 })} className={linkClass}>{t("blog.clearSearch")}</Link> : null}
+                        {query.category || query.tag ? <Link href={blogHref(query, { category: "", tag: "", page: 1 })} className={linkClass}>{t("blog.clearFilters")}</Link> : null}
                       </>
                     ) : undefined}
                   />
@@ -296,10 +293,10 @@ export default async function BlogPage({
                       return (
                       <Link
                         key={tag.slug}
-                        href={localizeHref(blogHref(query, {
+                        href={blogHref(query, {
                           tag: active ? "" : tag.slug,
                           page: 1,
-                        }), locale)}
+                        })}
                         aria-current={active ? "true" : undefined}
                         className={cn(
                           "inline-flex min-h-9 max-w-full items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary",
@@ -324,7 +321,6 @@ export default async function BlogPage({
             </div>
           </>
         )}
-      </div>
-    </LandingLayout>
+    </div>
   );
 }

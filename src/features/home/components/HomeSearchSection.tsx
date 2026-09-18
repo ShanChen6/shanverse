@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { ROUTES } from "@/constants/routes";
+import { useI18n } from "@/i18n/client";
+import { localizeHref } from "@/i18n/config";
 import {
   indexSearchSuggestions,
   normalizeSearchText,
@@ -45,6 +47,7 @@ export function HomeSearchSection({
   suggestions,
 }: HomeSearchSectionProps) {
   const router = useRouter();
+  const { locale } = useI18n();
   const pathname = usePathname();
   const [query, setQuery] = React.useState("");
   const deferredQuery = React.useDeferredValue(query);
@@ -110,14 +113,14 @@ export function HomeSearchSection({
     if (params.q) search.set("q", params.q);
     if (params.category) search.set("category", params.category);
     const queryString = search.toString();
-    router.push(queryString ? `${ROUTES.BLOG}?${queryString}` : ROUTES.BLOG);
+    router.push(localizeHref(queryString ? `${ROUTES.BLOG}?${queryString}` : ROUTES.BLOG, locale));
     setIsFocused(false);
   };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (activeIndex >= 0 && orderedResults[activeIndex]) {
-      router.push(orderedResults[activeIndex].href);
+      router.push(localizeHref(orderedResults[activeIndex].href, locale));
       setIsFocused(false);
       return;
     }
@@ -159,7 +162,7 @@ export function HomeSearchSection({
 
   const selectSuggestion = (suggestion: HomeSearchSuggestion) => {
     setIsFocused(false);
-    router.push(suggestion.href);
+    router.push(localizeHref(suggestion.href, locale));
   };
 
   return (

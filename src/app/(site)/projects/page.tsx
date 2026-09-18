@@ -5,7 +5,6 @@ import { ArrowRight, ArrowUpRight, BriefcaseBusiness, Code2, Layers3, Search, Sp
 
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { EmptyState } from "@/components/common/EmptyState";
-import { LandingLayout } from "@/components/layout/LandingLayout";
 import { Pagination } from "@/components/layout/pagination";
 import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/routes";
@@ -41,8 +40,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   const hasFilters = Boolean(query.q || query.tech || query.tag);
 
   return (
-    <LandingLayout>
-      <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-12">
+    <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-12">
         <Breadcrumb items={[{ label: "Home", href: ROUTES.HOME }, { label: "Projects" }]} />
 
         <header className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/10 via-surface to-background p-6 sm:p-10 lg:p-12">
@@ -108,7 +106,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
             <BriefcaseBusiness aria-hidden="true" className="mx-auto mb-4 size-10 text-primary" />
             <h2 className="text-2xl font-semibold">Chưa thể tải danh sách dự án</h2>
             <p className="mx-auto mb-6 mt-3 max-w-lg text-foreground-secondary">Kết nối dữ liệu đang tạm gián đoạn. Bạn có thể thử lại sau ít phút.</p>
-            <a href={projectHref(query)} className={textLinkClass}>Thử lại</a>
+            <Link href={projectHref(query)} className={textLinkClass}>Thử lại</Link>
           </section>
         ) : (
           <>
@@ -163,7 +161,6 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
           <p lang="vi" className="mx-auto mt-3 max-w-2xl leading-relaxed text-foreground-secondary">Mình luôn sẵn sàng trao đổi về sản phẩm, công nghệ và những cơ hội hợp tác thú vị.</p>
           <Link href={ROUTES.CONTACT} className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">Liên hệ với mình <ArrowRight aria-hidden="true" className="size-4" /></Link>
         </section>
-      </div>
-    </LandingLayout>
+    </div>
   );
 }
