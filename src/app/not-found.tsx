@@ -1,5 +1,5 @@
 import * as React from "react";
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { AlertCircle, Home, LayoutGrid } from "lucide-react";
 
 import { LandingLayout } from "@/components/layout/LandingLayout";

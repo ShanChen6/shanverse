@@ -1,5 +1,5 @@
 import React from "react";
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import styles from "./page.module.css";
 
 import { notionService } from "@/services/notion.service";

@@ -1,5 +1,5 @@
 import * as React from "react";
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import Image from "next/image";
 import { ArrowUpRight, Code2, ExternalLink, Sparkles } from "lucide-react";
 
