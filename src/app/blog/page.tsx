@@ -3,12 +3,12 @@ import type { Metadata } from "next";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import {
   BookOpen,
-  SearchX,
   Sparkles,
   Sprout,
   Tags,
 } from "lucide-react";
 
+import { EmptyState } from "@/components/common/EmptyState";
 import { LandingLayout } from "@/components/layout/LandingLayout";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { Pagination } from "@/components/layout/pagination";
@@ -227,33 +227,21 @@ export default async function BlogPage({
             <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-10">
               <div className="min-w-0 space-y-8">
                 {filteredPosts.length === 0 ? (
-                  <section
-                    role="status"
-                    className="rounded-2xl border border-dashed border-border bg-surface px-6 py-16 text-center"
-                  >
-                    {data.posts.length === 0 ? <Sprout
-                      aria-hidden="true"
-                      className="mx-auto mb-4 size-9 text-primary"
-                    /> : <SearchX aria-hidden="true" className="mx-auto mb-4 size-9 text-primary" />}
-                    <h2 className="text-2xl font-semibold">
-                      {data.posts.length === 0
-                        ? "New ideas are taking root"
-                        : t("blog.noResults")}
-                    </h2>
-                    <p className="mx-auto mt-3 max-w-md text-foreground-secondary">
-                      {data.posts.length === 0
-                        ? "There are no published articles yet. Come back soon for fresh notes and ideas."
-                        : query.q
-                          ? `No articles matched “${query.q}”. Try another keyword or clear the current filters.`
-                          : "Try clearing the current filters to explore more writing."}
-                    </p>
-                    {hasFilters ? (
-                      <div className="mt-6 flex flex-wrap justify-center gap-4">
+                  <EmptyState
+                    icon={<Sprout className="size-10" />}
+                    title={data.posts.length === 0 ? (locale === "vi" ? "Những ý tưởng mới đang nảy mầm" : "New ideas are taking root") : t("blog.noResults")}
+                    description={data.posts.length === 0
+                      ? (locale === "vi" ? "Hiện chưa có bài viết nào được xuất bản. Hãy quay lại để đọc những ghi chép mới." : "There are no published articles yet. Come back soon for fresh notes and ideas.")
+                      : query.q
+                        ? (locale === "vi" ? `Không có bài viết khớp với “${query.q}”. Hãy thử từ khóa khác hoặc xóa bộ lọc.` : `No articles matched “${query.q}”. Try another keyword or clear the current filters.`)
+                        : (locale === "vi" ? "Hãy xóa bộ lọc hiện tại để khám phá thêm bài viết." : "Try clearing the current filters to explore more writing.")}
+                    action={hasFilters ? (
+                      <>
                         {query.q ? <Link href={localizeHref(blogHref(query, { q: "", page: 1 }), locale)} className={linkClass}>{t("blog.clearSearch")}</Link> : null}
                         {query.category || query.tag ? <Link href={localizeHref(blogHref(query, { category: "", tag: "", page: 1 }), locale)} className={linkClass}>{t("blog.clearFilters")}</Link> : null}
-                      </div>
-                    ) : null}
-                  </section>
+                      </>
+                    ) : undefined}
+                  />
                 ) : latestPosts.length > 0 ? (
                   <section aria-labelledby="latest-heading" className="space-y-5">
                     <div className="flex items-center gap-2">

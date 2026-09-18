@@ -41,7 +41,7 @@ function formatProjectDate(project: Project) {
   const date = new Date(project.updatedAt || project.createdAt);
   return Number.isNaN(date.getTime())
     ? null
-    : new Intl.DateTimeFormat("en-EN", {
+    : new Intl.DateTimeFormat("en", {
         month: "short",
         year: "numeric",
       }).format(date);
@@ -175,7 +175,7 @@ export function ProjectCard({
           <Link
             href={ROUTES.PROJECT_DETAIL(project.slug)}
             aria-label={`View details for ${project.title}`}
-            className="ml-auto inline-flex min-h-9 items-center gap-1 rounded-sm text-sm font-semibold text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
+            className="ml-auto inline-flex min-h-11 items-center gap-1 rounded-sm text-sm font-semibold text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
           >
             Details <ArrowUpRight aria-hidden="true" className="size-4" />
           </Link>

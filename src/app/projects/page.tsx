@@ -4,6 +4,7 @@ import * as React from "react";
 import { ArrowRight, ArrowUpRight, BriefcaseBusiness, Code2, Layers3, Search, Sparkles, Tags, X } from "lucide-react";
 
 import { Breadcrumb } from "@/components/layout/breadcrumb";
+import { EmptyState } from "@/components/common/EmptyState";
 import { LandingLayout } from "@/components/layout/LandingLayout";
 import { Pagination } from "@/components/layout/pagination";
 import { Input } from "@/components/ui/input";
@@ -126,12 +127,12 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
             <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-10">
               <div className="min-w-0 space-y-8">
                 {filteredProjects.length === 0 ? (
-                  <section role="status" className="rounded-2xl border border-dashed border-border bg-surface px-6 py-16 text-center">
-                    <Layers3 aria-hidden="true" className="mx-auto mb-4 size-10 text-primary" />
-                    <h2 className="text-2xl font-semibold">{data.projects.length === 0 ? "Dự án mới đang được hoàn thiện" : "Không tìm thấy dự án phù hợp"}</h2>
-                    <p className="mx-auto mt-3 max-w-md text-foreground-secondary">{data.projects.length === 0 ? "Hiện chưa có dự án nào được xuất bản. Hãy quay lại trong thời gian tới." : "Thử từ khóa khác hoặc xóa bộ lọc để xem thêm dự án."}</p>
-                    {hasFilters && <Link href={ROUTES.PROJECTS} className={cn(textLinkClass, "mt-6 inline-block")}>Xóa bộ lọc</Link>}
-                  </section>
+                  <EmptyState
+                    icon={<Layers3 className="size-10" />}
+                    title={data.projects.length === 0 ? "Dự án mới đang được hoàn thiện" : "Không tìm thấy dự án phù hợp"}
+                    description={data.projects.length === 0 ? "Hiện chưa có dự án nào được xuất bản. Hãy quay lại trong thời gian tới." : "Thử từ khóa khác hoặc xóa bộ lọc để xem thêm dự án."}
+                    action={hasFilters ? <Link href={ROUTES.PROJECTS} className={textLinkClass}>Xóa bộ lọc</Link> : undefined}
+                  />
                 ) : pageProjects.length > 0 ? (
                   <section aria-labelledby="project-grid-heading" className="space-y-5">
                     <h2 id="project-grid-heading" className="flex items-center gap-2 text-2xl font-semibold tracking-tight"><Layers3 aria-hidden="true" className="size-5 text-primary" /> Các dự án khác</h2>
