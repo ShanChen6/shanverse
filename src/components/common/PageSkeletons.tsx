@@ -42,3 +42,17 @@ export function DetailPageSkeleton({ label }: { label: string }) {
     </div>
   );
 }
+
+export function HomeContentSkeleton() {
+  return (
+    <div role="status" aria-busy="true" className="space-y-16 lg:space-y-24">
+      <span className="sr-only">Loading content</span>
+      <div aria-hidden="true" className="space-y-6">
+        <Skeleton className="h-12 w-full" />
+        <div className="flex gap-2 overflow-hidden"><Skeleton className="h-9 w-24 shrink-0 rounded-full" /><Skeleton className="h-9 w-28 shrink-0 rounded-full" /><Skeleton className="h-9 w-20 shrink-0 rounded-full" /></div>
+        <div className="grid gap-6 md:grid-cols-2"><CardSkeleton /><CardSkeleton /></div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"><CardSkeleton /><CardSkeleton /><CardSkeleton /></div>
+      </div>
+    </div>
+  );
+}

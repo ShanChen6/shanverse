@@ -7,11 +7,10 @@ import { usePathname } from "next/navigation";
 import { isActiveRoute, NAVIGATION_ITEMS } from "@/constants/navigation";
 import { cn } from "@/lib/cn";
 import { useI18n } from "@/i18n/client";
-import { localizeHref } from "@/i18n/config";
 
 export function MobileBottomNavigation() {
   const pathname = usePathname();
-  const { locale, t } = useI18n();
+  const { t } = useI18n();
 
   return (
     <nav
@@ -26,7 +25,7 @@ export function MobileBottomNavigation() {
           return (
             <Link
               key={item.href}
-              href={localizeHref(item.href, locale)}
+              href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
                 "relative flex min-w-0 flex-col items-center justify-center gap-0.5 overflow-hidden px-0.5 text-[10px] font-medium whitespace-nowrap text-muted transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary min-[375px]:text-[11px]",

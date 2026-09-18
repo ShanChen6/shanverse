@@ -8,7 +8,6 @@ import { SITE_CONFIG } from "@/config/site.config";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/cn";
 import { useI18n } from "@/i18n/client";
-import { localizeHref } from "@/i18n/config";
 
 export function BrandLogo({
   compact = false,
@@ -19,10 +18,10 @@ export function BrandLogo({
   priority?: boolean;
   className?: string;
 }) {
-  const { locale, t } = useI18n();
+  const { t } = useI18n();
   return (
     <Link
-      href={localizeHref(ROUTES.HOME, locale)}
+      href={ROUTES.HOME}
       aria-label={`${SITE_CONFIG.name} ${t("common.home")}`}
       className={cn(
         "inline-flex min-h-10 items-center gap-2.5 rounded-lg text-foreground transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-primary",
