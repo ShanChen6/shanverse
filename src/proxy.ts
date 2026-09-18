@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import {
   defaultLocale,
+  getPathnameLocale,
   isLocale,
   localeCookie,
   localeHeader,
@@ -9,8 +10,7 @@ import {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const firstSegment = pathname.split("/")[1];
-  const pathnameLocale = isLocale(firstSegment) ? firstSegment : null;
+  const pathnameLocale = getPathnameLocale(pathname);
 
   if (!pathnameLocale) {
     const savedLocale = request.cookies.get(localeCookie)?.value;
