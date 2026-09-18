@@ -56,3 +56,11 @@ export function HomeContentSkeleton() {
     </div>
   );
 }
+
+export function BlogDataSkeleton() {
+  return <section role="status" aria-busy="true" className="space-y-8"><span className="sr-only">Loading articles</span><div aria-hidden="true" className="space-y-8"><Skeleton className="h-12 w-full" /><div className="flex gap-2 overflow-hidden"><Skeleton className="h-10 w-20 shrink-0 rounded-full" /><Skeleton className="h-10 w-28 shrink-0 rounded-full" /><Skeleton className="h-10 w-24 shrink-0 rounded-full" /></div><Skeleton className="h-5 w-48" /><div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]"><div className="grid gap-6 sm:grid-cols-2"><CardSkeleton /><CardSkeleton /><CardSkeleton /><CardSkeleton /></div><Skeleton className="hidden h-72 rounded-2xl lg:block" /></div></div></section>;
+}
+
+export function ProjectsDataSkeleton() {
+  return <section role="status" aria-busy="true" className="space-y-8"><span className="sr-only">Loading projects</span><div aria-hidden="true" className="space-y-8"><div className="grid gap-3 sm:grid-cols-3"><Skeleton className="h-24 rounded-2xl" /><Skeleton className="h-24 rounded-2xl" /><Skeleton className="h-24 rounded-2xl" /></div><Skeleton className="h-12 w-full" /><div className="flex gap-2 overflow-hidden"><Skeleton className="h-10 w-20 shrink-0 rounded-full" /><Skeleton className="h-10 w-28 shrink-0 rounded-full" /><Skeleton className="h-10 w-24 shrink-0 rounded-full" /></div><div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]"><div className="grid gap-6 sm:grid-cols-2"><CardSkeleton /><CardSkeleton /><CardSkeleton /><CardSkeleton /></div><Skeleton className="hidden h-72 rounded-2xl lg:block" /></div></div></section>;
+}

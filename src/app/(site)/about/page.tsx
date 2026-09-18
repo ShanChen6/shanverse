@@ -1,7 +1,7 @@
 import * as React from "react";
 import type { Metadata } from "next";
 
-import { AboutPageView, getAboutStats } from "@/features/about";
+import { AboutPageView } from "@/features/about";
 import { getTranslator } from "@/i18n/server";
 
 function siteUrl() {
@@ -31,7 +31,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function AboutPage() {
-  const stats = await getAboutStats();
-  return <AboutPageView stats={stats} />;
+export default function AboutPage() {
+  return <AboutPageView />;
 }

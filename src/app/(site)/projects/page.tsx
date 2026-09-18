@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import * as React from "react";
+import { Suspense } from "react";
 import { ArrowRight, ArrowUpRight, BriefcaseBusiness, Code2, Layers3, Search, Sparkles, Tags, X } from "lucide-react";
 
 import { Breadcrumb } from "@/components/layout/breadcrumb";
@@ -13,6 +14,7 @@ import { getProjectData } from "@/features/projects/project-data";
 import { filterProjects, parseProjectQuery, PROJECTS_PER_PAGE, projectHref, type ProjectSearchParams, uniqueNames } from "@/features/projects/project-query";
 import { cn } from "@/lib/cn";
 import { getTranslator } from "@/i18n/server";
+import { ProjectsDataSkeleton } from "@/components/common/PageSkeletons";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { locale, t } = await getTranslator();
@@ -26,8 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const filterClass = "inline-flex min-w-0 items-center rounded-full border px-3.5 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 const textLinkClass = "rounded-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-primary";
 
-export default async function ProjectsPage({ searchParams }: { searchParams: Promise<ProjectSearchParams> }) {
-  const query = parseProjectQuery(await searchParams);
+async function ProjectsDataSection({ query }: { query: ReturnType<typeof parseProjectQuery> }) {
   const data = await getProjectData();
   const technologies = uniqueNames(data.projects.flatMap((project) => project.techStack));
   const tags = uniqueNames(data.projects.flatMap((project) => project.tags));
@@ -40,18 +41,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   const hasFilters = Boolean(query.q || query.tech || query.tag);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-12">
-        <Breadcrumb items={[{ label: "Home", href: ROUTES.HOME }, { label: "Projects" }]} />
-
-        <header className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/10 via-surface to-background p-6 sm:p-10 lg:p-12">
-          <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full border border-primary/10 sm:size-96" />
-          <div className="relative max-w-3xl space-y-6">
-            <p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-medium uppercase tracking-widest text-primary"><Sparkles aria-hidden="true" className="size-4" /> Selected work</p>
-            <h1 lang="vi" className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">Những sản phẩm mình đã xây dựng.</h1>
-            <p lang="vi" className="max-w-2xl text-pretty leading-relaxed text-foreground-secondary sm:text-lg">Các dự án cá nhân, thử nghiệm kỹ thuật và sản phẩm được xây dựng trong quá trình học tập và phát triển.</p>
-          </div>
-        </header>
-
+    <>
         {!data.hasError && (
           <dl aria-label="Project statistics" className="grid gap-3 sm:grid-cols-3">
             {[
@@ -156,11 +146,16 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
           </>
         )}
 
-        <section className="rounded-3xl border border-primary/20 bg-linear-to-br from-primary/10 via-surface to-background px-6 py-10 text-center sm:px-10 sm:py-14">
-          <h2 lang="vi" className="text-2xl font-bold tracking-tight sm:text-3xl">Bạn có một ý tưởng muốn cùng xây dựng?</h2>
-          <p lang="vi" className="mx-auto mt-3 max-w-2xl leading-relaxed text-foreground-secondary">Mình luôn sẵn sàng trao đổi về sản phẩm, công nghệ và những cơ hội hợp tác thú vị.</p>
-          <Link href={ROUTES.CONTACT} className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">Liên hệ với mình <ArrowRight aria-hidden="true" className="size-4" /></Link>
-        </section>
-    </div>
+    </>
   );
+}
+
+export default async function ProjectsPage({ searchParams }: { searchParams: Promise<ProjectSearchParams> }) {
+  const query = parseProjectQuery(await searchParams);
+  return <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-12">
+    <Breadcrumb items={[{ label: "Home", href: ROUTES.HOME }, { label: "Projects" }]} />
+    <header className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/10 via-surface to-background p-6 sm:p-10 lg:p-12"><div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full border border-primary/10 sm:size-96" /><div className="relative max-w-3xl space-y-6"><p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-medium uppercase tracking-widest text-primary"><Sparkles aria-hidden="true" className="size-4" /> Selected work</p><h1 lang="vi" className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">Những sản phẩm mình đã xây dựng.</h1><p lang="vi" className="max-w-2xl text-pretty leading-relaxed text-foreground-secondary sm:text-lg">Các dự án cá nhân, thử nghiệm kỹ thuật và sản phẩm được xây dựng trong quá trình học tập và phát triển.</p></div></header>
+    <Suspense fallback={<ProjectsDataSkeleton />}><ProjectsDataSection query={query} /></Suspense>
+    <section className="rounded-3xl border border-primary/20 bg-linear-to-br from-primary/10 via-surface to-background px-6 py-10 text-center sm:px-10 sm:py-14"><h2 lang="vi" className="text-2xl font-bold tracking-tight sm:text-3xl">Bạn có một ý tưởng muốn cùng xây dựng?</h2><p lang="vi" className="mx-auto mt-3 max-w-2xl leading-relaxed text-foreground-secondary">Mình luôn sẵn sàng trao đổi về sản phẩm, công nghệ và những cơ hội hợp tác thú vị.</p><Link href={ROUTES.CONTACT} className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">Liên hệ với mình <ArrowRight aria-hidden="true" className="size-4" /></Link></section>
+  </div>;
 }
