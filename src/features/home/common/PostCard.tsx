@@ -201,7 +201,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
             href={postHref}
             aria-label={`Read more: ${post.title}`}
             className={cn(
-              "inline-flex shrink-0 items-center gap-1 rounded-sm font-medium text-primary hover:underline",
+              "inline-flex min-h-11 shrink-0 items-center gap-1 rounded-sm font-medium text-primary hover:underline",
               linkFocus,
             )}
           >

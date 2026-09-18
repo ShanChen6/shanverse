@@ -10,7 +10,7 @@ type LandingLayoutProps = {
 
 export function LandingLayout({ children }: LandingLayoutProps) {
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background pb-[calc(var(--mobile-bottom-nav-height)+env(safe-area-inset-bottom))] text-foreground md:pb-0">
+    <div className="flex min-h-screen w-full flex-col overflow-x-clip bg-background pb-[calc(var(--mobile-bottom-nav-height)+env(safe-area-inset-bottom))] text-foreground md:pb-0">
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />
