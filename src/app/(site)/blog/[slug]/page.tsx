@@ -5,7 +5,6 @@ import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays, Clock, RefreshCw, Tag, UserRound } from "lucide-react";
 
-import { LandingLayout } from "@/components/layout/LandingLayout";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import Badge from "@/components/ui/badge";
 import { ROUTES } from "@/constants/routes";
@@ -16,7 +15,6 @@ import { calculateReadingTime } from "@/features/blog/calculate-reading-time";
 import { NotionRenderer } from "@/components/common/notion/renderer";
 import { PostCard } from "@/features/home/common/PostCard";
 import { getTranslator } from "@/i18n/server";
-import { localizeHref } from "@/i18n/config";
 
 type Props = { params: Promise<{ slug: string }> };
 const brandImage = "/logo/logo_shanverse.png";
@@ -97,11 +95,10 @@ export default async function BlogDetailPage({ params }: Props) {
   const cover = post.coverImage ?? post.thumbnailImage;
 
   return (
-    <LandingLayout>
-      <article lang="vi" className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
+    <article lang="vi" className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
         <header className="mx-auto max-w-4xl space-y-6">
-          <Breadcrumb items={[{ label: t("common.home"), href: localizeHref(ROUTES.HOME, locale) }, { label: t("common.blog"), href: localizeHref(ROUTES.BLOG, locale) }, { label: post.title }]} />
-          <Link href={localizeHref(ROUTES.BLOG, locale)} className="inline-flex items-center gap-2 rounded-md text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" /> {t("blog.back")}</Link>
+          <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("common.blog"), href: ROUTES.BLOG }, { label: post.title }]} />
+          <Link href={ROUTES.BLOG} className="inline-flex items-center gap-2 rounded-md text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" /> {t("blog.back")}</Link>
           {locale === "en" ? <p role="note" className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground-secondary">This article is available in Vietnamese only.</p> : null}
           <div className="space-y-5">
             {post.category ? <Badge variant="outline" className="border-primary/30 bg-primary/5 text-primary">{post.category}</Badge> : null}
@@ -135,7 +132,7 @@ export default async function BlogDetailPage({ params }: Props) {
         </div>
 
         <footer className="mx-auto max-w-4xl space-y-10 border-t border-border pt-10">
-          <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center"><ShareArticleButton title={post.title} url={canonical} /><Link href={localizeHref(ROUTES.BLOG, locale)} className="inline-flex items-center gap-2 rounded-md font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" />{t("blog.back")}</Link></div>
+          <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center"><ShareArticleButton title={post.title} url={canonical} /><Link href={ROUTES.BLOG} className="inline-flex items-center gap-2 rounded-md font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" />{t("blog.back")}</Link></div>
           <section aria-labelledby="author-heading" className="flex flex-col gap-4 rounded-2xl border border-primary/20 bg-primary/5 p-6 sm:flex-row sm:items-center">
             {post.authorAvatar?.startsWith("http") ? <img src={post.authorAvatar} alt={`${post.authorName ?? "Author"}'s avatar`} className="size-16 shrink-0 rounded-full object-cover" /> : <div aria-hidden="true" className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-2xl">{post.authorAvatar ?? "S"}</div>}
             <div><p className="text-sm font-medium text-primary">{t("blog.writtenBy")}</p><h2 id="author-heading" className="text-xl font-semibold">{post.authorName ?? "Shan Kinh Can"}</h2><p className="mt-1 text-sm leading-6 text-foreground-secondary">Software engineer sharing practical notes about building products and systems.</p></div>
@@ -143,8 +140,7 @@ export default async function BlogDetailPage({ params }: Props) {
         </footer>
 
         {relatedPosts.length ? <section aria-labelledby="related-heading" className="mx-auto max-w-6xl space-y-6 border-t border-border pt-10"><div><p className="text-sm font-medium text-primary">Keep exploring</p><h2 id="related-heading" className="text-2xl font-semibold tracking-tight">{t("blog.related")}</h2></div><div className="grid gap-6 md:grid-cols-3">{relatedPosts.map((related) => <PostCard key={related.id} post={related} />)}</div></section> : null}
-      </article>
-    </LandingLayout>
+    </article>
   );
 }
 

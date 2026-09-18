@@ -18,7 +18,6 @@ import {
 import { NotionRenderer } from "@/components/common/notion/renderer";
 import { createTableOfContents } from "@/components/common/notion/table-of-contents";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
-import { LandingLayout } from "@/components/layout/LandingLayout";
 import Badge from "@/components/ui/badge";
 import { ProjectCard } from "@/features/home/common/ProjectCard";
 import {
@@ -147,8 +146,7 @@ export default async function ProjectDetailPage({ params }: Props) {
   const liveUrl = safeExternalUrl(project.liveUrl);
 
   return (
-    <LandingLayout>
-      <article className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
+    <article className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
         <header className="mx-auto max-w-5xl space-y-6">
           <Breadcrumb
             items={[
@@ -280,8 +278,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             <Link href={ROUTES.PROJECTS} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-semibold hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" /> Quay lại Projects</Link>
           </div>
         </section>
-      </article>
-    </LandingLayout>
+    </article>
   );
 }
 

@@ -18,7 +18,6 @@ import {
 import { ROUTES } from "@/constants/routes";
 import { BrandLogo } from "./BrandLogo";
 import { useI18n } from "@/i18n/client";
-import { localizeHref } from "@/i18n/config";
 import { useRuntimeConfig } from "@/providers/RuntimeConfigProvider";
 
 const socialIcons = {
@@ -33,7 +32,7 @@ const footerLinkClass =
   "rounded-sm text-sm text-foreground-secondary hover:text-primary focus-visible:ring-2 focus-visible:ring-primary";
 
 export function Footer() {
-  const { locale, t } = useI18n();
+  const { t } = useI18n();
   const { socialLinks, currentYear } = useRuntimeConfig();
 
   return (
@@ -51,7 +50,7 @@ export function Footer() {
             <h2 className="mb-4 text-sm font-semibold text-foreground">{t("footer.navigation")}</h2>
             <nav aria-label={t("footer.navigation")} className="flex flex-col items-start gap-3">
               {NAVIGATION_ITEMS.map((item) => (
-                <Link key={item.href} href={localizeHref(item.href, locale)} className={footerLinkClass}>
+                <Link key={item.href} href={item.href} className={footerLinkClass}>
                   {t(item.labelKey)}
                 </Link>
               ))}
@@ -62,7 +61,7 @@ export function Footer() {
             <h2 className="mb-4 text-sm font-semibold text-foreground">{t("footer.explore")}</h2>
             <nav aria-label={t("footer.explore")} className="flex flex-col items-start gap-3">
               {FOOTER_EXPLORE_ITEMS.map((item) => (
-                <Link key={item.href} href={localizeHref(item.href, locale)} className={footerLinkClass}>
+                <Link key={item.href} href={item.href} className={footerLinkClass}>
                   {t(item.labelKey)}
                 </Link>
               ))}
@@ -91,7 +90,7 @@ export function Footer() {
                 })}
               </div>
             ) : (
-              <Link href={localizeHref(ROUTES.CONTACT, locale)} className={footerLinkClass}>{t("common.contact")}</Link>
+              <Link href={ROUTES.CONTACT} className={footerLinkClass}>{t("common.contact")}</Link>
             )}
           </div>
         </div>

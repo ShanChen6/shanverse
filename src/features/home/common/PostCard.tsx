@@ -23,7 +23,6 @@ import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/cn";
 import type { Post } from "@/types/post";
 import { useI18n } from "@/i18n/client";
-import { localizeHref } from "@/i18n/config";
 import { formatDate } from "@/i18n/format";
 
 function imageSource(value: string | null): string | null {
@@ -63,7 +62,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
   const readingMinutes = Number.isInteger(post.readingTimeMinutes) && (post.readingTimeMinutes ?? 0) > 0
     ? post.readingTimeMinutes
     : null;
-  const postHref = localizeHref(ROUTES.BLOG_DETAIL(post.slug), locale);
+  const postHref = ROUTES.BLOG_DETAIL(post.slug);
   const linkFocus =
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-elevated";
 
