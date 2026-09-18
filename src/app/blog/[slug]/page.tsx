@@ -1,7 +1,7 @@
 import * as React from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays, Clock, RefreshCw, Tag, UserRound } from "lucide-react";
 
@@ -12,8 +12,11 @@ import { ROUTES } from "@/constants/routes";
 import { getBlogPost, getRelatedPosts } from "@/features/blog/blog-detail-data";
 import { createTableOfContents } from "@/components/common/notion/table-of-contents";
 import { ShareArticleButton } from "@/features/blog/components/ShareArticleButton";
+import { calculateReadingTime } from "@/features/blog/calculate-reading-time";
 import { NotionRenderer } from "@/components/common/notion/renderer";
 import { PostCard } from "@/features/home/common/PostCard";
+import { getTranslator } from "@/i18n/server";
+import { localizeHref } from "@/i18n/config";
 
 type Props = { params: Promise<{ slug: string }> };
 const brandImage = "/logo/logo_shanverse.png";
@@ -29,7 +32,7 @@ function siteUrl(): string {
 }
 
 function articleUrl(slug: string): string {
-  return new URL(`/blog/${encodeURIComponent(slug)}`, siteUrl()).toString();
+  return new URL(`/vi/blog/${encodeURIComponent(slug)}`, siteUrl()).toString();
 }
 
 function metadataImage(value: string | null): string {
@@ -81,6 +84,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogDetailPage({ params }: Props) {
   const { slug } = await params;
+  const { locale, t } = await getTranslator();
   const post = await getBlogPost(slug);
   if (!post) notFound();
 
@@ -88,16 +92,17 @@ export default async function BlogDetailPage({ params }: Props) {
   const { items: toc, headingIds } = createTableOfContents(blocks);
   const relatedPosts = await getRelatedPosts(post).catch(() => []);
   const publishedDate = post.publishedAt ?? post.createdAt;
-  const readingMinutes = Math.max(1, Math.ceil((post.content.trim() ? post.content.trim().split(/\s+/u).length : 0) / 200));
+  const readingMinutes = calculateReadingTime(post.content);
   const canonical = articleUrl(post.slug);
   const cover = post.coverImage ?? post.thumbnailImage;
 
   return (
     <LandingLayout>
-      <article className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
+      <article lang="vi" className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
         <header className="mx-auto max-w-4xl space-y-6">
-          <Breadcrumb items={[{ label: "Home", href: ROUTES.HOME }, { label: "Blog", href: ROUTES.BLOG }, { label: post.title }]} />
-          <Link href={ROUTES.BLOG} className="inline-flex items-center gap-2 rounded-md text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" /> Back to all articles</Link>
+          <Breadcrumb items={[{ label: t("common.home"), href: localizeHref(ROUTES.HOME, locale) }, { label: t("common.blog"), href: localizeHref(ROUTES.BLOG, locale) }, { label: post.title }]} />
+          <Link href={localizeHref(ROUTES.BLOG, locale)} className="inline-flex items-center gap-2 rounded-md text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" /> {t("blog.back")}</Link>
+          {locale === "en" ? <p role="note" className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground-secondary">This article is available in Vietnamese only.</p> : null}
           <div className="space-y-5">
             {post.category ? <Badge variant="outline" className="border-primary/30 bg-primary/5 text-primary">{post.category}</Badge> : null}
             <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{post.title}</h1>
@@ -115,29 +120,29 @@ export default async function BlogDetailPage({ params }: Props) {
               </span>
               <span className="inline-flex items-center gap-2"><CalendarDays aria-hidden="true" className="size-4" /><time dateTime={publishedDate}>{formatDate(publishedDate)}</time></span>
               {!sameDay(publishedDate, post.updatedAt) ? <span className="inline-flex items-center gap-2"><RefreshCw aria-hidden="true" className="size-4" />Updated <time dateTime={post.updatedAt}>{formatDate(post.updatedAt)}</time></span> : null}
-              <span className="inline-flex items-center gap-2"><Clock aria-hidden="true" className="size-4" />{readingMinutes} min read</span>
+              <span className="inline-flex items-center gap-2"><Clock aria-hidden="true" className="size-4" />{t("blog.readingTime", { minutes: readingMinutes })}</span>
             </div>
             {post.tags.length ? <div aria-label="Article tags" className="flex flex-wrap gap-2">{post.tags.map((tag) => <Badge key={tag} variant="outline" className="bg-surface"><Tag aria-hidden="true" className="mr-1 size-3" />{tag}</Badge>)}</div> : null}
           </div>
         </header>
 
         {cover ? <figure className="relative mx-auto aspect-[16/8] max-w-5xl overflow-hidden rounded-3xl border border-border bg-surface"><Image src={cover} alt={`Cover image for ${post.title}`} fill priority unoptimized sizes="(min-width: 1024px) 1024px, 100vw" className="object-cover" /></figure> : null}
-        {toc.length >= 2 ? <details className="mx-auto max-w-3xl rounded-2xl border border-border bg-surface p-5 lg:hidden"><summary className="cursor-pointer font-semibold">Table of contents</summary><nav aria-label="Table of contents" className="mt-4"><TocList items={toc} /></nav></details> : null}
+        {toc.length >= 2 ? <details className="mx-auto max-w-3xl rounded-2xl border border-border bg-surface p-5 lg:hidden"><summary className="cursor-pointer font-semibold">{t("blog.toc")}</summary><nav aria-label={t("blog.toc")} className="mt-4"><TocList items={toc} /></nav></details> : null}
 
         <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
           <main className="min-w-0">{blocks.length ? <NotionRenderer blocks={blocks} headingIds={headingIds} articleTitle={post.title} /> : <p className="rounded-2xl border border-border bg-surface p-6 text-foreground-secondary">This article does not have any content yet.</p>}</main>
-          {toc.length >= 2 ? <aside className="sticky top-24 hidden rounded-2xl border border-border bg-surface p-5 lg:block"><p className="mb-4 font-semibold">On this page</p><nav aria-label="Table of contents"><TocList items={toc} /></nav></aside> : null}
+          {toc.length >= 2 ? <aside className="sticky top-24 hidden rounded-2xl border border-border bg-surface p-5 lg:block"><p className="mb-4 font-semibold">{t("blog.onThisPage")}</p><nav aria-label={t("blog.toc")}><TocList items={toc} /></nav></aside> : null}
         </div>
 
         <footer className="mx-auto max-w-4xl space-y-10 border-t border-border pt-10">
-          <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center"><ShareArticleButton title={post.title} url={canonical} /><Link href={ROUTES.BLOG} className="inline-flex items-center gap-2 rounded-md font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" />All blog articles</Link></div>
+          <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center"><ShareArticleButton title={post.title} url={canonical} /><Link href={localizeHref(ROUTES.BLOG, locale)} className="inline-flex items-center gap-2 rounded-md font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" />{t("blog.back")}</Link></div>
           <section aria-labelledby="author-heading" className="flex flex-col gap-4 rounded-2xl border border-primary/20 bg-primary/5 p-6 sm:flex-row sm:items-center">
             {post.authorAvatar?.startsWith("http") ? <img src={post.authorAvatar} alt={`${post.authorName ?? "Author"}'s avatar`} className="size-16 shrink-0 rounded-full object-cover" /> : <div aria-hidden="true" className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-2xl">{post.authorAvatar ?? "S"}</div>}
-            <div><p className="text-sm font-medium text-primary">Written by</p><h2 id="author-heading" className="text-xl font-semibold">{post.authorName ?? "Shan Kinh Can"}</h2><p className="mt-1 text-sm leading-6 text-foreground-secondary">Software engineer sharing practical notes about building products and systems.</p></div>
+            <div><p className="text-sm font-medium text-primary">{t("blog.writtenBy")}</p><h2 id="author-heading" className="text-xl font-semibold">{post.authorName ?? "Shan Kinh Can"}</h2><p className="mt-1 text-sm leading-6 text-foreground-secondary">Software engineer sharing practical notes about building products and systems.</p></div>
           </section>
         </footer>
 
-        {relatedPosts.length ? <section aria-labelledby="related-heading" className="mx-auto max-w-6xl space-y-6 border-t border-border pt-10"><div><p className="text-sm font-medium text-primary">Keep exploring</p><h2 id="related-heading" className="text-2xl font-semibold tracking-tight">Related articles</h2></div><div className="grid gap-6 md:grid-cols-3">{relatedPosts.map((related) => <PostCard key={related.id} post={related} />)}</div></section> : null}
+        {relatedPosts.length ? <section aria-labelledby="related-heading" className="mx-auto max-w-6xl space-y-6 border-t border-border pt-10"><div><p className="text-sm font-medium text-primary">Keep exploring</p><h2 id="related-heading" className="text-2xl font-semibold tracking-tight">{t("blog.related")}</h2></div><div className="grid gap-6 md:grid-cols-3">{relatedPosts.map((related) => <PostCard key={related.id} post={related} />)}</div></section> : null}
       </article>
     </LandingLayout>
   );

@@ -71,6 +71,20 @@ const propertyBoolean = (property: NotionProperty | undefined): boolean => {
 	return ["true", "published", "yes"].includes(propertyText(property).toLowerCase());
 };
 
+const propertyNumber = (property: NotionProperty | undefined): number | null => {
+	if (!property) return null;
+	if (property.type === "number") return property.number;
+	if (property.type === "formula" && property.formula.type === "number") {
+		return property.formula.number;
+	}
+	return null;
+};
+
+const normalizeReadingTime = (value: number | null): number | null => {
+	if (value === null || !Number.isFinite(value) || value <= 0) return null;
+	return Math.max(1, Math.ceil(value));
+};
+
 const propertyDate = (property: NotionProperty | undefined): string | null => {
 	if (!property) return null;
 	if (property.type === "date") return property.date?.start ?? null;
@@ -252,6 +266,9 @@ export class NotionService {
 		const tagProperty = firstProperty(properties, notionPropertyNames.tags);
 		const rawTags = propertyMultiText(tagProperty);
 		const description = propertyText(firstProperty(properties, notionPropertyNames.description));
+		const readingTimeMinutes = normalizeReadingTime(
+			propertyNumber(firstProperty(properties, notionPropertyNames.readingTime)),
+		);
 		const contentBlocks = includeContent ? await this.getContent(page.id) : undefined;
 		const content = contentBlocks ? blocksToText(contentBlocks) : propertyText(firstProperty(properties, notionPropertyNames.content));
 		return {
@@ -272,6 +289,7 @@ export class NotionService {
 				: rawTags,
 			authorName: relatedAuthor?.name ?? (propertyText(authorProperty) || null),
 			authorAvatar: relatedAuthor?.avatar ?? personAvatar(authorProperty),
+			readingTimeMinutes,
 			createdAt: page.created_time,
 			publishedAt: propertyDate(firstProperty(properties, notionPropertyNames.publishedAt)),
 			updatedAt: page.last_edited_time,

@@ -1,0 +1,1 @@
+export default { featuredPosts: "Featured Posts", latestPosts: "Latest Posts", featuredProjects: "Featured Projects", searchTitle: "What would you like to explore?", searchDescription: "Search articles, projects, or browse by topic.", contactTitle: "Let’s build something meaningful" } as const;

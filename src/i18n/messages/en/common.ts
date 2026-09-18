@@ -1,0 +1,1 @@
+export default { home: "Home", blog: "Blog", projects: "Projects", about: "About", contact: "Contact", viewAll: "View all", back: "Back", retry: "Try again", clearAll: "Clear all", readMore: "Read more", minutesRead: "min read" } as const;

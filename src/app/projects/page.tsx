@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import * as React from "react";
 import { ArrowRight, ArrowUpRight, BriefcaseBusiness, Code2, Layers3, Search, Sparkles, Tags, X } from "lucide-react";
 
@@ -12,11 +12,16 @@ import { ProjectCard } from "@/features/home/common/ProjectCard";
 import { getProjectData } from "@/features/projects/project-data";
 import { filterProjects, parseProjectQuery, PROJECTS_PER_PAGE, projectHref, type ProjectSearchParams, uniqueNames } from "@/features/projects/project-query";
 import { cn } from "@/lib/cn";
+import { getTranslator } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Projects | Shanverse",
-  description: "Các dự án và sản phẩm được xây dựng bởi Shan.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, t } = await getTranslator();
+  return {
+    title: t("metadata.projectsTitle"),
+    description: t("projects.description"),
+    alternates: { canonical: `/${locale}/projects`, languages: { vi: "/vi/projects", en: "/en/projects" } },
+  };
+}
 
 const filterClass = "inline-flex min-w-0 items-center rounded-full border px-3.5 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 const textLinkClass = "rounded-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-primary";

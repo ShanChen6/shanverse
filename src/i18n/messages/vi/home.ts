@@ -1,0 +1,1 @@
+export default { featuredPosts: "Bài viết nổi bật", latestPosts: "Bài viết mới nhất", featuredProjects: "Dự án nổi bật", searchTitle: "Bạn muốn khám phá điều gì?", searchDescription: "Tìm bài viết, dự án hoặc khám phá theo chủ đề.", contactTitle: "Cùng xây dựng điều gì đó ý nghĩa" } as const;

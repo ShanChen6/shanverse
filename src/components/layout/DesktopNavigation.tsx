@@ -1,23 +1,26 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { usePathname } from "next/navigation";
 
 import { isActiveRoute, NAVIGATION_ITEMS } from "@/constants/navigation";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n/client";
+import { localizeHref } from "@/i18n/config";
 
 export function DesktopNavigation() {
   const pathname = usePathname();
+  const { locale, t } = useI18n();
 
   return (
-    <nav aria-label="Primary navigation" className="hidden items-center gap-1 md:flex">
+    <nav aria-label={t("navigation.primary")} className="hidden items-center gap-1 md:flex">
       {NAVIGATION_ITEMS.map((item) => {
         const active = isActiveRoute(pathname, item.href);
         return (
           <Link
             key={item.href}
-            href={item.href}
+            href={localizeHref(item.href, locale)}
             aria-current={active ? "page" : undefined}
             className={cn(
               "relative rounded-lg px-3 py-2 text-sm font-medium text-foreground-secondary transition-colors hover:bg-surface hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary",
@@ -26,7 +29,7 @@ export function DesktopNavigation() {
               item.href === "/contact" && "ml-1 border border-primary/30 text-primary",
             )}
           >
-            {item.label}
+            {t(item.labelKey)}
           </Link>
         );
       })}

@@ -1,5 +1,5 @@
 import * as React from "react";
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { Sparkles } from "lucide-react";
 
 import { PostCard } from "@/features/home/common/PostCard";

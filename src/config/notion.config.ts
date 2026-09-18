@@ -12,6 +12,13 @@ export const notionPropertyNames = {
 	techStack: ["Tech Stack", "techStack", "技术栈"],
 	tags: ["Tags", "Tag", "tags", "tag"],
 	author: ["Author", "作者", "author"],
+	readingTime: [
+		"Reading Time",
+		"Read Time",
+		"Reading time",
+		"readTime",
+		"readingTime",
+	],
 	publishedAt: ["Published Date", "Publish Date", "Date", "publishedAt"],
 	published: ["Published", "published"],
 	featured: ["Featured", "featured"],

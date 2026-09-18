@@ -1,0 +1,1 @@
+export default { notFound: "Không tìm thấy trang", notFoundDescription: "Trang bạn tìm không tồn tại hoặc đã được di chuyển.", backHome: "Về Trang chủ", generic: "Đã xảy ra lỗi. Vui lòng thử lại." } as const;

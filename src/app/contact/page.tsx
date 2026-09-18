@@ -3,9 +3,7 @@ import type { Metadata } from "next";
 
 import { ContactPageView, getContactConfig } from "@/features/contact";
 import { isContactProviderConfigured } from "@/features/contact/adapters/contact-mailer";
-
-const description =
-  "Liên hệ với Shan để trao đổi về Frontend, sản phẩm, cơ hội hợp tác và các chủ đề công nghệ.";
+import { getTranslator } from "@/i18n/server";
 
 function siteUrl() {
   try {
@@ -20,27 +18,19 @@ function siteUrl() {
   }
 }
 
-const canonical = new URL("/contact", siteUrl()).toString();
 const image = new URL("/logo/logo_shanverse.png", siteUrl()).toString();
 
-export const metadata: Metadata = {
-  title: "Contact | Shanverse",
-  description,
-  alternates: { canonical },
-  openGraph: {
-    type: "website",
-    url: canonical,
-    title: "Contact | Shanverse",
-    description,
-    images: [{ url: image, alt: "Shanverse" }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Contact | Shanverse",
-    description,
-    images: [image],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, t } = await getTranslator();
+  const canonical = new URL(`/${locale}/contact`, siteUrl()).toString();
+  const title = t("metadata.contactTitle");
+  const description = t("metadata.contactDescription");
+  return {
+    title, description, alternates: { canonical, languages: { vi: "/vi/contact", en: "/en/contact" } },
+    openGraph: { type: "website", url: canonical, title, description, images: [{ url: image, alt: "Shanverse" }] },
+    twitter: { card: "summary_large_image", title, description, images: [image] },
+  };
+}
 
 export default function ContactPage() {
   return (

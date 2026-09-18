@@ -13,6 +13,11 @@ import type { Post } from "@/types/post";
 import type { Project } from "@/types/project";
 import type { NotionCategory } from "@/types/notion";
 import { getSocialLinks } from "@/config/social.config";
+import { ROUTES } from "@/constants/routes";
+import type {
+  HomeSearchCategory,
+  HomeSearchSuggestion,
+} from "./home-search";
 
 // Notion may be unreachable/unconfigured locally, fall back to empty data instead of failing the page.
 async function safe<T>(promise: Promise<T>, fallback: T): Promise<T> {
@@ -31,6 +36,13 @@ function postTimestamp(post: Post) {
 function projectTimestamp(project: Project) {
   const value = Date.parse(project.updatedAt || project.createdAt);
   return Number.isNaN(value) ? 0 : value;
+}
+
+function concise(value: string, maxLength = 140) {
+  const normalized = value.replace(/\s+/gu, " ").trim();
+  return normalized.length > maxLength
+    ? `${normalized.slice(0, maxLength - 1).trimEnd()}…`
+    : normalized;
 }
 
 export async function HomePageView() {
@@ -77,6 +89,70 @@ export async function HomePageView() {
     .filter((project) => project.featured)
     .slice(0, 3);
 
+  const searchCategories: HomeSearchCategory[] = Array.from(
+    new Map(
+      categories
+        .filter(
+          (category) => category.name.trim() && category.slug.trim(),
+        )
+        .map((category) => [
+          category.slug.trim().toLowerCase(),
+          {
+            id: `category-${category.slug.trim()}`,
+            name: category.name.trim(),
+            slug: category.slug.trim(),
+          },
+        ]),
+    ).values(),
+  );
+
+  const categorySuggestions: HomeSearchSuggestion[] = searchCategories.map(
+    (category) => {
+      const source = categories.find(
+        (item) => item.slug.trim().toLowerCase() === category.slug.toLowerCase(),
+      );
+      return {
+        id: category.id,
+        type: "category",
+        title: category.name,
+        description: source?.description
+          ? concise(source.description)
+          : "Browse articles in this topic.",
+        href: `${ROUTES.BLOG}?category=${encodeURIComponent(category.slug)}`,
+        keywords: [category.slug],
+      };
+    },
+  );
+  const postSuggestions: HomeSearchSuggestion[] = publishedPosts
+    .slice(0, 60)
+    .map((post) => ({
+      id: `post-${post.slug}`,
+      type: "post",
+      title: post.title.trim(),
+      description: concise(post.excerpt),
+      href: ROUTES.BLOG_DETAIL(post.slug),
+      keywords: [post.category ?? "", ...post.tags].filter(Boolean),
+      featured: post.featured,
+      timestamp: postTimestamp(post),
+    }));
+  const projectSuggestions: HomeSearchSuggestion[] = publishedProjects
+    .slice(0, 30)
+    .map((project) => ({
+      id: `project-${project.slug}`,
+      type: "project",
+      title: project.title.trim(),
+      description: concise(project.description),
+      href: ROUTES.PROJECT_DETAIL(project.slug),
+      keywords: [...project.techStack, ...project.tags].filter(Boolean),
+      featured: project.featured,
+      timestamp: projectTimestamp(project),
+    }));
+  const searchSuggestions = [
+    ...categorySuggestions,
+    ...postSuggestions,
+    ...projectSuggestions,
+  ].slice(0, 120);
+
   return (
     <LandingLayout>
       <section className="relative overflow-hidden border-b border-border bg-surface/30">
@@ -93,7 +169,10 @@ export async function HomePageView() {
       <TechTicker />
 
       <div className="mx-auto max-w-6xl space-y-16 px-4 py-16 sm:px-6 lg:space-y-24 lg:py-24">
-        <HomeSearchSection categories={categories} />
+        <HomeSearchSection
+          categories={searchCategories.slice(0, 8)}
+          suggestions={searchSuggestions}
+        />
 
         <FeaturedPostsSection posts={featuredPosts} />
 

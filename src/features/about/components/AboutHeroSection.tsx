@@ -1,6 +1,6 @@
 import * as React from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { ArrowRight, Mail, Sparkles } from "lucide-react";
 
 import { ROUTES } from "@/constants/routes";

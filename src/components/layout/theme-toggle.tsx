@@ -5,9 +5,11 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n/client";
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
+  const { locale } = useI18n();
   const isMounted = React.useSyncExternalStore(
     () => () => {},
     () => true,
@@ -22,9 +24,9 @@ export function ThemeToggle() {
   }, [isMounted, resolvedTheme, setTheme]);
 
   const isDarkMode = isMounted && resolvedTheme === "dark";
-  const toggleLabel = isMounted
-    ? `Switch to ${isDarkMode ? "light" : "dark"} mode`
-    : "Toggle color theme";
+  const toggleLabel = locale === "vi"
+    ? isMounted ? `Chuyển sang giao diện ${isDarkMode ? "sáng" : "tối"}` : "Đổi giao diện màu"
+    : isMounted ? `Switch to ${isDarkMode ? "light" : "dark"} mode` : "Toggle color theme";
 
   return (
     <Button

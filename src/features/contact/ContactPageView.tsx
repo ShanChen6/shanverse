@@ -1,5 +1,5 @@
 import * as React from "react";
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { ArrowRight } from "lucide-react";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { LandingLayout } from "@/components/layout/LandingLayout";
