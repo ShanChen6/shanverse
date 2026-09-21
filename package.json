@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "analyze": "next experimental-analyze --output",
-    "test": "tsx --test src/features/blog/related-posts.test.ts",
+    "test": "tsx --test src/features/blog/related-posts.test.ts src/features/blog/share-post.test.ts",
     "sync:reading-time": "tsx scripts/sync-notion-reading-time.ts"
   },
   "dependencies": {
