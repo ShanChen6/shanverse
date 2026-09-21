@@ -27,7 +27,7 @@ export const SEO_CONFIG = {
   defaultDescription: "A space to learn, build and share practical knowledge about software development.",
   defaultLocale,
   supportedLocales: locales,
-  author: "Shan Kinh Can",
+  author: "Shanverse",
   twitterUsername: undefined,
   logoPath: "/logo/logo_shanverse.png",
   defaultOpenGraphImage: "/logo/logo_shanverse.png",
