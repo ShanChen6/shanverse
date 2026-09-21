@@ -20,12 +20,13 @@ import { RelatedPosts } from "@/features/blog/components/RelatedPosts";
 import { ReadingProgress } from "@/features/blog/components/ReadingProgress";
 import { ArticleTableOfContents } from "@/features/blog/components/ArticleTableOfContents";
 import { createTableOfContents } from "@/components/common/notion/table-of-contents";
-import { ShareArticleButton } from "@/features/blog/components/ShareArticleButton";
+import { SharePost } from "@/features/blog/components/SharePost";
 import { calculateReadingTime } from "@/features/blog/calculate-reading-time";
 import { NotionRenderer } from "@/components/common/notion/renderer";
 import { getTranslator } from "@/i18n/server";
 import { JsonLd } from "@/components/seo/JsonLd";
 import {
+  buildBlogPostCanonicalUrl,
   buildAbsoluteUrl,
   safeMetadataImage,
   SEO_CONFIG,
@@ -33,7 +34,7 @@ import {
 
 type Props = { params: Promise<{ slug: string }> };
 function articleUrl(slug: string): string {
-  return buildAbsoluteUrl(`/vi/blog/${encodeURIComponent(slug)}`);
+  return buildBlogPostCanonicalUrl(slug);
 }
 
 function formatDate(value: string | null): string {
@@ -304,7 +305,12 @@ export default async function BlogDetailPage({ params }: Props) {
 
         <footer className="mx-auto max-w-4xl space-y-10 border-t border-border pt-10">
           <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
-            <ShareArticleButton title={post.title} url={canonical} />
+            <SharePost
+              title={post.title}
+              description={post.excerpt}
+              canonicalUrl={canonical}
+              slug={post.slug}
+            />
             <Link
               href={ROUTES.BLOG}
               className="inline-flex items-center gap-2 rounded-md font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"

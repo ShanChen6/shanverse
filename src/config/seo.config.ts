@@ -38,6 +38,10 @@ export function buildAbsoluteUrl(path = "/") {
   return new URL(path.startsWith("/") ? path : `/${path}`, `${SEO_CONFIG.siteUrl}/`).toString();
 }
 
+export function buildBlogPostCanonicalUrl(slug: string) {
+  return buildAbsoluteUrl(`/vi/blog/${encodeURIComponent(slug)}`);
+}
+
 export function localePath(locale: Locale, path = "") {
   return `/${locale}${path && path !== "/" ? (path.startsWith("/") ? path : `/${path}`) : ""}`;
 }
