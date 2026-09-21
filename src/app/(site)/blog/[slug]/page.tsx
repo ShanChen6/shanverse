@@ -21,6 +21,7 @@ import { ReadingProgress } from "@/features/blog/components/ReadingProgress";
 import { ArticleTableOfContents } from "@/features/blog/components/ArticleTableOfContents";
 import { createTableOfContents } from "@/components/common/notion/table-of-contents";
 import { SharePost } from "@/features/blog/components/SharePost";
+import { BlogComments } from "@/features/comments/components/BlogComments";
 import { calculateReadingTime } from "@/features/blog/calculate-reading-time";
 import { NotionRenderer } from "@/components/common/notion/renderer";
 import { getTranslator } from "@/i18n/server";
@@ -267,7 +268,7 @@ export default async function BlogDetailPage({ params }: Props) {
         </header>
 
         {cover ? (
-          <figure className="relative mx-auto aspect-[16/8] max-w-5xl overflow-hidden rounded-3xl border border-border bg-surface">
+          <figure className="relative mx-auto aspect-16/8 max-w-5xl overflow-hidden rounded-3xl border border-border bg-surface">
             <Image
               src={cover}
               alt={`Cover image for ${post.title}`}
@@ -353,6 +354,7 @@ export default async function BlogDetailPage({ params }: Props) {
         </footer>
       </article>
       <RelatedPosts currentPost={post} />
+      <BlogComments key={post.slug} />
     </div>
   );
 }
