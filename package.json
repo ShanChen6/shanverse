@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "analyze": "next experimental-analyze --output",
-    "test": "tsx --test src/features/blog/related-posts.test.ts src/features/blog/share-post.test.ts",
+    "test": "tsx --test src/features/blog/related-posts.test.ts src/features/blog/share-post.test.ts src/features/search/search.test.ts",
     "sync:reading-time": "tsx scripts/sync-notion-reading-time.ts"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "@radix-ui/react-tooltip": "^1.2.16",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "fuse.js": "^7.5.0",
     "lucide-react": "^1.39.0",
     "mermaid": "^12.0.0",
     "next": "16.2.10",
