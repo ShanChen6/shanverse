@@ -7,6 +7,8 @@ import { getLocale, getTranslator } from "@/i18n/server";
 import { getMessages } from "@/i18n/messages";
 import { getSocialLinks } from "@/config/social.config";
 import { RuntimeConfigProvider } from "@/providers/RuntimeConfigProvider";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { buildAbsoluteUrl, SEO_CONFIG } from "@/config/seo.config";
 import "../styles/globals.css";
 
 const geistSans = Geist({
@@ -21,7 +23,16 @@ const geistMono = Geist_Mono({
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getTranslator();
-  return { title: t("metadata.homeTitle"), description: t("metadata.homeDescription") };
+  return {
+    metadataBase: new URL(SEO_CONFIG.siteUrl),
+    title: { default: t("metadata.homeTitle"), template: SEO_CONFIG.titleTemplate },
+    description: t("metadata.homeDescription"),
+    applicationName: SEO_CONFIG.siteName,
+    authors: [{ name: SEO_CONFIG.author }], creator: SEO_CONFIG.author, publisher: SEO_CONFIG.siteName,
+    alternates: { types: { "application/rss+xml": buildAbsoluteUrl("/rss.xml") } },
+    openGraph: { siteName: SEO_CONFIG.siteName, type: "website", images: [{ url: buildAbsoluteUrl(SEO_CONFIG.defaultOpenGraphImage), width: 1200, height: 630, alt: SEO_CONFIG.siteName }] },
+    twitter: { card: "summary_large_image", images: [buildAbsoluteUrl(SEO_CONFIG.defaultOpenGraphImage)] },
+  };
 }
 
 export const viewport: Viewport = {
@@ -44,6 +55,9 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <link rel="alternate" type="application/rss+xml" title="Shanverse Blog RSS" href={buildAbsoluteUrl("/rss.xml")} />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider
           attribute="class"
@@ -54,6 +68,7 @@ export default async function RootLayout({
         >
           <RuntimeConfigProvider value={{ socialLinks, currentYear }}>
             <I18nProvider locale={locale} messages={getMessages(locale)}>
+              <JsonLd data={[{ "@context": "https://schema.org", "@type": "WebSite", name: SEO_CONFIG.siteName, url: SEO_CONFIG.siteUrl, description: SEO_CONFIG.defaultDescription, inLanguage: ["vi-VN", "en"] }, { "@context": "https://schema.org", "@type": "Person", name: SEO_CONFIG.author, url: SEO_CONFIG.siteUrl, sameAs: SEO_CONFIG.socialLinks }]} />
               {children}
             </I18nProvider>
           </RuntimeConfigProvider>

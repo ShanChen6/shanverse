@@ -4,9 +4,9 @@ import { unstable_cache } from "next/cache";
 import { notionService } from "@/services/notion.service";
 import { publishedPosts } from "./blog-query";
 
-export const getCachedBlogPosts = unstable_cache(() => notionService.getPosts(), ["blog-posts"], { revalidate: 300 });
-export const getCachedCategories = unstable_cache(() => notionService.getCategories(), ["blog-categories"], { revalidate: 300 });
-export const getCachedTags = unstable_cache(() => notionService.getTags(), ["blog-tags"], { revalidate: 300 });
+export const getCachedBlogPosts = unstable_cache(() => notionService.getPosts(), ["blog-posts"], { revalidate: 300, tags: ["notion-posts"] });
+export const getCachedCategories = unstable_cache(() => notionService.getCategories(), ["blog-categories"], { revalidate: 300, tags: ["notion-categories"] });
+export const getCachedTags = unstable_cache(() => notionService.getTags(), ["blog-tags"], { revalidate: 300, tags: ["notion-tags"] });
 
 export async function getBlogData() {
   // Catch outside the cache so a temporary failure is retried on the next visit.
