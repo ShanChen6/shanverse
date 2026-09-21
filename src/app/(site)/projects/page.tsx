@@ -15,14 +15,11 @@ import { filterProjects, parseProjectQuery, PROJECTS_PER_PAGE, projectHref, type
 import { cn } from "@/lib/cn";
 import { getTranslator } from "@/i18n/server";
 import { ProjectsDataSkeleton } from "@/components/common/PageSkeletons";
+import { buildPageMetadata } from "@/config/seo.config";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { locale, t } = await getTranslator();
-  return {
-    title: t("metadata.projectsTitle"),
-    description: t("projects.description"),
-    alternates: { canonical: `/${locale}/projects`, languages: { vi: "/vi/projects", en: "/en/projects" } },
-  };
+  return buildPageMetadata({ locale, path: "/projects", title: t("metadata.projectsTitle"), description: t("projects.description"), keywords: ["software projects", "web development", "case studies"] });
 }
 
 const filterClass = "inline-flex min-w-0 items-center rounded-full border px-3.5 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background";

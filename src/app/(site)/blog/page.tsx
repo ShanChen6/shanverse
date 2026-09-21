@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Suspense } from "react";
-import type { Metadata } from "next";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import {
   BookOpen,
@@ -18,15 +17,14 @@ import {
   blogHref,
   filterPosts,
   parseBlogQuery,
-  postTime,
   POSTS_PER_PAGE,
   type BlogSearchParams,
 } from "@/features/blog/blog-query";
 import {
   buildBlogFilterOptions,
   resolveBlogFilterName,
-  type BlogSearchSuggestion,
 } from "@/features/blog/blog-search";
+import { createSearchDocuments } from "@/features/search/create-search-documents";
 import { BlogSearchPanel } from "@/features/blog/components/BlogSearchPanel";
 import { PostCard } from "@/features/home/common/PostCard";
 import { cn } from "@/lib/cn";
@@ -34,15 +32,18 @@ import { getTranslator } from "@/i18n/server";
 import type { Locale } from "@/i18n/config";
 import type { Translate } from "@/i18n/messages";
 import { BlogDataSkeleton } from "@/components/common/PageSkeletons";
+import { buildAbsoluteUrl, buildPageMetadata, SEO_CONFIG } from "@/config/seo.config";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 const description =
   "Explore Shan's notes on Frontend, Backend, System Design, and the lessons learned from building real products.";
 
-export const metadata: Metadata = {
-  title: "Blog | Shanverse",
-  description,
-  openGraph: { title: "Blog | Shanverse", description, type: "website" },
-};
+export async function generateMetadata({ searchParams }: { searchParams: Promise<BlogSearchParams> }) {
+  const { locale } = await getTranslator();
+  const query = parseBlogQuery(await searchParams);
+  const metadata = buildPageMetadata({ locale, path: "/blog", title: "Blog", description, keywords: ["frontend", "backend", "system design", "software engineering"], blogOnly: true });
+  return { ...metadata, robots: query.q || query.category || query.tag || query.page > 1 ? { index: false, follow: true } : metadata.robots };
+}
 
 const linkClass =
   "rounded-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-primary";
@@ -71,40 +72,30 @@ async function BlogDataSection({ query, locale, t }: { query: ReturnType<typeof 
     tag: resolveBlogFilterName(tags, query.tag),
   };
   const filteredPosts = filterPosts(data.posts, resolvedQuery);
-  const suggestions: BlogSearchSuggestion[] = [
-    ...data.posts.slice(0, 80).map((post) => ({
-      id: `article-${post.slug}`,
-      type: "article" as const,
-      title: post.title,
-      description: post.excerpt.replace(/\s+/gu, " ").trim().slice(0, 140),
-      href: ROUTES.BLOG_DETAIL(post.slug),
-      keywords: [post.category ?? "", ...post.tags],
-      slug: post.slug,
-      category: post.category,
-      publishedAt: post.publishedAt ?? post.createdAt,
-      readingTimeMinutes: post.readingTimeMinutes,
-      featured: post.featured,
-      timestamp: postTime(post),
-    })),
-    ...categories.map((category) => ({
-      id: `category-${category.slug}`,
-      type: "category" as const,
-      title: category.name,
-      description: `${category.count} ${category.count === 1 ? "article" : "articles"}`,
-      href: blogHref(query, { category: category.slug, page: 1 }),
-      keywords: [category.slug],
-      slug: category.slug,
-    })),
-    ...tags.map((tag) => ({
-      id: `tag-${tag.slug}`,
-      type: "tag" as const,
-      title: tag.name,
-      description: `${tag.count} ${tag.count === 1 ? "article" : "articles"}`,
-      href: blogHref(query, { tag: tag.slug, page: 1 }),
-      keywords: [tag.slug],
-      slug: tag.slug,
-    })),
-  ].slice(0, 120);
+  const searchCategories = categories.map((category) => ({
+    id: category.slug,
+    name: category.name,
+    slug: category.slug,
+    description: `${category.count} ${category.count === 1 ? "article" : "articles"}`,
+    icon: null,
+    url: "",
+  }));
+  const searchTags = tags.map((tag) => ({
+    id: tag.slug,
+    name: tag.name,
+    slug: tag.slug,
+    description: `${tag.count} ${tag.count === 1 ? "article" : "articles"}`,
+    icon: null,
+    url: "",
+  }));
+  const searchDocuments = createSearchDocuments({
+    posts: data.posts,
+    categories: searchCategories,
+    tags: searchTags,
+    categoryHref: (category) =>
+      blogHref(query, { category: category.slug, page: 1 }),
+    tagHref: (tag) => blogHref(query, { tag: tag.slug, page: 1 }),
+  });
   const totalPages = Math.max(1, Math.ceil(filteredPosts.length / POSTS_PER_PAGE));
   const currentPage = Math.min(query.page, totalPages);
   const pagePosts = filteredPosts.slice(
@@ -125,7 +116,7 @@ async function BlogDataSection({ query, locale, t }: { query: ReturnType<typeof 
         <BlogSearchPanel
           query={query}
           categories={categories}
-          suggestions={suggestions}
+          documents={searchDocuments}
           totalPosts={data.posts.length}
         />
         {data.hasError ? (
@@ -292,6 +283,7 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
   const query = parseBlogQuery(await searchParams);
   const { locale, t } = await getTranslator();
   return <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-12">
+    <JsonLd data={{ "@context": "https://schema.org", "@type": "Blog", name: "Shanverse Blog", description, url: buildAbsoluteUrl("/vi/blog"), inLanguage: "vi-VN", author: { "@type": "Person", name: SEO_CONFIG.author }, publisher: { "@type": "Person", name: SEO_CONFIG.author } }} />
     <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("common.blog") }]} />
     <header className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/10 via-surface to-background p-6 sm:p-10 lg:p-12"><div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full border border-primary/10 sm:size-96" /><div className="relative max-w-3xl space-y-6"><p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-medium text-primary"><Sprout className="size-4" aria-hidden="true" /> Shan&apos;s digital garden</p><h1 lang="vi" className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{t("blog.title")}</h1><p lang="vi" className="max-w-2xl text-pretty leading-relaxed text-foreground-secondary sm:text-lg">{t("blog.description")}</p></div></header>
     {locale === "en" ? <p role="note" className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground-secondary">{t("blog.vietnameseOnly")}</p> : null}

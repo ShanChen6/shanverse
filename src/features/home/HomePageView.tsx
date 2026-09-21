@@ -12,12 +12,11 @@ import { ContactSection } from "./components/ContactSection";
 import type { Post } from "@/types/post";
 import type { Project } from "@/types/project";
 import { getSocialLinks } from "@/config/social.config";
-import { ROUTES } from "@/constants/routes";
 import type {
   HomeSearchCategory,
-  HomeSearchSuggestion,
 } from "./home-search";
 import { getHomeData } from "./home-data";
+import { createSearchDocuments } from "@/features/search/create-search-documents";
 
 function postTimestamp(post: Post) {
   const value = Date.parse(post.publishedAt ?? post.createdAt);
@@ -27,13 +26,6 @@ function postTimestamp(post: Post) {
 function projectTimestamp(project: Project) {
   const value = Date.parse(project.updatedAt || project.createdAt);
   return Number.isNaN(value) ? 0 : value;
-}
-
-function concise(value: string, maxLength = 140) {
-  const normalized = value.replace(/\s+/gu, " ").trim();
-  return normalized.length > maxLength
-    ? `${normalized.slice(0, maxLength - 1).trimEnd()}…`
-    : normalized;
 }
 
 async function HomeDataSections() {
@@ -92,55 +84,31 @@ async function HomeDataSections() {
     ).values(),
   );
 
-  const categorySuggestions: HomeSearchSuggestion[] = searchCategories.map(
-    (category) => {
-      const source = categories.find(
-        (item) => item.slug.trim().toLowerCase() === category.slug.toLowerCase(),
-      );
-      return {
-        id: category.id,
-        type: "category",
-        title: category.name,
-        description: source?.description
-          ? concise(source.description)
-          : "Browse articles in this topic.",
-        href: `${ROUTES.BLOG}?category=${encodeURIComponent(category.slug)}`,
-        keywords: [category.slug],
-      };
-    },
-  );
-  const postSuggestions: HomeSearchSuggestion[] = publishedPosts
-    .slice(0, 60)
-    .map((post) => ({
-      id: `post-${post.slug}`,
-      type: "post",
-      title: post.title.trim(),
-      description: concise(post.excerpt),
-      href: ROUTES.BLOG_DETAIL(post.slug),
-      keywords: [post.category ?? "", ...post.tags].filter(Boolean),
-      featured: post.featured,
-      timestamp: postTimestamp(post),
-    }));
-  const projectSuggestions: HomeSearchSuggestion[] = publishedProjects
-    .slice(0, 30)
-    .map((project) => ({
-      id: `project-${project.slug}`,
-      type: "project",
-      title: project.title.trim(),
-      description: concise(project.description),
-      href: ROUTES.PROJECT_DETAIL(project.slug),
-      keywords: [...project.techStack, ...project.tags].filter(Boolean),
-      featured: project.featured,
-      timestamp: projectTimestamp(project),
-    }));
-  const searchSuggestions = [
-    ...categorySuggestions,
-    ...postSuggestions,
-    ...projectSuggestions,
-  ].slice(0, 120);
+  const searchTags = Array.from(
+    new Map(
+      publishedPosts
+        .flatMap((post) => post.tags)
+        .map((name) => name.trim())
+        .filter(Boolean)
+        .map((name) => [name.toLowerCase(), name]),
+    ).entries(),
+  ).map(([id, name]) => ({
+    id,
+    name,
+    slug: name,
+    description: "",
+    icon: null,
+    url: "",
+  }));
+  const searchDocuments = createSearchDocuments({
+    posts: publishedPosts,
+    projects: publishedProjects,
+    categories,
+    tags: searchTags,
+  });
 
   return <>
-    <HomeSearchSection categories={searchCategories.slice(0, 8)} suggestions={searchSuggestions} />
+    <HomeSearchSection categories={searchCategories.slice(0, 8)} documents={searchDocuments} />
     <FeaturedPostsSection posts={featuredPosts} />
     <LatestPostsSection posts={latestPosts} />
     <FeaturedProjectsSection projects={featuredProjects.length > 0 ? featuredProjects : publishedProjects.slice(0, 1)} />
