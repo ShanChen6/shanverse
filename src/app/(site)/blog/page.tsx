@@ -17,15 +17,14 @@ import {
   blogHref,
   filterPosts,
   parseBlogQuery,
-  postTime,
   POSTS_PER_PAGE,
   type BlogSearchParams,
 } from "@/features/blog/blog-query";
 import {
   buildBlogFilterOptions,
   resolveBlogFilterName,
-  type BlogSearchSuggestion,
 } from "@/features/blog/blog-search";
+import { createSearchDocuments } from "@/features/search/create-search-documents";
 import { BlogSearchPanel } from "@/features/blog/components/BlogSearchPanel";
 import { PostCard } from "@/features/home/common/PostCard";
 import { cn } from "@/lib/cn";
@@ -73,40 +72,30 @@ async function BlogDataSection({ query, locale, t }: { query: ReturnType<typeof 
     tag: resolveBlogFilterName(tags, query.tag),
   };
   const filteredPosts = filterPosts(data.posts, resolvedQuery);
-  const suggestions: BlogSearchSuggestion[] = [
-    ...data.posts.slice(0, 80).map((post) => ({
-      id: `article-${post.slug}`,
-      type: "article" as const,
-      title: post.title,
-      description: post.excerpt.replace(/\s+/gu, " ").trim().slice(0, 140),
-      href: ROUTES.BLOG_DETAIL(post.slug),
-      keywords: [post.category ?? "", ...post.tags],
-      slug: post.slug,
-      category: post.category,
-      publishedAt: post.publishedAt ?? post.createdAt,
-      readingTimeMinutes: post.readingTimeMinutes,
-      featured: post.featured,
-      timestamp: postTime(post),
-    })),
-    ...categories.map((category) => ({
-      id: `category-${category.slug}`,
-      type: "category" as const,
-      title: category.name,
-      description: `${category.count} ${category.count === 1 ? "article" : "articles"}`,
-      href: blogHref(query, { category: category.slug, page: 1 }),
-      keywords: [category.slug],
-      slug: category.slug,
-    })),
-    ...tags.map((tag) => ({
-      id: `tag-${tag.slug}`,
-      type: "tag" as const,
-      title: tag.name,
-      description: `${tag.count} ${tag.count === 1 ? "article" : "articles"}`,
-      href: blogHref(query, { tag: tag.slug, page: 1 }),
-      keywords: [tag.slug],
-      slug: tag.slug,
-    })),
-  ].slice(0, 120);
+  const searchCategories = categories.map((category) => ({
+    id: category.slug,
+    name: category.name,
+    slug: category.slug,
+    description: `${category.count} ${category.count === 1 ? "article" : "articles"}`,
+    icon: null,
+    url: "",
+  }));
+  const searchTags = tags.map((tag) => ({
+    id: tag.slug,
+    name: tag.name,
+    slug: tag.slug,
+    description: `${tag.count} ${tag.count === 1 ? "article" : "articles"}`,
+    icon: null,
+    url: "",
+  }));
+  const searchDocuments = createSearchDocuments({
+    posts: data.posts,
+    categories: searchCategories,
+    tags: searchTags,
+    categoryHref: (category) =>
+      blogHref(query, { category: category.slug, page: 1 }),
+    tagHref: (tag) => blogHref(query, { tag: tag.slug, page: 1 }),
+  });
   const totalPages = Math.max(1, Math.ceil(filteredPosts.length / POSTS_PER_PAGE));
   const currentPage = Math.min(query.page, totalPages);
   const pagePosts = filteredPosts.slice(
@@ -127,7 +116,7 @@ async function BlogDataSection({ query, locale, t }: { query: ReturnType<typeof 
         <BlogSearchPanel
           query={query}
           categories={categories}
-          suggestions={suggestions}
+          documents={searchDocuments}
           totalPosts={data.posts.length}
         />
         {data.hasError ? (
