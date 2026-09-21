@@ -17,6 +17,8 @@ import Badge from "@/components/ui/badge";
 import { ROUTES } from "@/constants/routes";
 import { getBlogPost } from "@/features/blog/blog-detail-data";
 import { RelatedPosts } from "@/features/blog/components/RelatedPosts";
+import { ReadingProgress } from "@/features/blog/components/ReadingProgress";
+import { ArticleTableOfContents } from "@/features/blog/components/ArticleTableOfContents";
 import { createTableOfContents } from "@/components/common/notion/table-of-contents";
 import { ShareArticleButton } from "@/features/blog/components/ShareArticleButton";
 import { calculateReadingTime } from "@/features/blog/calculate-reading-time";
@@ -126,6 +128,7 @@ export default async function BlogDetailPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
+      <ReadingProgress key={post.slug} />
       <article lang="vi" className="space-y-10">
         <JsonLd
           data={[
@@ -275,19 +278,8 @@ export default async function BlogDetailPage({ params }: Props) {
             />
           </figure>
         ) : null}
-        {toc.length >= 2 ? (
-          <details className="mx-auto max-w-3xl rounded-2xl border border-border bg-surface p-5 lg:hidden">
-            <summary className="cursor-pointer font-semibold">
-              {t("blog.toc")}
-            </summary>
-            <nav aria-label={t("blog.toc")} className="mt-4">
-              <TocList items={toc} />
-            </nav>
-          </details>
-        ) : null}
-
         <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
-          <main className="min-w-0">
+          <main data-blog-content className="min-w-0">
             {blocks.length ? (
               <NotionRenderer
                 blocks={blocks}
@@ -301,12 +293,12 @@ export default async function BlogDetailPage({ params }: Props) {
             )}
           </main>
           {toc.length >= 2 ? (
-            <aside className="sticky top-24 hidden rounded-2xl border border-border bg-surface p-5 lg:block">
-              <p className="mb-4 font-semibold">{t("blog.onThisPage")}</p>
-              <nav aria-label={t("blog.toc")}>
-                <TocList items={toc} />
-              </nav>
-            </aside>
+            <ArticleTableOfContents
+              key={post.slug}
+              items={toc}
+              label={t("blog.onThisPage")}
+              mobileLabel={t("blog.toc")}
+            />
           ) : null}
         </div>
 
@@ -356,26 +348,5 @@ export default async function BlogDetailPage({ params }: Props) {
       </article>
       <RelatedPosts currentPost={post} />
     </div>
-  );
-}
-
-function TocList({
-  items,
-}: {
-  items: ReturnType<typeof createTableOfContents>["items"];
-}) {
-  return (
-    <ol className="space-y-2 text-sm">
-      {items.map((item) => (
-        <li key={item.id} className={item.level === 3 ? "pl-4" : undefined}>
-          <a
-            href={`#${item.id}`}
-            className="block rounded-sm py-1 text-foreground-secondary transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            {item.text}
-          </a>
-        </li>
-      ))}
-    </ol>
   );
 }
