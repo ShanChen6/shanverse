@@ -11,7 +11,7 @@ import type { Post } from "@/types/post";
 const getCachedPost = unstable_cache(
   (slug: string) => notionService.getPostBySlug(slug),
   ["blog-post-detail"],
-  { revalidate: 300 },
+  { revalidate: 300, tags: ["notion-posts"] },
 );
 
 export const getBlogPost = cache(async (slug: string): Promise<Post | null> => {

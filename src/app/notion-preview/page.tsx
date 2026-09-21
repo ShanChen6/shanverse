@@ -1,4 +1,5 @@
 import React from "react";
+import type { Metadata } from "next";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import styles from "./page.module.css";
 
@@ -8,6 +9,7 @@ import type { Post } from "@/types/post";
 import type { Project } from "@/types/project";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 type CollectionResult = {
   label: string;

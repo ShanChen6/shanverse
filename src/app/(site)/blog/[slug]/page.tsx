@@ -15,36 +15,12 @@ import { calculateReadingTime } from "@/features/blog/calculate-reading-time";
 import { NotionRenderer } from "@/components/common/notion/renderer";
 import { PostCard } from "@/features/home/common/PostCard";
 import { getTranslator } from "@/i18n/server";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { buildAbsoluteUrl, safeMetadataImage, SEO_CONFIG } from "@/config/seo.config";
 
 type Props = { params: Promise<{ slug: string }> };
-const brandImage = "/logo/logo_shanverse.png";
-
-function siteUrl(): string {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL;
-  try {
-    const url = new URL(configured || "http://localhost:3000");
-    return ["http:", "https:"].includes(url.protocol) ? url.origin : "http://localhost:3000";
-  } catch {
-    return "http://localhost:3000";
-  }
-}
-
 function articleUrl(slug: string): string {
-  return new URL(`/vi/blog/${encodeURIComponent(slug)}`, siteUrl()).toString();
-}
-
-function metadataImage(value: string | null): string {
-  if (!value) return new URL(brandImage, siteUrl()).toString();
-  try {
-    const url = new URL(value, siteUrl());
-    const privateHost = ["notion.so", "notion.site", "notion-static.com", "amazonaws.com"]
-      .some((host) => url.hostname === host || url.hostname.endsWith(`.${host}`));
-    return privateHost || url.searchParams.has("X-Amz-Credential")
-      ? new URL(brandImage, siteUrl()).toString()
-      : url.toString();
-  } catch {
-    return new URL(brandImage, siteUrl()).toString();
-  }
+  return buildAbsoluteUrl(`/vi/blog/${encodeURIComponent(slug)}`);
 }
 
 function formatDate(value: string | null): string {
@@ -67,12 +43,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const post = await getBlogPost(slug);
     if (!post) return { title: "Article not found | Shanverse", robots: { index: false, follow: false } };
     const canonical = articleUrl(post.slug);
-    const image = metadataImage(post.coverImage ?? post.thumbnailImage);
-    const description = post.excerpt || `Read ${post.title} on Shanverse.`;
+    const image = safeMetadataImage(post.coverImage ?? post.thumbnailImage);
+    const description = post.excerpt.replace(/\s+/gu, " ").trim() || `Read ${post.title} on Shanverse.`;
     return {
-      title: `${post.title} | Shanverse`, description,
-      alternates: { canonical }, authors: post.authorName ? [{ name: post.authorName }] : undefined, keywords: post.tags,
-      openGraph: { type: "article", url: canonical, title: post.title, description, images: [{ url: image, alt: post.title }], publishedTime: post.publishedAt ?? post.createdAt, modifiedTime: post.updatedAt, authors: post.authorName ? [post.authorName] : undefined, tags: post.tags },
+      title: { absolute: `${post.title} | Shanverse` }, description,
+      alternates: { canonical, languages: { vi: canonical, "x-default": canonical } }, authors: [{ name: post.authorName ?? SEO_CONFIG.author }], creator: post.authorName ?? SEO_CONFIG.author, publisher: SEO_CONFIG.siteName, keywords: post.tags,
+      openGraph: { type: "article", url: canonical, siteName: SEO_CONFIG.siteName, locale: "vi_VN", title: post.title, description, images: [{ url: image, alt: post.title }], publishedTime: post.publishedAt ?? post.createdAt, modifiedTime: post.updatedAt, authors: [post.authorName ?? SEO_CONFIG.author], tags: post.tags },
       twitter: { card: "summary_large_image", title: post.title, description, images: [image] },
     };
   } catch {
@@ -96,6 +72,7 @@ export default async function BlogDetailPage({ params }: Props) {
 
   return (
     <article lang="vi" className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
+        <JsonLd data={[{ "@context": "https://schema.org", "@type": "BlogPosting", headline: post.title, description: post.excerpt, image: safeMetadataImage(post.coverImage ?? post.thumbnailImage), datePublished: publishedDate, dateModified: post.updatedAt, author: { "@type": "Person", name: post.authorName ?? SEO_CONFIG.author }, publisher: { "@type": "Person", name: SEO_CONFIG.author }, mainEntityOfPage: canonical, articleSection: post.category ?? undefined, keywords: post.tags.join(", ") }, { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: buildAbsoluteUrl("/vi") }, { "@type": "ListItem", position: 2, name: "Blog", item: buildAbsoluteUrl("/vi/blog") }, { "@type": "ListItem", position: 3, name: post.title, item: canonical }] }]} />
         <header className="mx-auto max-w-4xl space-y-6">
           <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("common.blog"), href: ROUTES.BLOG }, { label: post.title }]} />
           <Link href={ROUTES.BLOG} className="inline-flex items-center gap-2 rounded-md text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" /> {t("blog.back")}</Link>

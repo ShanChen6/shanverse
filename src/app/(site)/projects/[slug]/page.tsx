@@ -25,40 +25,13 @@ import {
   getRelatedProjects,
 } from "@/features/projects/project-detail-data";
 import { ROUTES } from "@/constants/routes";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { buildAbsoluteUrl, safeMetadataImage, SEO_CONFIG } from "@/config/seo.config";
+import { getTranslator } from "@/i18n/server";
 
 type Props = { params: Promise<{ slug: string }> };
 
 const brandImage = "/logo/logo_shanverse.png";
-
-function siteUrl() {
-  try {
-    const url = new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000");
-    return ["http:", "https:"].includes(url.protocol)
-      ? url.origin
-      : "http://localhost:3000";
-  } catch {
-    return "http://localhost:3000";
-  }
-}
-
-function canonicalUrl(slug: string) {
-  return new URL(`/projects/${encodeURIComponent(slug)}`, siteUrl()).toString();
-}
-
-function metadataImage(value: string | null) {
-  if (!value) return new URL(brandImage, siteUrl()).toString();
-  try {
-    const url = new URL(value, siteUrl());
-    const privateHost = ["notion.so", "notion.site", "notion-static.com", "amazonaws.com"].some(
-      (host) => url.hostname === host || url.hostname.endsWith(`.${host}`),
-    );
-    return privateHost || url.searchParams.has("X-Amz-Credential")
-      ? new URL(brandImage, siteUrl()).toString()
-      : url.toString();
-  } catch {
-    return new URL(brandImage, siteUrl()).toString();
-  }
-}
 
 function safeExternalUrl(value: string | null) {
   if (!value) return null;
@@ -94,6 +67,7 @@ function sameDay(first: string, second: string) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const { locale } = await getTranslator();
   try {
     const project = await getProjectDetail(slug);
     if (!project) {
@@ -104,15 +78,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
     const description =
       project.description || `Technical case study for ${project.title}.`;
-    const image = metadataImage(project.coverImage ?? project.thumbnailImage);
+    const canonical = buildAbsoluteUrl(`/${locale}/projects/${encodeURIComponent(project.slug)}`);
+    const image = safeMetadataImage(project.coverImage ?? project.thumbnailImage);
     return {
-      title: `${project.title} | Shanverse`,
+      title: { absolute: `${project.title} | Shanverse` },
       description,
-      alternates: { canonical: canonicalUrl(project.slug) },
+      alternates: { canonical, languages: { vi: buildAbsoluteUrl(`/vi/projects/${encodeURIComponent(project.slug)}`), en: buildAbsoluteUrl(`/en/projects/${encodeURIComponent(project.slug)}`), "x-default": buildAbsoluteUrl(`/vi/projects/${encodeURIComponent(project.slug)}`) } },
       keywords: [...new Set([...project.techStack, ...project.tags])],
       openGraph: {
         type: "website",
-        url: canonicalUrl(project.slug),
+        url: canonical, siteName: SEO_CONFIG.siteName, locale: locale === "vi" ? "vi_VN" : "en_US",
         title: project.title,
         description,
         images: [{ url: image, alt: project.title }],
@@ -144,9 +119,12 @@ export default async function ProjectDetailPage({ params }: Props) {
   const cover = project.coverImage ?? project.thumbnailImage ?? brandImage;
   const githubUrl = safeExternalUrl(project.githubUrl);
   const liveUrl = safeExternalUrl(project.liveUrl);
+  const { locale } = await getTranslator();
+  const canonical = buildAbsoluteUrl(`/${locale}/projects/${encodeURIComponent(project.slug)}`);
 
   return (
     <article className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
+        <JsonLd data={[{ "@context": "https://schema.org", "@type": "SoftwareSourceCode", name: project.title, description: project.description, image: safeMetadataImage(project.coverImage ?? project.thumbnailImage), dateCreated: project.createdAt, dateModified: project.updatedAt, author: { "@type": "Person", name: SEO_CONFIG.author }, url: canonical, codeRepository: githubUrl ?? undefined, runtimePlatform: project.techStack.join(", "), keywords: [...project.techStack, ...project.tags].join(", ") }, { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: buildAbsoluteUrl(`/${locale}`) }, { "@type": "ListItem", position: 2, name: "Projects", item: buildAbsoluteUrl(`/${locale}/projects`) }, { "@type": "ListItem", position: 3, name: project.title, item: canonical }] }]} />
         <header className="mx-auto max-w-5xl space-y-6">
           <Breadcrumb
             items={[
