@@ -286,6 +286,11 @@ export default async function BlogDetailPage({ params }: Props) {
         ) : null}
         <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
           <main data-blog-content className="min-w-0">
+            <span
+              data-view-sentinel
+              aria-hidden="true"
+              className="block h-px w-full"
+            />
             {blocks.length ? (
               <NotionRenderer
                 blocks={blocks}
