@@ -22,6 +22,8 @@ import { ArticleTableOfContents } from "@/features/blog/components/ArticleTableO
 import { createTableOfContents } from "@/components/common/notion/table-of-contents";
 import { SharePost } from "@/features/blog/components/SharePost";
 import { BlogComments } from "@/features/comments/components/BlogComments";
+import { PostViewCount } from "@/features/views/components/PostViewCount";
+import { isViewStoreConfigured } from "@/features/views/adapters/view-store";
 import { calculateReadingTime } from "@/features/blog/calculate-reading-time";
 import { NotionRenderer } from "@/components/common/notion/renderer";
 import { getTranslator } from "@/i18n/server";
@@ -127,10 +129,11 @@ export default async function BlogDetailPage({ params }: Props) {
   const readingMinutes = calculateReadingTime(post.content);
   const canonical = articleUrl(post.slug);
   const cover = post.coverImage ?? post.thumbnailImage;
+  const showViewCount = isViewStoreConfigured();
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
-      <ReadingProgress key={post.slug} />
+      <ReadingProgress key={`reading-progress-${post.slug}`} />
       <article lang="vi" className="space-y-10">
         <JsonLd
           data={[
@@ -253,6 +256,7 @@ export default async function BlogDetailPage({ params }: Props) {
                 <Clock aria-hidden="true" className="size-4" />
                 {t("blog.readingTime", { minutes: readingMinutes })}
               </span>
+              {showViewCount ? <PostViewCount slug={post.slug} /> : null}
             </div>
             {post.tags.length ? (
               <div aria-label="Article tags" className="flex flex-wrap gap-2">
@@ -296,7 +300,7 @@ export default async function BlogDetailPage({ params }: Props) {
           </main>
           {toc.length >= 2 ? (
             <ArticleTableOfContents
-              key={post.slug}
+              key={`table-of-contents-${post.slug}`}
               items={toc}
               label={t("blog.onThisPage")}
               mobileLabel={t("blog.toc")}
@@ -354,7 +358,7 @@ export default async function BlogDetailPage({ params }: Props) {
         </footer>
       </article>
       <RelatedPosts currentPost={post} />
-      <BlogComments key={post.slug} />
+      <BlogComments key={`comments-${post.slug}`} />
     </div>
   );
 }
