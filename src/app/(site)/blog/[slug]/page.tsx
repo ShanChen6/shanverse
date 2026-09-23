@@ -18,6 +18,11 @@ import { ROUTES } from "@/constants/routes";
 import { getBlogPost } from "@/features/blog/blog-detail-data";
 import { RelatedPosts } from "@/features/blog/components/RelatedPosts";
 import { ReadingProgress } from "@/features/blog/components/ReadingProgress";
+import {
+  BlogViewContent,
+  BlogViewCount,
+  BlogViewProvider,
+} from "@/features/blog/components/BlogViews";
 import { ArticleTableOfContents } from "@/features/blog/components/ArticleTableOfContents";
 import { createTableOfContents } from "@/components/common/notion/table-of-contents";
 import { SharePost } from "@/features/blog/components/SharePost";
@@ -129,232 +134,237 @@ export default async function BlogDetailPage({ params }: Props) {
   const cover = post.coverImage ?? post.thumbnailImage;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
-      <ReadingProgress key={post.slug} />
-      <article lang="vi" className="space-y-10">
-        <JsonLd
-          data={[
-            {
-              "@context": "https://schema.org",
-              "@type": "BlogPosting",
-              headline: post.title,
-              description: post.excerpt,
-              image: safeMetadataImage(post.coverImage ?? post.thumbnailImage),
-              datePublished: publishedDate,
-              dateModified: post.updatedAt,
-              author: {
-                "@type": "Person",
-                name: post.authorName ?? SEO_CONFIG.author,
+    <BlogViewProvider slug={post.slug}>
+      <div className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
+        <ReadingProgress key={`reading-progress-${post.slug}`} />
+        <article lang="vi" className="space-y-10">
+          <JsonLd
+            data={[
+              {
+                "@context": "https://schema.org",
+                "@type": "BlogPosting",
+                headline: post.title,
+                description: post.excerpt,
+                image: safeMetadataImage(
+                  post.coverImage ?? post.thumbnailImage,
+                ),
+                datePublished: publishedDate,
+                dateModified: post.updatedAt,
+                author: {
+                  "@type": "Person",
+                  name: post.authorName ?? SEO_CONFIG.author,
+                },
+                publisher: { "@type": "Person", name: SEO_CONFIG.author },
+                mainEntityOfPage: canonical,
+                articleSection: post.category ?? undefined,
+                keywords: post.tags.join(", "),
               },
-              publisher: { "@type": "Person", name: SEO_CONFIG.author },
-              mainEntityOfPage: canonical,
-              articleSection: post.category ?? undefined,
-              keywords: post.tags.join(", "),
-            },
-            {
-              "@context": "https://schema.org",
-              "@type": "BreadcrumbList",
-              itemListElement: [
-                {
-                  "@type": "ListItem",
-                  position: 1,
-                  name: "Home",
-                  item: buildAbsoluteUrl("/vi"),
-                },
-                {
-                  "@type": "ListItem",
-                  position: 2,
-                  name: "Blog",
-                  item: buildAbsoluteUrl("/vi/blog"),
-                },
-                {
-                  "@type": "ListItem",
-                  position: 3,
-                  name: post.title,
-                  item: canonical,
-                },
-              ],
-            },
-          ]}
-        />
-        <header className="mx-auto max-w-4xl space-y-6">
-          <Breadcrumb
-            items={[
-              { label: t("common.home"), href: ROUTES.HOME },
-              { label: t("common.blog"), href: ROUTES.BLOG },
-              { label: post.title },
+              {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                  {
+                    "@type": "ListItem",
+                    position: 1,
+                    name: "Home",
+                    item: buildAbsoluteUrl("/vi"),
+                  },
+                  {
+                    "@type": "ListItem",
+                    position: 2,
+                    name: "Blog",
+                    item: buildAbsoluteUrl("/vi/blog"),
+                  },
+                  {
+                    "@type": "ListItem",
+                    position: 3,
+                    name: post.title,
+                    item: canonical,
+                  },
+                ],
+              },
             ]}
           />
-          <Link
-            href={ROUTES.BLOG}
-            className="inline-flex items-center gap-2 rounded-md text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" /> {t("blog.back")}
-          </Link>
-          {locale === "en" ? (
-            <p
-              role="note"
-              className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground-secondary"
-            >
-              This article is available in Vietnamese only.
-            </p>
-          ) : null}
-          <div className="space-y-5">
-            {post.category ? (
-              <Badge
-                variant="outline"
-                className="border-primary/30 bg-primary/5 text-primary"
-              >
-                {post.category}
-              </Badge>
-            ) : null}
-            <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
-              {post.title}
-            </h1>
-            {post.excerpt ? (
-              <p className="max-w-3xl text-pretty text-lg leading-8 text-foreground-secondary">
-                {post.excerpt}
-              </p>
-            ) : null}
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-y border-border py-4 text-sm text-foreground-secondary">
-              <span className="inline-flex items-center gap-2">
-                {post.authorAvatar?.startsWith("http") ? (
-                  <img
-                    src={post.authorAvatar}
-                    alt=""
-                    className="size-6 rounded-full object-cover"
-                  />
-                ) : (
-                  <span
-                    aria-hidden="true"
-                    className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-xs text-primary"
-                  >
-                    {post.authorAvatar ?? <UserRound className="size-3.5" />}
-                  </span>
-                )}
-                {post.authorName ?? "Shanverse"}
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <CalendarDays aria-hidden="true" className="size-4" />
-                <time dateTime={publishedDate}>
-                  {formatDate(publishedDate)}
-                </time>
-              </span>
-              {!sameDay(publishedDate, post.updatedAt) ? (
-                <span className="inline-flex items-center gap-2">
-                  <RefreshCw aria-hidden="true" className="size-4" />
-                  Updated{" "}
-                  <time dateTime={post.updatedAt}>
-                    {formatDate(post.updatedAt)}
-                  </time>
-                </span>
-              ) : null}
-              <span className="inline-flex items-center gap-2">
-                <Clock aria-hidden="true" className="size-4" />
-                {t("blog.readingTime", { minutes: readingMinutes })}
-              </span>
-            </div>
-            {post.tags.length ? (
-              <div aria-label="Article tags" className="flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="bg-surface">
-                    <Tag aria-hidden="true" className="mr-1 size-3" />
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </header>
-
-        {cover ? (
-          <figure className="relative mx-auto aspect-16/8 max-w-5xl overflow-hidden rounded-3xl border border-border bg-surface">
-            <Image
-              src={cover}
-              alt={`Cover image for ${post.title}`}
-              fill
-              priority
-              unoptimized
-              sizes="(min-width: 1024px) 1024px, 100vw"
-              className="object-cover"
-            />
-          </figure>
-        ) : null}
-        <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
-          <main data-blog-content className="min-w-0">
-            {blocks.length ? (
-              <NotionRenderer
-                blocks={blocks}
-                headingIds={headingIds}
-                articleTitle={post.title}
-              />
-            ) : (
-              <p className="rounded-2xl border border-border bg-surface p-6 text-foreground-secondary">
-                This article does not have any content yet.
-              </p>
-            )}
-          </main>
-          {toc.length >= 2 ? (
-            <ArticleTableOfContents
-              key={post.slug}
-              items={toc}
-              label={t("blog.onThisPage")}
-              mobileLabel={t("blog.toc")}
-            />
-          ) : null}
-        </div>
-
-        <footer className="mx-auto max-w-4xl space-y-10 border-t border-border pt-10">
-          <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
-            <SharePost
-              title={post.title}
-              description={post.excerpt}
-              canonicalUrl={canonical}
-              slug={post.slug}
+          <header className="mx-auto max-w-4xl space-y-6">
+            <Breadcrumb
+              items={[
+                { label: t("common.home"), href: ROUTES.HOME },
+                { label: t("common.blog"), href: ROUTES.BLOG },
+                { label: post.title },
+              ]}
             />
             <Link
               href={ROUTES.BLOG}
-              className="inline-flex items-center gap-2 rounded-md font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
+              className="inline-flex items-center gap-2 rounded-md text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <ArrowLeft aria-hidden="true" className="size-4" />
+              <ArrowLeft aria-hidden="true" className="size-4" />{" "}
               {t("blog.back")}
             </Link>
-          </div>
-          <section
-            aria-labelledby="author-heading"
-            className="flex flex-col gap-4 rounded-2xl border border-primary/20 bg-primary/5 p-6 sm:flex-row sm:items-center"
-          >
-            {post.authorAvatar?.startsWith("http") ? (
-              <img
-                src={post.authorAvatar}
-                alt={`${post.authorName ?? "Author"}'s avatar`}
-                className="size-16 shrink-0 rounded-full object-cover"
-              />
-            ) : (
-              <div
-                aria-hidden="true"
-                className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-2xl"
+            {locale === "en" ? (
+              <p
+                role="note"
+                className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground-secondary"
               >
-                {post.authorAvatar ?? "S"}
+                This article is available in Vietnamese only.
+              </p>
+            ) : null}
+            <div className="space-y-5">
+              {post.category ? (
+                <Badge
+                  variant="outline"
+                  className="border-primary/30 bg-primary/5 text-primary"
+                >
+                  {post.category}
+                </Badge>
+              ) : null}
+              <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+                {post.title}
+              </h1>
+              {post.excerpt ? (
+                <p className="max-w-3xl text-pretty text-lg leading-8 text-foreground-secondary">
+                  {post.excerpt}
+                </p>
+              ) : null}
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-y border-border py-4 text-sm text-foreground-secondary">
+                <span className="inline-flex items-center gap-2">
+                  {post.authorAvatar?.startsWith("http") ? (
+                    <img
+                      src={post.authorAvatar}
+                      alt=""
+                      className="size-6 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-xs text-primary"
+                    >
+                      {post.authorAvatar ?? <UserRound className="size-3.5" />}
+                    </span>
+                  )}
+                  {post.authorName ?? "Shanverse"}
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <CalendarDays aria-hidden="true" className="size-4" />
+                  <time dateTime={publishedDate}>
+                    {formatDate(publishedDate)}
+                  </time>
+                </span>
+                {!sameDay(publishedDate, post.updatedAt) ? (
+                  <span className="inline-flex items-center gap-2">
+                    <RefreshCw aria-hidden="true" className="size-4" />
+                    Updated{" "}
+                    <time dateTime={post.updatedAt}>
+                      {formatDate(post.updatedAt)}
+                    </time>
+                  </span>
+                ) : null}
+                <span className="inline-flex items-center gap-2">
+                  <Clock aria-hidden="true" className="size-4" />
+                  {t("blog.readingTime", { minutes: readingMinutes })}
+                </span>
+                <BlogViewCount />
               </div>
-            )}
-            <div>
-              <p className="text-sm font-medium text-primary">
-                {t("blog.writtenBy")}
-              </p>
-              <h2 id="author-heading" className="text-xl font-semibold">
-                {post.authorName ?? "Shanverse"}
-              </h2>
-              <p className="mt-1 text-sm leading-6 text-foreground-secondary">
-                Software engineer sharing practical notes about building
-                products and systems.
-              </p>
+              {post.tags.length ? (
+                <div aria-label="Article tags" className="flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <Badge key={tag} variant="outline" className="bg-surface">
+                      <Tag aria-hidden="true" className="mr-1 size-3" />
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              ) : null}
             </div>
-          </section>
-        </footer>
-      </article>
-      <RelatedPosts currentPost={post} />
-      <BlogComments key={post.slug} />
-    </div>
+          </header>
+
+          {cover ? (
+            <figure className="relative mx-auto aspect-16/8 max-w-5xl overflow-hidden rounded-3xl border border-border bg-surface">
+              <Image
+                src={cover}
+                alt={`Cover image for ${post.title}`}
+                fill
+                priority
+                unoptimized
+                sizes="(min-width: 1024px) 1024px, 100vw"
+                className="object-cover"
+              />
+            </figure>
+          ) : null}
+          <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
+            <BlogViewContent>
+              {blocks.length ? (
+                <NotionRenderer
+                  blocks={blocks}
+                  headingIds={headingIds}
+                  articleTitle={post.title}
+                />
+              ) : (
+                <p className="rounded-2xl border border-border bg-surface p-6 text-foreground-secondary">
+                  This article does not have any content yet.
+                </p>
+              )}
+            </BlogViewContent>
+            {toc.length >= 2 ? (
+              <ArticleTableOfContents
+                items={toc}
+                label={t("blog.onThisPage")}
+                mobileLabel={t("blog.toc")}
+              />
+            ) : null}
+          </div>
+
+          <footer className="mx-auto max-w-4xl space-y-10 border-t border-border pt-10">
+            <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
+              <SharePost
+                title={post.title}
+                description={post.excerpt}
+                canonicalUrl={canonical}
+                slug={post.slug}
+              />
+              <Link
+                href={ROUTES.BLOG}
+                className="inline-flex items-center gap-2 rounded-md font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <ArrowLeft aria-hidden="true" className="size-4" />
+                {t("blog.back")}
+              </Link>
+            </div>
+            <section
+              aria-labelledby="author-heading"
+              className="flex flex-col gap-4 rounded-2xl border border-primary/20 bg-primary/5 p-6 sm:flex-row sm:items-center"
+            >
+              {post.authorAvatar?.startsWith("http") ? (
+                <img
+                  src={post.authorAvatar}
+                  alt={`${post.authorName ?? "Author"}'s avatar`}
+                  className="size-16 shrink-0 rounded-full object-cover"
+                />
+              ) : (
+                <div
+                  aria-hidden="true"
+                  className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-2xl"
+                >
+                  {post.authorAvatar ?? "S"}
+                </div>
+              )}
+              <div>
+                <p className="text-sm font-medium text-primary">
+                  {t("blog.writtenBy")}
+                </p>
+                <h2 id="author-heading" className="text-xl font-semibold">
+                  {post.authorName ?? "Shanverse"}
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-foreground-secondary">
+                  Software engineer sharing practical notes about building
+                  products and systems.
+                </p>
+              </div>
+            </section>
+          </footer>
+        </article>
+        <RelatedPosts currentPost={post} />
+        <BlogComments key={`comments-${post.slug}`} />
+      </div>
+    </BlogViewProvider>
   );
 }
