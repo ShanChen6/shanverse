@@ -7,23 +7,49 @@ type ViewportEnvironment = {
   document: Pick<EventTarget, "addEventListener" | "removeEventListener"> & {
     visibilityState: DocumentVisibilityState;
   };
+  setTimeout?: typeof setTimeout;
+  clearTimeout?: typeof clearTimeout;
 };
+
+// A brief scroll-through or a bot toggling IntersectionObserver should not
+// count as a read; require the content to stay visible for a dwell period.
+export const VIEW_DWELL_MS = 3_000;
 
 export function observeBlogContent(
   content: HTMLElement,
   onVisible: () => void,
   environment: ViewportEnvironment = { window, document },
+  dwellMs = VIEW_DWELL_MS,
 ): () => void {
   const viewport = environment.window;
   const page = environment.document;
+  const schedule = environment.setTimeout ?? setTimeout;
+  const cancel = environment.clearTimeout ?? clearTimeout;
   let active = true;
   let observed = false;
   let intersecting = false;
+  let dwellTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const clearDwell = () => {
+    if (dwellTimer === null) return;
+    cancel(dwellTimer);
+    dwellTimer = null;
+  };
+
   const countIfVisible = () => {
-    if (!active || observed || !intersecting || page.visibilityState === "hidden") return;
-    observed = true;
-    observer?.disconnect();
-    onVisible();
+    if (!active || observed) return;
+    if (!intersecting || page.visibilityState === "hidden") {
+      clearDwell();
+      return;
+    }
+    if (dwellTimer !== null) return;
+    dwellTimer = schedule(() => {
+      dwellTimer = null;
+      if (!active || observed || !intersecting || page.visibilityState === "hidden") return;
+      observed = true;
+      observer?.disconnect();
+      onVisible();
+    }, dwellMs);
   };
   const checkBounds = () => {
     const rect = content.getBoundingClientRect();
@@ -51,6 +77,7 @@ export function observeBlogContent(
 
   return () => {
     active = false;
+    clearDwell();
     observer?.disconnect();
     viewport.removeEventListener("scroll", checkBounds);
     viewport.removeEventListener("resize", checkBounds);
