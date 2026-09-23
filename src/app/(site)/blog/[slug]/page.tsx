@@ -18,6 +18,11 @@ import { ROUTES } from "@/constants/routes";
 import { getBlogPost } from "@/features/blog/blog-detail-data";
 import { RelatedPosts } from "@/features/blog/components/RelatedPosts";
 import { ReadingProgress } from "@/features/blog/components/ReadingProgress";
+import {
+  BlogViewContent,
+  BlogViewCount,
+  BlogViewProvider,
+} from "@/features/blog/components/BlogViews";
 import { ArticleTableOfContents } from "@/features/blog/components/ArticleTableOfContents";
 import { createTableOfContents } from "@/components/common/notion/table-of-contents";
 import { SharePost } from "@/features/blog/components/SharePost";
@@ -129,6 +134,7 @@ export default async function BlogDetailPage({ params }: Props) {
   const cover = post.coverImage ?? post.thumbnailImage;
 
   return (
+    <BlogViewProvider key={post.slug} slug={post.slug}>
     <div className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
       <ReadingProgress key={post.slug} />
       <article lang="vi" className="space-y-10">
@@ -253,6 +259,7 @@ export default async function BlogDetailPage({ params }: Props) {
                 <Clock aria-hidden="true" className="size-4" />
                 {t("blog.readingTime", { minutes: readingMinutes })}
               </span>
+              <BlogViewCount />
             </div>
             {post.tags.length ? (
               <div aria-label="Article tags" className="flex flex-wrap gap-2">
@@ -281,7 +288,7 @@ export default async function BlogDetailPage({ params }: Props) {
           </figure>
         ) : null}
         <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
-          <main data-blog-content className="min-w-0">
+          <BlogViewContent>
             {blocks.length ? (
               <NotionRenderer
                 blocks={blocks}
@@ -293,7 +300,7 @@ export default async function BlogDetailPage({ params }: Props) {
                 This article does not have any content yet.
               </p>
             )}
-          </main>
+          </BlogViewContent>
           {toc.length >= 2 ? (
             <ArticleTableOfContents
               key={post.slug}
@@ -356,5 +363,6 @@ export default async function BlogDetailPage({ params }: Props) {
       <RelatedPosts currentPost={post} />
       <BlogComments key={post.slug} />
     </div>
+    </BlogViewProvider>
   );
 }

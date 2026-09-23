@@ -312,6 +312,16 @@ export class NotionService {
 		return Promise.all(pages.map((page) => this.mapPost(page, false, authorLookup, categoryLookup, tagLookup)));
 	}
 
+	async isPublishedPostSlug(slug: string): Promise<boolean> {
+		if (!slug.trim()) return false;
+		// Check current publication state without loading article blocks, authors,
+		// categories, or the detail page's five-minute cache.
+		const page = (await this.queryPages("posts")).find((item) => propertyText(firstProperty(item.properties, notionPropertyNames.slug)) === slug);
+		return Boolean(page && !page.archived && !page.in_trash &&
+			propertyBoolean(firstProperty(page.properties, notionPropertyNames.published)) &&
+			propertyText(firstProperty(page.properties, notionPropertyNames.title)).trim());
+	}
+
 	async getPostBySlug(slug: string): Promise<Post | null> {
 		const page = (await this.queryPages("posts")).find((item) => propertyText(firstProperty(item.properties, notionPropertyNames.slug)) === slug);
 		if (!page) return null;
