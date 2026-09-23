@@ -297,3 +297,9 @@ MIT License.
 
 - GitHub: https://github.com/ShanChen6
 - Website: Coming Soon
+
+## Blog view counts
+
+See [Upstash Redis view-count setup and verification](docs/blog-views.md) for local
+and Vercel configuration, API behavior, deduplication limits, and deployment checks.
+
