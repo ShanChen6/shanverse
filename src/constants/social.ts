@@ -3,6 +3,9 @@ export const SOCIAL_PLATFORMS = [
   "LinkedIn",
   "Facebook",
   "Instagram",
+  "Twitter",
+  "YouTube",
+  "TikTok",
 ] as const;
 
 export type SocialLabel = (typeof SOCIAL_PLATFORMS)[number];
