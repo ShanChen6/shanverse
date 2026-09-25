@@ -9,6 +9,9 @@ import {
   GithubIcon,
   InstagramIcon,
   LinkedinIcon,
+  TwitterIcon,
+  YouTubeIcon,
+  TikTokIcon,
 } from "@/components/common/icons/BrandIcons";
 import { Button } from "@/components/ui/button";
 import type { SocialLink } from "@/constants/social";
@@ -20,6 +23,10 @@ const socialIcons = {
   LinkedIn: LinkedinIcon,
   Facebook: FacebookIcon,
   Instagram: InstagramIcon,
+  Twitter: TwitterIcon,
+  YouTube: YouTubeIcon,
+  TikTok: TikTokIcon,
+
 };
 
 export function HeroSection({ socialLinks }: { socialLinks: SocialLink[] }) {
