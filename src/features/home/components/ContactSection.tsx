@@ -7,6 +7,9 @@ import {
   GithubIcon,
   InstagramIcon,
   LinkedinIcon,
+  TikTokIcon,
+  YouTubeIcon,
+  TwitterIcon,
 } from "@/components/common/icons/BrandIcons";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
@@ -17,6 +20,9 @@ const socialIcons = {
   LinkedIn: LinkedinIcon,
   Facebook: FacebookIcon,
   Instagram: InstagramIcon,
+  Twitter: TwitterIcon,
+  YouTube: YouTubeIcon,
+  TikTok: TikTokIcon,
   Email: AtSign,
 };
 
@@ -42,12 +48,15 @@ export function ContactSection({ socialLinks }: { socialLinks: SocialLink[] }) {
             Bạn có một ý tưởng muốn cùng xây dựng?
           </h2>
           <p className="mt-4 text-pretty leading-7 text-foreground-secondary">
-            Mình luôn sẵn sàng trao đổi về Frontend, sản phẩm, cơ hội thực tập và
-            những dự án thú vị.
+            Mình luôn sẵn sàng trao đổi về Frontend, sản phẩm, cơ hội thực tập
+            và những dự án thú vị.
           </p>
 
           {socialLinks.length ? (
-            <nav className="mt-6 flex flex-wrap gap-2" aria-label="Contact channels">
+            <nav
+              className="mt-6 flex flex-wrap gap-2"
+              aria-label="Contact channels"
+            >
               {socialLinks.map(({ label, href }) => {
                 const Icon = socialIcons[label];
                 const external = !href.startsWith("mailto:");
@@ -71,10 +80,16 @@ export function ContactSection({ socialLinks }: { socialLinks: SocialLink[] }) {
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row lg:flex-col">
           <Button asChild size="lg" className="w-full gap-2 sm:w-auto">
             <Link href={ROUTES.CONTACT}>
-              Liên hệ với mình <ArrowRight aria-hidden="true" className="size-4" />
+              Liên hệ với mình{" "}
+              <ArrowRight aria-hidden="true" className="size-4" />
             </Link>
           </Button>
-          <Button asChild variant="outline" size="lg" className="w-full bg-background sm:w-auto">
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            className="w-full bg-background sm:w-auto"
+          >
             <Link href={ROUTES.PROJECTS}>Xem dự án</Link>
           </Button>
         </div>

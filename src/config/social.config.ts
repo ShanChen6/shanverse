@@ -21,6 +21,9 @@ export function getSocialLinks(): SocialLink[] {
     { label: "LinkedIn" as const, value: process.env.CONTACT_LINKEDIN_URL },
     { label: "Facebook" as const, value: process.env.CONTACT_FACEBOOK_URL },
     { label: "Instagram" as const, value: process.env.CONTACT_INSTAGRAM_URL },
+    { label: "Twitter" as const, value: process.env.CONTACT_TWITTER_URL },
+    { label: "YouTube" as const, value: process.env.CONTACT_YOUTUBE_URL },
+    { label: "TikTok" as const, value: process.env.CONTACT_TIKTOK_URL },
   ];
   const links: SocialLink[] = candidates.flatMap(({ label, value }) => {
     const href = safeWebUrl(value);
