@@ -9,12 +9,12 @@ import {
   GithubIcon,
   InstagramIcon,
   LinkedinIcon,
+  TwitterIcon,
+  YouTubeIcon,
+  TikTokIcon,
 } from "@/components/common/icons/BrandIcons";
 import { SITE_CONFIG } from "@/config/site.config";
-import {
-  FOOTER_EXPLORE_ITEMS,
-  NAVIGATION_ITEMS,
-} from "@/constants/navigation";
+import { FOOTER_EXPLORE_ITEMS, NAVIGATION_ITEMS } from "@/constants/navigation";
 import { ROUTES } from "@/constants/routes";
 import { BrandLogo } from "./BrandLogo";
 import { useI18n } from "@/i18n/client";
@@ -25,6 +25,9 @@ const socialIcons = {
   LinkedIn: LinkedinIcon,
   Facebook: FacebookIcon,
   Instagram: InstagramIcon,
+  Twitter: TwitterIcon,
+  YouTube: YouTubeIcon,
+  TikTok: TikTokIcon,
   Email: AtSign,
 };
 
@@ -47,10 +50,19 @@ export function Footer() {
           </div>
 
           <div className="hidden md:block">
-            <h2 className="mb-4 text-sm font-semibold text-foreground">{t("footer.navigation")}</h2>
-            <nav aria-label={t("footer.navigation")} className="flex flex-col items-start gap-3">
+            <h2 className="mb-4 text-sm font-semibold text-foreground">
+              {t("footer.navigation")}
+            </h2>
+            <nav
+              aria-label={t("footer.navigation")}
+              className="flex flex-col items-start gap-3"
+            >
               {NAVIGATION_ITEMS.map((item) => (
-                <Link key={item.href} href={item.href} className={footerLinkClass}>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={footerLinkClass}
+                >
                   {t(item.labelKey)}
                 </Link>
               ))}
@@ -58,10 +70,19 @@ export function Footer() {
           </div>
 
           <div className="hidden md:block">
-            <h2 className="mb-4 text-sm font-semibold text-foreground">{t("footer.explore")}</h2>
-            <nav aria-label={t("footer.explore")} className="flex flex-col items-start gap-3">
+            <h2 className="mb-4 text-sm font-semibold text-foreground">
+              {t("footer.explore")}
+            </h2>
+            <nav
+              aria-label={t("footer.explore")}
+              className="flex flex-col items-start gap-3"
+            >
               {FOOTER_EXPLORE_ITEMS.map((item) => (
-                <Link key={item.href} href={item.href} className={footerLinkClass}>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={footerLinkClass}
+                >
                   {t(item.labelKey)}
                 </Link>
               ))}
@@ -69,7 +90,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h2 className="mb-4 text-sm font-semibold text-foreground">{t("footer.connect")}</h2>
+            <h2 className="mb-4 text-sm font-semibold text-foreground">
+              {t("footer.connect")}
+            </h2>
             {socialLinks.length ? (
               <div className="flex flex-wrap gap-2">
                 {socialLinks.map(({ label, href }) => {
@@ -90,13 +113,17 @@ export function Footer() {
                 })}
               </div>
             ) : (
-              <Link href={ROUTES.CONTACT} className={footerLinkClass}>{t("common.contact")}</Link>
+              <Link href={ROUTES.CONTACT} className={footerLinkClass}>
+                {t("common.contact")}
+              </Link>
             )}
           </div>
         </div>
 
         <div className="mt-10 flex flex-col gap-2 border-t border-border pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>© {currentYear} {SITE_CONFIG.name}. {t("footer.rights")}</p>
+          <p>
+            © {currentYear} {SITE_CONFIG.name}. {t("footer.rights")}
+          </p>
           <p>{t("footer.builtWith")}</p>
         </div>
       </div>

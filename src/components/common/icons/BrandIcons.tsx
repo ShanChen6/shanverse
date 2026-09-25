@@ -43,3 +43,27 @@ export function InstagramIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function TwitterIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M23 4.01c-.81.36-1.68.61-2.59.72a4.52 4.52 0 0 0 1.98-2.5 9.03 9.03 0 0 1-2.87 1.1 4.51 4.51 0 0 0-7.7 4.11A12.8 12.8 0 0 1 1.64 3.16a4.51 4.51 0 0 0 1.39 6.03 4.48 4.48 0 0 1-2.04-.56v.06a4.51 4.51 0 0 0 3.62 4.42 4.52 4.52 0 0 1-2.03.08 4.51 4.51 0 0 0 4.21 3.13A9.05 9.05 0 0 1 0 19.54a12.77 12.77 0 0 0 6.92 2.03c8.3 0 12.85-6.88 12.85-12.85 0-.2 0-.39-.01-.58A9.18 9.18 0 0 0 23 4.01Z" />
+    </svg>
+  );
+}
+
+export function YouTubeIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M23.5 6.2a2.8 2.8 0 0 0-1.97-2C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.53.7a2.8 2.8 0 0 0-1.97 2A29.77 29.77 0 0 0 0 12a29.77 29.77 0 0 0 .53 5.8 2.8 2.8 0 0 0 1.97 2C4.5 20.5 12 20.5 12 20.5s7.5 0 9.53-.7a2.8 2.8 0 0 0 1.97-2A29.77 29.77 0 0 0 24 12a29.77 29.77 0 0 0-.5-5.8ZM9.75 15.5v-7l6 3.5-6 3.5Z" />
+    </svg>
+  );
+}
+
+export function TikTokIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M12 2a10 10 0 1 0 10 10h-3a7 7 0 1 1-7-7v3l4-4-4-4v3Z" />
+    </svg>
+  );
+}
