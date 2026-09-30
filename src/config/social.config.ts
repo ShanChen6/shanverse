@@ -18,6 +18,8 @@ function safeEmail(value: string | undefined) {
 export function getSocialLinks(): SocialLink[] {
   const candidates = [
     { label: "GitHub" as const, value: process.env.CONTACT_GITHUB_URL },
+    { label: "Discord" as const, value: process.env.CONTACT_DISCORD_URL },
+    { label: "Reddit" as const, value: process.env.CONTACT_REDDIT_URL },
     { label: "LinkedIn" as const, value: process.env.CONTACT_LINKEDIN_URL },
     { label: "Facebook" as const, value: process.env.CONTACT_FACEBOOK_URL },
     { label: "Instagram" as const, value: process.env.CONTACT_INSTAGRAM_URL },

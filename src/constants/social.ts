@@ -1,10 +1,12 @@
 export const SOCIAL_PLATFORMS = [
   "GitHub",
+  "Discord",
+  "Reddit",
+  "Twitter",
   "LinkedIn",
+  "YouTube",
   "Facebook",
   "Instagram",
-  "Twitter",
-  "YouTube",
   "TikTok",
 ] as const;
 
