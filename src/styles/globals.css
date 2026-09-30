@@ -18,3 +18,43 @@
   display: block;
   max-width: none;
 }
+
+.hero-space-fallback {
+  opacity: 0.72;
+  background-image:
+    radial-gradient(circle at 12% 24%, rgb(29 58 125 / 0.52) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 76% 18%, rgb(217 175 98 / 0.48) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 42% 72%, rgb(29 58 125 / 0.32) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 88% 68%, rgb(217 175 98 / 0.3) 0 1px, transparent 1.6px);
+  background-size: 150px 140px, 210px 190px, 180px 170px, 240px 220px;
+  mask-image: linear-gradient(to right, rgb(0 0 0 / 0.75), #000 58%, rgb(0 0 0 / 0.9));
+}
+
+.dark .hero-space-fallback {
+  opacity: 0.88;
+  background-image:
+    radial-gradient(circle at 12% 24%, rgb(250 247 240 / 0.6) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 76% 18%, rgb(217 175 98 / 0.58) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 42% 72%, rgb(250 247 240 / 0.38) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 88% 68%, rgb(29 58 125 / 0.7) 0 1px, transparent 1.8px);
+}
+
+.hero-space-content::before {
+  position: absolute;
+  inset: 0 auto 0 -15%;
+  z-index: -1;
+  width: min(78%, 52rem);
+  content: "";
+  background: radial-gradient(ellipse at center, rgb(250 247 240 / 0.84), transparent 72%);
+  filter: blur(18px);
+}
+
+.dark .hero-space-content::before {
+  background: radial-gradient(ellipse at center, rgb(3 18 66 / 0.72), transparent 72%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-space-canvas {
+    opacity: 0.82;
+  }
+}

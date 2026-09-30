@@ -17,6 +17,7 @@ import type {
 } from "./home-search";
 import { getHomeData } from "./home-data";
 import { createSearchDocuments } from "@/features/search/create-search-documents";
+import { HeroSpaceBackdrop } from "./components/HeroSpaceBackdrop";
 
 function postTimestamp(post: Post) {
   const value = Date.parse(post.publishedAt ?? post.createdAt);
@@ -118,9 +119,13 @@ async function HomeDataSections() {
 export function HomePageView() {
   const socialLinks = getSocialLinks();
   return <>
-    <section className="relative overflow-hidden border-b border-border bg-surface/30">
+    <section
+      data-home-hero
+      className="relative overflow-hidden border-b border-border bg-surface/30"
+    >
+      <HeroSpaceBackdrop />
       <div aria-hidden="true" className="brand-gradient-soft pointer-events-none absolute -right-32 -top-40 size-96 rounded-full blur-3xl" />
-      <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-12 lg:items-center lg:gap-14 lg:py-20">
+      <div className="hero-space-content relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-12 lg:items-center lg:gap-14 lg:py-20">
         <HeroSection socialLinks={socialLinks} />
         <HeroProfileCard />
       </div>
