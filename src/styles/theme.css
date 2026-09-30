@@ -5,11 +5,19 @@
 :root {
   --mobile-bottom-nav-height: 4rem;
 
+  /* Shared brand gradients: decorative only, never content surfaces. */
+  --brand-gradient: linear-gradient(120deg, #1D3A7D 0%, #786F70 50%, #D9AF62 100%);
+  --brand-gradient-soft: linear-gradient(120deg, rgb(29 58 125 / 0.12) 0%, rgb(120 111 112 / 0.08) 52%, rgb(217 175 98 / 0.14) 100%);
+  --brand-gradient-border: linear-gradient(120deg, rgb(29 58 125 / 0.7) 0%, rgb(120 111 112 / 0.5) 50%, rgb(217 175 98 / 0.75) 100%);
+
   /* Brand and semantic colors */
   --primary: var(--color-brand-navy);
   --primary-foreground: #FFFFFF;
   --primary-hover: #162F67;
   --primary-active: #122859;
+  --button-primary: var(--color-brand-navy);
+  --button-primary-foreground: #FFFFFF;
+  --button-primary-hover: #162F67;
   --secondary: var(--color-brand-gold);
   --secondary-foreground: var(--color-brand-deep);
   --secondary-hover: #C89A4E;
@@ -51,6 +59,9 @@
 ========================================================== */
 
 .dark {
+  --brand-gradient-soft: linear-gradient(120deg, rgb(29 58 125 / 0.38) 0%, rgb(120 111 112 / 0.2) 52%, rgb(217 175 98 / 0.24) 100%);
+  --brand-gradient-border: linear-gradient(120deg, rgb(86 119 190 / 0.85) 0%, rgb(139 126 119 / 0.7) 50%, rgb(217 175 98 / 0.9) 100%);
+
   --primary: var(--color-brand-gold);
   --primary-foreground: var(--color-brand-deep);
   --primary-hover: #E4BF7A;
@@ -97,6 +108,9 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-hover: var(--primary-hover);
   --color-primary-active: var(--primary-active);
+  --color-button-primary: var(--button-primary);
+  --color-button-primary-foreground: var(--button-primary-foreground);
+  --color-button-primary-hover: var(--button-primary-hover);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary-hover: var(--secondary-hover);

@@ -70,7 +70,7 @@ export function ProjectCard({
       role="article"
       aria-label={project.title}
       className={cn(
-        "group flex h-full min-w-0 flex-col overflow-hidden transition-[border-color,box-shadow] hover:border-primary/50 hover:shadow-md focus-within:border-primary/60",
+        "brand-card-border group flex h-full min-w-0 flex-col overflow-hidden transition-[border-color,box-shadow] hover:shadow-md",
         featured && "md:grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]",
       )}
     >

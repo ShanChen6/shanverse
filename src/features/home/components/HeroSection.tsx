@@ -30,7 +30,7 @@ export function HeroSection({ socialLinks }: { socialLinks: SocialLink[] }) {
       <div className="space-y-3">
         <h1 className="max-w-3xl text-balance text-4xl font-extrabold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
           {HOME_HERO.greeting}{" "}
-          <span className="text-primary">{HOME_HERO.name}</span>
+          <span className="brand-gradient-text">{HOME_HERO.name}</span>
         </h1>
 
         <p className="sr-only">
@@ -70,7 +70,7 @@ export function HeroSection({ socialLinks }: { socialLinks: SocialLink[] }) {
           asChild
           variant="outline"
           size="lg"
-          className="w-full sm:w-auto"
+          className="brand-gradient-border w-full sm:w-auto"
         >
           <Link href={HOME_HERO.secondaryCta.href}>
             {HOME_HERO.secondaryCta.label}
