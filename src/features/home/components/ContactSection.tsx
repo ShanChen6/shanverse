@@ -1,30 +1,11 @@
 import * as React from "react";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
-import { ArrowRight, AtSign } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-import {
-  FacebookIcon,
-  GithubIcon,
-  InstagramIcon,
-  LinkedinIcon,
-  TikTokIcon,
-  YouTubeIcon,
-  TwitterIcon,
-} from "@/components/common/icons/BrandIcons";
+import { SocialIcon } from "@/components/common/icons/SocialIcon";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 import type { SocialLink } from "@/constants/social";
-
-const socialIcons = {
-  GitHub: GithubIcon,
-  LinkedIn: LinkedinIcon,
-  Facebook: FacebookIcon,
-  Instagram: InstagramIcon,
-  Twitter: TwitterIcon,
-  YouTube: YouTubeIcon,
-  TikTok: TikTokIcon,
-  Email: AtSign,
-};
 
 export function ContactSection({ socialLinks }: { socialLinks: SocialLink[] }) {
   return (
@@ -58,7 +39,6 @@ export function ContactSection({ socialLinks }: { socialLinks: SocialLink[] }) {
               aria-label="Contact channels"
             >
               {socialLinks.map(({ label, href }) => {
-                const Icon = socialIcons[label];
                 const external = !href.startsWith("mailto:");
                 return (
                   <a
@@ -69,7 +49,7 @@ export function ContactSection({ socialLinks }: { socialLinks: SocialLink[] }) {
                     aria-label={label}
                     className="inline-flex size-10 items-center justify-center rounded-lg border border-border bg-background text-foreground-secondary hover:border-primary/40 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
                   >
-                    <Icon aria-hidden="true" className="size-4" />
+                    <SocialIcon label={label} className="size-4" />
                   </a>
                 );
               })}
