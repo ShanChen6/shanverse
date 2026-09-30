@@ -4,37 +4,18 @@ import * as React from "react";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { ArrowRight } from "lucide-react";
 
-import {
-  FacebookIcon,
-  GithubIcon,
-  InstagramIcon,
-  LinkedinIcon,
-  TwitterIcon,
-  YouTubeIcon,
-  TikTokIcon,
-} from "@/components/common/icons/BrandIcons";
+import { SocialIcon } from "@/components/common/icons/SocialIcon";
 import { Button } from "@/components/ui/button";
 import type { SocialLink } from "@/constants/social";
 import { HOME_HERO } from "../home.data";
 import { useTypewriter } from "../hooks/useTypewriter";
-
-const socialIcons = {
-  GitHub: GithubIcon,
-  LinkedIn: LinkedinIcon,
-  Facebook: FacebookIcon,
-  Instagram: InstagramIcon,
-  Twitter: TwitterIcon,
-  YouTube: YouTubeIcon,
-  TikTok: TikTokIcon,
-
-};
 
 export function HeroSection({ socialLinks }: { socialLinks: SocialLink[] }) {
   const { text, prefersReducedMotion } = useTypewriter({
     words: HOME_HERO.typewriterItems,
   });
   const longestPhrase = HOME_HERO.typewriterItems.reduce(
-    (longest, phrase) => phrase.length > longest.length ? phrase : longest,
+    (longest, phrase) => (phrase.length > longest.length ? phrase : longest),
     "",
   );
   const visibleSocials = socialLinks.filter((link) => link.label !== "Email");
@@ -49,20 +30,26 @@ export function HeroSection({ socialLinks }: { socialLinks: SocialLink[] }) {
       <div className="space-y-3">
         <h1 className="max-w-3xl text-balance text-4xl font-extrabold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
           {HOME_HERO.greeting}{" "}
-          <span className="text-primary">{HOME_HERO.name}</span>
+          <span className="brand-gradient-text">{HOME_HERO.name}</span>
         </h1>
 
-        <p className="sr-only">And I am {HOME_HERO.typewriterItems.join(", ")}</p>
+        <p className="sr-only">
+          And I am {HOME_HERO.typewriterItems.join(", ")}
+        </p>
         <div
           aria-hidden="true"
           className="min-h-9 overflow-hidden text-xl font-semibold text-foreground-secondary sm:min-h-10 sm:text-2xl"
         >
           <span>And I am </span>
           <span className="relative inline-grid max-w-full text-primary">
-            <span className="invisible col-start-1 row-start-1 whitespace-nowrap">{longestPhrase}</span>
+            <span className="invisible col-start-1 row-start-1 whitespace-nowrap">
+              {longestPhrase}
+            </span>
             <span className="col-start-1 row-start-1 whitespace-nowrap">
               {prefersReducedMotion ? HOME_HERO.typewriterItems[0] : text}
-              {!prefersReducedMotion ? <span className="ml-0.5 border-r-2 border-primary" /> : null}
+              {!prefersReducedMotion ? (
+                <span className="ml-0.5 border-r-2 border-primary" />
+              ) : null}
             </span>
           </span>
         </div>
@@ -79,15 +66,24 @@ export function HeroSection({ socialLinks }: { socialLinks: SocialLink[] }) {
             <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
         </Button>
-        <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
-          <Link href={HOME_HERO.secondaryCta.href}>{HOME_HERO.secondaryCta.label}</Link>
+        <Button
+          asChild
+          variant="outline"
+          size="lg"
+          className="brand-gradient-border w-full sm:w-auto"
+        >
+          <Link href={HOME_HERO.secondaryCta.href}>
+            {HOME_HERO.secondaryCta.label}
+          </Link>
         </Button>
       </div>
 
       {visibleSocials.length ? (
-        <nav aria-label="Shan's social profiles" className="flex flex-wrap items-center gap-2 pt-1">
+        <nav
+          aria-label="Shan's social profiles"
+          className="flex flex-wrap items-center gap-2 pt-1"
+        >
           {visibleSocials.map(({ label, href }) => {
-            const Icon = socialIcons[label as keyof typeof socialIcons];
             return (
               <a
                 key={label}
@@ -97,7 +93,7 @@ export function HeroSection({ socialLinks }: { socialLinks: SocialLink[] }) {
                 aria-label={label}
                 className="inline-flex size-10 items-center justify-center rounded-lg text-foreground-secondary hover:bg-surface hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
               >
-                <Icon aria-hidden="true" className="size-5" />
+                <SocialIcon label={label} className="size-5" />
               </a>
             );
           })}

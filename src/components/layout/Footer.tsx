@@ -2,34 +2,14 @@
 
 import * as React from "react";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
-import { AtSign } from "lucide-react";
 
-import {
-  FacebookIcon,
-  GithubIcon,
-  InstagramIcon,
-  LinkedinIcon,
-  TwitterIcon,
-  YouTubeIcon,
-  TikTokIcon,
-} from "@/components/common/icons/BrandIcons";
+import { SocialIcon } from "@/components/common/icons/SocialIcon";
 import { SITE_CONFIG } from "@/config/site.config";
 import { FOOTER_EXPLORE_ITEMS, NAVIGATION_ITEMS } from "@/constants/navigation";
 import { ROUTES } from "@/constants/routes";
 import { BrandLogo } from "./BrandLogo";
 import { useI18n } from "@/i18n/client";
 import { useRuntimeConfig } from "@/providers/RuntimeConfigProvider";
-
-const socialIcons = {
-  GitHub: GithubIcon,
-  LinkedIn: LinkedinIcon,
-  Facebook: FacebookIcon,
-  Instagram: InstagramIcon,
-  Twitter: TwitterIcon,
-  YouTube: YouTubeIcon,
-  TikTok: TikTokIcon,
-  Email: AtSign,
-};
 
 const footerLinkClass =
   "rounded-sm text-sm text-foreground-secondary hover:text-primary focus-visible:ring-2 focus-visible:ring-primary";
@@ -96,7 +76,6 @@ export function Footer() {
             {socialLinks.length ? (
               <div className="flex flex-wrap gap-2">
                 {socialLinks.map(({ label, href }) => {
-                  const Icon = socialIcons[label];
                   const external = !href.startsWith("mailto:");
                   return (
                     <a
@@ -107,7 +86,7 @@ export function Footer() {
                       aria-label={label}
                       className="inline-flex size-10 items-center justify-center rounded-lg border border-border bg-background text-foreground-secondary hover:border-primary/40 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
                     >
-                      <Icon aria-hidden="true" className="size-4" />
+                      <SocialIcon label={label} className="size-4" />
                     </a>
                   );
                 })}

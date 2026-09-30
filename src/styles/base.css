@@ -6,6 +6,60 @@
 }
 
 @layer components {
+  .brand-gradient {
+    background-image: var(--brand-gradient);
+  }
+
+  .brand-gradient-soft {
+    background-image: var(--brand-gradient-soft);
+  }
+
+  .brand-gradient-text {
+    color: var(--primary);
+  }
+
+  @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+    .brand-gradient-text {
+      background-image: var(--brand-gradient);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+
+  /* The navy end of the gradient is not legible on the deep-blue dark surface. */
+  .dark .brand-gradient-text {
+    background-image: none;
+    color: var(--color-brand-gold);
+    -webkit-text-fill-color: currentColor;
+  }
+
+  .brand-gradient-border {
+    border-color: transparent;
+    background:
+      linear-gradient(var(--background), var(--background)) padding-box,
+      var(--brand-gradient-border) border-box;
+  }
+
+  .brand-card-border {
+    background:
+      linear-gradient(var(--surface-elevated), var(--surface-elevated)) padding-box,
+      linear-gradient(var(--border), var(--border)) border-box;
+    border-color: transparent;
+  }
+
+  .brand-card-border:hover,
+  .brand-card-border:focus-within {
+    background:
+      linear-gradient(var(--surface-elevated), var(--surface-elevated)) padding-box,
+      var(--brand-gradient-border) border-box;
+  }
+
+  .brand-active-indicator::after {
+    background-image: var(--brand-gradient);
+  }
+
   .auto-hide-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
@@ -86,11 +140,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 rounded-full;
-  }
-
-  .dark::-webkit-scrollbar-thumb {
-    @apply bg-zinc-700;
+    @apply bg-border rounded-full;
   }
 }
 
@@ -155,7 +205,7 @@
 
 @layer base {
   :focus-visible {
-    @apply outline-none ring-2 ring-primary ring-offset-2;
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
 
