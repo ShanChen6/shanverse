@@ -340,3 +340,11 @@
   --color-black: #000;
   --color-white: #fff;
 }
+
+@theme static {
+  --color-brand-navy: #1D3A7D;
+  --color-brand-deep: #031242;
+  --color-brand-gold: #D9AF62;
+  --color-brand-copper: #B96532;
+  --color-brand-cream: #FAF7F0;
+}

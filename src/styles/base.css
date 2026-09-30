@@ -86,11 +86,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 rounded-full;
-  }
-
-  .dark::-webkit-scrollbar-thumb {
-    @apply bg-zinc-700;
+    @apply bg-border rounded-full;
   }
 }
 
@@ -155,7 +151,7 @@
 
 @layer base {
   :focus-visible {
-    @apply outline-none ring-2 ring-primary ring-offset-2;
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
 
