@@ -119,7 +119,7 @@ export function HomePageView() {
   const socialLinks = getSocialLinks();
   return <>
     <section className="relative overflow-hidden border-b border-border bg-surface/30">
-      <div aria-hidden="true" className="pointer-events-none absolute -right-32 -top-40 size-96 rounded-full bg-primary/5 blur-3xl" />
+      <div aria-hidden="true" className="brand-gradient-soft pointer-events-none absolute -right-32 -top-40 size-96 rounded-full blur-3xl" />
       <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-12 lg:items-center lg:gap-14 lg:py-20">
         <HeroSection socialLinks={socialLinks} />
         <HeroProfileCard />

@@ -5,28 +5,53 @@
 :root {
   --mobile-bottom-nav-height: 4rem;
 
-  /* BRAND */
-  --primary: var(--color-blue-600);
-  --secondary: var(--color-amber-500);
-  --accent: var(--color-orange-500);
+  /* Shared brand gradients: decorative only, never content surfaces. */
+  --brand-gradient: linear-gradient(120deg, #1D3A7D 0%, #786F70 50%, #D9AF62 100%);
+  --brand-gradient-soft: linear-gradient(120deg, rgb(29 58 125 / 0.12) 0%, rgb(120 111 112 / 0.08) 52%, rgb(217 175 98 / 0.14) 100%);
+  --brand-gradient-border: linear-gradient(120deg, rgb(29 58 125 / 0.7) 0%, rgb(120 111 112 / 0.5) 50%, rgb(217 175 98 / 0.75) 100%);
 
-  /* Background */
-  --background: var(--color-white);
-  --surface: var(--color-slate-50);
-  --surface-elevated: var(--color-white);
+  /* Brand and semantic colors */
+  --primary: var(--color-brand-navy);
+  --primary-foreground: #FFFFFF;
+  --primary-hover: #162F67;
+  --primary-active: #122859;
+  --button-primary: var(--color-brand-navy);
+  --button-primary-foreground: #FFFFFF;
+  --button-primary-hover: #162F67;
+  --secondary: var(--color-brand-gold);
+  --secondary-foreground: var(--color-brand-deep);
+  --secondary-hover: #C89A4E;
+  --accent: #914321;
+  --accent-foreground: #FFFFFF;
+  --accent-hover: #783718;
 
-  /* Text */
-  --foreground: var(--color-slate-900);
-  --foreground-secondary: var(--color-slate-700);
-  --muted: var(--color-slate-500);
+  /* Background and surfaces */
+  --background: var(--color-brand-cream);
+  --surface: #FFFDF8;
+  --surface-elevated: #FFFFFF;
+  --surface-hover: #F0EBDF;
+  --surface-selected: #E8E1D3;
 
-  /* Border */
-  --border: var(--color-slate-200);
+  /* Text and focus */
+  --foreground: var(--color-brand-deep);
+  --foreground-secondary: #2D426F;
+  --muted: #53617B;
+  --foreground-disabled: #626B7D;
+  --ring: var(--color-brand-navy);
 
-  /* Status */
-  --success: var(--color-green-600);
-  --warning: var(--color-yellow-500);
-  --danger: var(--color-red-600);
+  /* Borders and disabled controls */
+  --border: #958A75;
+  --disabled: #E8E3D9;
+
+  /* Status colors stay distinct from the brand palette */
+  --success: #166B43;
+  --success-foreground: #FFFFFF;
+  --warning: #805315;
+  --warning-foreground: #FFFFFF;
+  --danger: #B42318;
+  --danger-foreground: #FFFFFF;
+  --info: #1D5F9E;
+  --info-foreground: #FFFFFF;
 }
 
 /* ==========================================================
@@ -34,28 +59,43 @@
 ========================================================== */
 
 .dark {
-  /* brand */
-  --primary: var(--color-blue-500);
-  --secondary: var(--color-amber-400);
-  --accent: var(--color-orange-400);
+  --brand-gradient-soft: linear-gradient(120deg, rgb(29 58 125 / 0.38) 0%, rgb(120 111 112 / 0.2) 52%, rgb(217 175 98 / 0.24) 100%);
+  --brand-gradient-border: linear-gradient(120deg, rgb(86 119 190 / 0.85) 0%, rgb(139 126 119 / 0.7) 50%, rgb(217 175 98 / 0.9) 100%);
 
-  /* Background */
-  --background: var(--color-zinc-950);
-  --surface: var(--color-zinc-900);
-  --surface-elevated: var(--color-zinc-800);
+  --primary: var(--color-brand-gold);
+  --primary-foreground: var(--color-brand-deep);
+  --primary-hover: #E4BF7A;
+  --primary-active: #EACD91;
+  --secondary: var(--color-brand-gold);
+  --secondary-foreground: var(--color-brand-deep);
+  --secondary-hover: #E4BF7A;
+  --accent: #D8844F;
+  --accent-foreground: var(--color-brand-deep);
+  --accent-hover: #E49A69;
 
-  /* Text */
-  --foreground: var(--color-zinc-100);
-  --foreground-secondary: var(--color-zinc-300);
-  --muted: var(--color-zinc-500);
+  --background: var(--color-brand-deep);
+  --surface: #0A1C45;
+  --surface-elevated: #102653;
+  --surface-hover: #1A356A;
+  --surface-selected: #254276;
 
-  /* Border */
-  --border: var(--color-zinc-800);
+  --foreground: var(--color-brand-cream);
+  --foreground-secondary: #E0E6F1;
+  --muted: #B7C2D7;
+  --foreground-disabled: #AAB7D0;
+  --ring: var(--color-brand-gold);
 
-  /* Status */
-  --success: var(--color-green-500);
-  --warning: var(--color-yellow-400);
-  --danger: var(--color-red-500);
+  --border: #6077A2;
+  --disabled: #1A2D54;
+
+  --success: #56B986;
+  --success-foreground: var(--color-brand-deep);
+  --warning: #E5B75C;
+  --warning-foreground: var(--color-brand-deep);
+  --danger: #FF8278;
+  --danger-foreground: var(--color-brand-deep);
+  --info: #72BFFF;
+  --info-foreground: var(--color-brand-deep);
 }
 
 /* ==========================================================
@@ -63,26 +103,44 @@
 ========================================================== */
 
 @theme inline {
-  /* brand */
+  /* Semantic colors */
   --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-button-primary: var(--button-primary);
+  --color-button-primary-foreground: var(--button-primary-foreground);
+  --color-button-primary-hover: var(--button-primary-hover);
   --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-hover: var(--secondary-hover);
   --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-hover: var(--accent-hover);
 
-  /* background */
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-surface-elevated: var(--surface-elevated);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-selected: var(--surface-selected);
 
-  /* text */
   --color-foreground: var(--foreground);
   --color-foreground-secondary: var(--foreground-secondary);
+  --color-foreground-disabled: var(--foreground-disabled);
   --color-muted: var(--muted);
+  --color-ring: var(--ring);
 
-  /* border */
   --color-border: var(--border);
+  --color-disabled: var(--disabled);
 
-  /* status */
   --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: var(--danger-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
 }

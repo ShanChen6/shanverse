@@ -71,7 +71,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
       role="article"
       aria-label={post.title}
       className={cn(
-        "group flex h-full min-w-0 flex-col overflow-hidden transition-[border-color,box-shadow] hover:border-primary/50 hover:shadow-md focus-within:border-primary/60",
+        "brand-card-border group flex h-full min-w-0 flex-col overflow-hidden transition-[border-color,box-shadow] hover:shadow-md",
         variant === "featured" && "md:grid md:grid-cols-12 md:items-stretch",
       )}
     >

@@ -30,7 +30,7 @@ export function MobileBottomNavigation() {
               className={cn(
                 "relative flex min-w-0 flex-col items-center justify-center gap-0.5 overflow-hidden px-0.5 text-[10px] font-medium whitespace-nowrap text-muted transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary min-[375px]:text-[11px]",
                 active &&
-                  "font-semibold text-primary after:absolute after:inset-x-4 after:top-0 after:h-0.5 after:rounded-b-full after:bg-primary",
+                  "brand-active-indicator font-semibold text-primary after:absolute after:inset-x-4 after:top-0 after:h-0.5 after:rounded-b-full",
               )}
             >
               <span
