@@ -6,8 +6,10 @@ import { SocialIcon } from "@/components/common/icons/SocialIcon";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 import type { SocialLink } from "@/constants/social";
+import { getTranslator } from "@/i18n/server";
 
-export function ContactSection({ socialLinks }: { socialLinks: SocialLink[] }) {
+export async function ContactSection({ socialLinks }: { socialLinks: SocialLink[] }) {
+  const { t } = await getTranslator();
   return (
     <section
       aria-labelledby="home-contact-heading"
@@ -20,23 +22,22 @@ export function ContactSection({ socialLinks }: { socialLinks: SocialLink[] }) {
       <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
         <div className="max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-            Let&apos;s build something useful
+            {t("home.contactEyebrow")}
           </p>
           <h2
             id="home-contact-heading"
             className="mt-3 text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
           >
-            Bạn có một ý tưởng muốn cùng xây dựng?
+            {t("projects.ctaTitle")}
           </h2>
           <p className="mt-4 text-pretty leading-7 text-foreground-secondary">
-            Mình luôn sẵn sàng trao đổi về Frontend, sản phẩm, cơ hội thực tập
-            và những dự án thú vị.
+            {t("about.ctaDescription")}
           </p>
 
           {socialLinks.length ? (
             <nav
               className="mt-6 flex flex-wrap gap-2"
-              aria-label="Contact channels"
+              aria-label={t("contact.methodsEyebrow")}
             >
               {socialLinks.map(({ label, href }) => {
                 const external = !href.startsWith("mailto:");
@@ -60,7 +61,7 @@ export function ContactSection({ socialLinks }: { socialLinks: SocialLink[] }) {
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row lg:flex-col">
           <Button asChild size="lg" className="w-full gap-2 sm:w-auto">
             <Link href={ROUTES.CONTACT}>
-              Liên hệ với mình{" "}
+              {t("common.contactMe")}{" "}
               <ArrowRight aria-hidden="true" className="size-4" />
             </Link>
           </Button>
@@ -70,7 +71,7 @@ export function ContactSection({ socialLinks }: { socialLinks: SocialLink[] }) {
             size="lg"
             className="w-full bg-background sm:w-auto"
           >
-            <Link href={ROUTES.PROJECTS}>Xem dự án</Link>
+            <Link href={ROUTES.PROJECTS}>{t("common.viewProjects")}</Link>
           </Button>
         </div>
       </div>

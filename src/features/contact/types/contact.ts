@@ -22,13 +22,19 @@ export type ContactMessage = {
   message: string;
 };
 
+// Fields that failed validation. The form maps each field to its localized
+// message (contact.fieldErrors.<field>), so server and client share no text.
+export type ContactFieldErrors = Partial<Record<ContactField, true>>;
+
+export type ContactErrorCode = "invalid" | "unavailable" | "notConfigured";
+
 export type ContactFormState =
   | { status: "idle" }
   | {
       status: "error";
-      message: string;
-      fieldErrors?: Partial<Record<ContactField, string>>;
+      code: ContactErrorCode;
+      fieldErrors?: ContactFieldErrors;
     }
-  | { status: "success"; message: string };
+  | { status: "success" };
 
 export const initialContactState: ContactFormState = { status: "idle" };

@@ -21,10 +21,10 @@ function TickerItems({ duplicate = false }: { duplicate?: boolean }) {
   );
 }
 
-export function TechTicker() {
+export function TechTicker({ label }: { label: string }) {
   return (
     <section
-      aria-label="Technologies I work with"
+      aria-label={label}
       className="border-y border-border bg-surface/60 py-4"
     >
       <div className="tech-ticker-mask overflow-hidden">
