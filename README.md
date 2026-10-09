@@ -191,9 +191,7 @@ Posts and projects use separate data sources, so no `Type` property is required.
 
 **Verify the connection**
 
-Start the app and open `/notion-preview`. It queries all five collections independently and shows the normalized record count, a sample title, or the error returned by Notion.
-
-If Notion reports `object_not_found`, open each database in Notion, choose **Share**, and invite the integration that owns `NOTION_TOKEN`.
+Start the app and open `/blog` and `/projects`. If posts or projects are missing, or Notion reports `object_not_found`, open each database in Notion, choose **Share**, and invite the integration that owns `NOTION_TOKEN`.
 
 ---
 
