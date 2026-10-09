@@ -1,12 +1,31 @@
 import * as React from "react";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 
+import type { Translate } from "@/i18n/messages";
 import { cn } from "@/lib/cn";
+
+export interface PaginationLabels {
+  navigation: string;
+  previous: string;
+  next: string;
+  page: (page: number) => string;
+}
+
+export function paginationLabels(t: Translate): PaginationLabels {
+  return {
+    navigation: t("common.pagination"),
+    previous: t("common.previous"),
+    next: t("common.next"),
+    page: (page) => t("common.pageNumber", { page }),
+  };
+}
 
 export interface PaginationProps {
   currentPage: number;
   totalPages: number;
   hrefBuilder: (page: number) => string;
+  /** Localized text; pass translations from the calling page. */
+  labels: PaginationLabels;
   className?: string;
 }
 
@@ -34,6 +53,7 @@ export function Pagination({
   currentPage,
   totalPages,
   hrefBuilder,
+  labels,
   className,
 }: PaginationProps) {
   if (totalPages <= 1) return null;
@@ -44,7 +64,7 @@ export function Pagination({
 
   return (
     <nav
-      aria-label="Pagination"
+      aria-label={labels.navigation}
       className={cn("flex flex-wrap items-center justify-center gap-2", className)}
     >
       <Link
@@ -58,7 +78,7 @@ export function Pagination({
             : "pointer-events-none text-muted opacity-60",
         )}
       >
-        Prev
+        {labels.previous}
       </Link>
 
       <ul className="flex flex-wrap items-center justify-center gap-1">
@@ -77,7 +97,7 @@ export function Pagination({
             <li key={page}>
               <Link
                 href={hrefBuilder(page)}
-                aria-label={`Page ${page}`}
+                aria-label={labels.page(page)}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary",
@@ -104,7 +124,7 @@ export function Pagination({
             : "pointer-events-none text-muted opacity-60",
         )}
       >
-        Next
+        {labels.next}
       </Link>
     </nav>
   );

@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import Image from "next/image";
@@ -14,6 +16,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ROUTES } from "@/constants/routes";
+import { formatMonthYear } from "@/i18n/format";
+import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import type { Project } from "@/types/project";
 
@@ -37,20 +41,11 @@ function safeExternalUrl(value: string | null) {
   }
 }
 
-function formatProjectDate(project: Project) {
-  const date = new Date(project.updatedAt || project.createdAt);
-  return Number.isNaN(date.getTime())
-    ? null
-    : new Intl.DateTimeFormat("en", {
-        month: "short",
-        year: "numeric",
-      }).format(date);
-}
-
 export function ProjectCard({
   project,
   variant = "default",
 }: ProjectCardProps) {
+  const { locale, t } = useI18n();
   const thumbnailImage =
     safeExternalUrl(project.thumbnailImage) ??
     safeExternalUrl(project.coverImage) ??
@@ -62,7 +57,8 @@ export function ProjectCard({
   ];
   const displayedTech = technologies.slice(0, 4);
   const remainingTech = technologies.length - displayedTech.length;
-  const date = formatProjectDate(project);
+  const dateValue = project.updatedAt || project.createdAt;
+  const date = formatMonthYear(dateValue, locale);
   const featured = variant === "featured";
 
   return (
@@ -76,7 +72,7 @@ export function ProjectCard({
     >
       <Link
         href={ROUTES.PROJECT_DETAIL(project.slug)}
-        aria-label={`View project ${project.title}`}
+        aria-label={t("projects.viewProject", { title: project.title })}
         className={cn(
           "relative block aspect-video overflow-hidden border-b border-border bg-linear-to-br from-primary/20 via-primary/10 to-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
           featured && "md:aspect-auto md:min-h-80 md:border-b-0 md:border-r",
@@ -84,7 +80,7 @@ export function ProjectCard({
       >
         <Image
           src={thumbnailImage}
-          alt={`${project.title} project thumbnail`}
+          alt={t("projects.thumbnailAlt", { title: project.title })}
           className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
           fill
           sizes={
@@ -99,12 +95,15 @@ export function ProjectCard({
           <div className="flex flex-wrap items-center justify-between gap-2">
             {featured && project.featured ? (
               <Badge className="gap-1 bg-primary/10 text-primary">
-                <Sparkles className="size-3" aria-hidden="true" /> Featured
-                project
+                <Sparkles className="size-3" aria-hidden="true" />{" "}
+                {t("projects.featured")}
               </Badge>
             ) : null}
             {date ? (
-              <time className="text-xs text-muted">Updated {date}</time>
+              <span className="text-xs text-muted">
+                {t("common.updatedLabel")}{" "}
+                <time dateTime={dateValue}>{date}</time>
+              </span>
             ) : null}
           </div>
           <CardTitle
@@ -138,7 +137,7 @@ export function ProjectCard({
           {remainingTech > 0 ? (
             <Badge
               variant="outline"
-              aria-label={`${remainingTech} more technologies`}
+              aria-label={t("projects.moreTechnologies", { count: remainingTech })}
               className="bg-surface text-[10px] text-foreground-secondary"
             >
               +{remainingTech}
@@ -153,9 +152,9 @@ export function ProjectCard({
                   href={githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`View ${project.title} source code on GitHub`}
+                  aria-label={t("projects.sourceOnGitHub", { title: project.title })}
                 >
-                  <Code2 className="size-4" aria-hidden="true" /> Code
+                  <Code2 className="size-4" aria-hidden="true" /> {t("projects.code")}
                 </a>
               </Button>
             ) : null}
@@ -165,19 +164,19 @@ export function ProjectCard({
                   href={liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`Open live demo for ${project.title}`}
+                  aria-label={t("projects.liveDemoOf", { title: project.title })}
                 >
-                  <ExternalLink className="size-4" aria-hidden="true" /> Demo
+                  <ExternalLink className="size-4" aria-hidden="true" /> {t("projects.demo")}
                 </a>
               </Button>
             ) : null}
           </div>
           <Link
             href={ROUTES.PROJECT_DETAIL(project.slug)}
-            aria-label={`View details for ${project.title}`}
+            aria-label={t("projects.viewDetailsOf", { title: project.title })}
             className="ml-auto inline-flex min-h-11 items-center gap-1 rounded-sm text-sm font-semibold text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
           >
-            Details <ArrowUpRight aria-hidden="true" className="size-4" />
+            {t("projects.details")} <ArrowUpRight aria-hidden="true" className="size-4" />
           </Link>
         </CardFooter>
       </div>

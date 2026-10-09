@@ -1,26 +1,14 @@
+// Visible hero copy is localized in i18n/messages/*/home.ts (keys `home.hero*`).
 export type HeroData = {
-  badge: string;
-  greeting: string;
   name: string;
-  typewriterItems: string[];
-  description: string;
-  primaryCta: { label: string; href: string };
-  secondaryCta: { label: string; href: string };
+  primaryCta: { href: string };
+  secondaryCta: { href: string };
 };
 
 export const HOME_HERO: HeroData = {
-  badge: "Available for work",
-  greeting: "Hi! I'm",
   name: "ShanDev",
-  typewriterItems: [
-    "a Software Developer",
-    "a Full-stack Engineer",
-    "a Tech Creator",
-  ],
-  description:
-    "I'm a software engineer building full-stack products and writing about frontend architecture, backend systems, and practical AI workflows. I care about interfaces that stay readable as products grow.",
-  primaryCta: { label: "About Me", href: "/about" },
-  secondaryCta: { label: "Contact", href: "/contact" },
+  primaryCta: { href: "/about" },
+  secondaryCta: { href: "/contact" },
 };
 
 export type HeroCodeProfile = {
