@@ -1,6 +1,6 @@
 import * as React from "react";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
-import { AlertCircle, Home, LayoutGrid } from "lucide-react";
+import { AlertCircle, BookOpen, Home } from "lucide-react";
 
 import { LandingLayout } from "@/components/layout/LandingLayout";
 import { Button } from "@/components/ui/button";
@@ -37,8 +37,8 @@ export default function NotFound() {
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href={ROUTES.TEST}>
-                <LayoutGrid className="mr-2 h-4 w-4" /> Xem Components (/test)
+              <Link href={ROUTES.BLOG}>
+                <BookOpen className="mr-2 h-4 w-4" /> Xem Blog
               </Link>
             </Button>
           </CardContent>
