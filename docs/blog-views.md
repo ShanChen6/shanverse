@@ -32,18 +32,30 @@ References: [Upstash SET options](https://upstash.com/docs/redis/sdks/ts/command
 ## Behavior
 
 - `GET` only reads and returns `{ views, counted: false }`. It neither creates a
-  visitor cookie nor changes Redis.
+  visitor cookie nor changes the count. A successful `GET` is the same for every
+  visitor, so the CDN may serve it for up to 30 seconds (plus 60 seconds stale
+  while revalidating); browsers always revalidate.
 - `POST` requires a matching `Origin` and rejects cross-origin fetch metadata.
   It validates the published slug before any Redis write. Request bodies and
   client-supplied counts are ignored.
+- Both methods are rate limited per client IP (first `x-forwarded-for` entry,
+  then `x-real-ip`) to 120 requests per 60-second window, using
+  `blog:views-rate:v1:<window>:<ip-hash>` keys that are created with a TTL
+  before `INCR`. Over the limit the API returns `429` with `Retry-After`. The
+  limit is checked before the published-slug lookup, so abusive traffic never
+  reaches Notion; if Redis is unavailable the API returns `503` instead.
+- The published-slug check reads a list of live slugs that is cached for 60
+  seconds (tag `notion-posts`). The API therefore costs at most one Notion
+  query per minute, and a post that is unpublished or deleted stops being
+  counted within about a minute.
 - The server creates a random visitor ID in an HttpOnly, SameSite=Lax cookie
   (Secure in production). Only its SHA-256 hash appears in Redis keys.
 - Counts use `blog:views:v1:<slug>`. A reservation at
   `blog:view-dedupe:v1:<slug>:<visitor-hash>` uses `SET NX EX 86400`.
   Only the request that acquires it calls `INCR`. The 24 hours start at that
   reservation; reloads do not extend the window. The count key has no expiry.
-- Successful POST responses return `{ views, counted }`. All handled responses,
-  including errors, disable browser/CDN caching. Errors return `views: null`,
+- Successful POST responses return `{ views, counted }`. Every response other
+  than a successful `GET`, including all errors, disables browser/CDN caching. Errors return `views: null`,
   `counted: false` and a generic error, never credentials or provider details.
 - The client reads the count and posts once when the actual shared article
   content enters the viewport. Desktop/mobile use the same content element.
@@ -87,12 +99,17 @@ After deploying, verify against a published post on **each actual domain**
    unchanged count. Check HttpOnly, SameSite=Lax and Secure on HTTPS production.
 3. Send two concurrent POSTs with the same fresh visitor cookie; exactly one
    should be counted. Repeat after the dedupe key expires to verify a new window.
-4. GET/POST a nonexistent or unpublished slug; expect `404` and no Redis keys.
+4. GET/POST a nonexistent or unpublished slug; expect `404` and no view keys
+   (only the rate-limit key). Expect a just-unpublished post to keep returning
+   `200` for up to a minute.
    A mismatched/missing Origin on POST should return `403` without a write.
 5. Repeat at desktop and mobile sizes, with the mobile TOC open/closed, hash
    navigation into the article, locale changes, and client-side slug navigation.
    Watch the network panel for rerender/Strict Mode duplicates and stale counts.
-6. Temporarily use invalid Redis configuration in a non-production environment;
+6. Check the `GET` response headers on Vercel: a second request within 30
+   seconds should be a CDN hit (`x-vercel-cache: HIT`). Loop more than 120
+   requests from one machine; expect `429` with `Retry-After: 60`.
+7. Temporarily use invalid Redis configuration in a non-production environment;
    article content must remain readable and the counter must show an unavailable
    state. Restore credentials afterward.
 
