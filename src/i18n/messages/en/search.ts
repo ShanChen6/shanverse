@@ -1,1 +1,1 @@
-export default { suggestions: "Search suggestions", noSuggestions: "No suggestions found", viewAll: "View all results", clear: "Clear search" } as const;
+export default { suggestions: "Search suggestions", noSuggestions: "No suggestions found", viewAll: "View all results", clear: "Clear search", loading: "Searching...", typePost: "Article", typeProject: "Project", typeCategory: "Category", typeTag: "Tag" } as const;

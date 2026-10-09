@@ -29,6 +29,7 @@ import { SharePost } from "@/features/blog/components/SharePost";
 import { BlogComments } from "@/features/comments/components/BlogComments";
 import { calculateReadingTime } from "@/features/blog/calculate-reading-time";
 import { NotionRenderer } from "@/components/common/notion/renderer";
+import { formatDate } from "@/i18n/format";
 import { getTranslator } from "@/i18n/server";
 import { JsonLd } from "@/components/seo/JsonLd";
 import {
@@ -43,17 +44,6 @@ function articleUrl(slug: string): string {
   return buildBlogPostCanonicalUrl(slug);
 }
 
-function formatDate(value: string | null): string {
-  if (!value) return "Unpublished";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Unpublished";
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
 
 function sameDay(first: string | null, second: string): boolean {
   if (!first) return false;
@@ -123,6 +113,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogDetailPage({ params }: Props) {
   const { slug } = await params;
   const { locale, t } = await getTranslator();
+  // Same locale-aware format as the post cards.
+  const displayDate = (value: string | null) =>
+    (value && formatDate(value, locale)) || t("blog.unpublished");
   const post = await getBlogPost(slug);
   if (!post) notFound();
 
@@ -246,15 +239,15 @@ export default async function BlogDetailPage({ params }: Props) {
                 <span className="inline-flex items-center gap-2">
                   <CalendarDays aria-hidden="true" className="size-4" />
                   <time dateTime={publishedDate}>
-                    {formatDate(publishedDate)}
+                    {displayDate(publishedDate)}
                   </time>
                 </span>
                 {!sameDay(publishedDate, post.updatedAt) ? (
                   <span className="inline-flex items-center gap-2">
                     <RefreshCw aria-hidden="true" className="size-4" />
-                    Updated{" "}
+                    {t("common.updatedLabel")}{" "}
                     <time dateTime={post.updatedAt}>
-                      {formatDate(post.updatedAt)}
+                      {displayDate(post.updatedAt)}
                     </time>
                   </span>
                 ) : null}
@@ -265,7 +258,7 @@ export default async function BlogDetailPage({ params }: Props) {
                 <BlogViewCount />
               </div>
               {post.tags.length ? (
-                <div aria-label="Article tags" className="flex flex-wrap gap-2">
+                <div aria-label={t("blog.articleTags")} className="flex flex-wrap gap-2">
                   {post.tags.map((tag) => (
                     <Badge key={tag} variant="outline" className="bg-surface">
                       <Tag aria-hidden="true" className="mr-1 size-3" />

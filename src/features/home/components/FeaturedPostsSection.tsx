@@ -4,14 +4,16 @@ import { Sparkles } from "lucide-react";
 
 import { PostCard } from "@/features/home/common/PostCard";
 import { ROUTES } from "@/constants/routes";
+import { getTranslator } from "@/i18n/server";
 import type { Post } from "@/types/post";
 
 interface FeaturedPostsSectionProps {
   posts: Post[];
 }
 
-export function FeaturedPostsSection({ posts }: FeaturedPostsSectionProps) {
+export async function FeaturedPostsSection({ posts }: FeaturedPostsSectionProps) {
   if (posts.length === 0) return null;
+  const { t } = await getTranslator();
 
   const [leadPost, ...supportingPosts] = posts;
 
@@ -20,18 +22,18 @@ export function FeaturedPostsSection({ posts }: FeaturedPostsSectionProps) {
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-            Selected Writing
+            {t("home.featuredPostsEyebrow")}
           </p>
-          <h2 className="text-2xl font-bold tracking-tight">Featured Posts</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("home.featuredPosts")}</h2>
           <p className="mt-1 text-sm text-foreground-secondary">
-            Selected ideas and practical notes from Shanverse.
+            {t("home.featuredPostsDescription")}
           </p>
         </div>
         <Link
           href={ROUTES.BLOG}
           className="inline-flex items-center gap-1 rounded-sm text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
         >
-          View all <Sparkles className="h-3.5 w-3.5" />
+          {t("common.viewAll")} <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
         </Link>
       </div>
 

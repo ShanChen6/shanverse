@@ -10,7 +10,7 @@ import {
 
 import { EmptyState } from "@/components/common/EmptyState";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
-import { Pagination } from "@/components/layout/pagination";
+import { Pagination, paginationLabels } from "@/components/layout/pagination";
 import { ROUTES } from "@/constants/routes";
 import { getBlogData } from "@/features/blog/blog-data";
 import {
@@ -151,7 +151,7 @@ async function BlogDataSection({ query, locale, t }: { query: ReturnType<typeof 
               </p>
               {filteredPosts.length > 0 && (
                 <p className="text-xs text-muted">
-                  {query.q ? t("blog.bestMatch") : t("blog.newest")} · Page {currentPage} of {totalPages}
+                  {query.q ? t("blog.bestMatch") : t("blog.newest")} · {t("blog.pageOf", { page: currentPage, total: totalPages })}
                 </p>
               )}
             </div>
@@ -217,6 +217,7 @@ async function BlogDataSection({ query, locale, t }: { query: ReturnType<typeof 
                     currentPage={currentPage}
                     totalPages={totalPages}
                     hrefBuilder={(page) => blogHref(query, { page })}
+                    labels={paginationLabels(t)}
                     className="justify-center border-t border-border pt-6"
                   />
                 )}
@@ -230,15 +231,15 @@ async function BlogDataSection({ query, locale, t }: { query: ReturnType<typeof 
                   id="tags-heading"
                   className="flex items-center gap-2 text-lg font-semibold"
                 >
-                  <Tags aria-hidden="true" className="size-4 text-primary" /> Explore
-                  tags
+                  <Tags aria-hidden="true" className="size-4 text-primary" />{" "}
+                  {t("blog.exploreTags")}
                 </h2>
                 <p className="mb-5 mt-2 text-sm leading-relaxed text-foreground-secondary">
-                  Follow a thread that sparks your curiosity.
+                  {t("blog.exploreTagsDescription")}
                 </p>
                 {tags.length > 0 ? (
                   <nav
-                    aria-label="Filter by tag"
+                    aria-label={t("blog.filterByTag")}
                     className="flex max-h-96 flex-wrap gap-2 overflow-y-auto p-1 -m-1"
                   >
                     {tags.map((tag) => {
@@ -285,7 +286,7 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
   return <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-12">
     <JsonLd data={{ "@context": "https://schema.org", "@type": "Blog", name: "Shanverse Blog", description, url: buildAbsoluteUrl("/vi/blog"), inLanguage: "vi-VN", author: { "@type": "Person", name: SEO_CONFIG.author }, publisher: { "@type": "Person", name: SEO_CONFIG.author } }} />
     <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("common.blog") }]} />
-    <header className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/10 via-surface to-background p-6 sm:p-10 lg:p-12"><div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full border border-primary/10 sm:size-96" /><div className="relative max-w-3xl space-y-6"><p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-medium text-primary"><Sprout className="size-4" aria-hidden="true" /> Shan&apos;s digital garden</p><h1 lang="vi" className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{t("blog.title")}</h1><p lang="vi" className="max-w-2xl text-pretty leading-relaxed text-foreground-secondary sm:text-lg">{t("blog.description")}</p></div></header>
+    <header className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/10 via-surface to-background p-6 sm:p-10 lg:p-12"><div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full border border-primary/10 sm:size-96" /><div className="relative max-w-3xl space-y-6"><p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-medium text-primary"><Sprout className="size-4" aria-hidden="true" /> Shan&apos;s digital garden</p><h1 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{t("blog.title")}</h1><p className="max-w-2xl text-pretty leading-relaxed text-foreground-secondary sm:text-lg">{t("blog.description")}</p></div></header>
     {locale === "en" ? <p role="note" className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground-secondary">{t("blog.vietnameseOnly")}</p> : null}
     <Suspense fallback={<BlogDataSkeleton />}><BlogDataSection query={query} locale={locale} t={t} /></Suspense>
   </div>;

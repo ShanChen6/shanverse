@@ -4,32 +4,34 @@ import { ArrowRight } from "lucide-react";
 
 import { ROUTES } from "@/constants/routes";
 import { PostCard } from "@/features/home/common/PostCard";
+import { getTranslator } from "@/i18n/server";
 import type { Post } from "@/types/post";
 
 interface LatestPostsSectionProps {
   posts: Post[];
 }
 
-export function LatestPostsSection({ posts }: LatestPostsSectionProps) {
+export async function LatestPostsSection({ posts }: LatestPostsSectionProps) {
   if (posts.length === 0) return null;
+  const { t } = await getTranslator();
 
   return (
     <section className="space-y-6">
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-            Fresh from the Desk
+            {t("home.latestPostsEyebrow")}
           </p>
-          <h2 className="text-2xl font-bold tracking-tight">Latest Posts</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("home.latestPosts")}</h2>
           <p className="mt-1 text-sm text-foreground-secondary">
-            Recent lessons from building software and products.
+            {t("home.latestPostsDescription")}
           </p>
         </div>
         <Link
           href={ROUTES.BLOG}
           className="inline-flex items-center gap-1 rounded-sm text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
         >
-          View all posts <ArrowRight className="size-4" aria-hidden="true" />
+          {t("home.viewAllPosts")} <ArrowRight className="size-4" aria-hidden="true" />
         </Link>
       </div>
 

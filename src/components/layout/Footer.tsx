@@ -25,7 +25,7 @@ export function Footer() {
           <div className="space-y-4">
             <BrandLogo />
             <p className="max-w-xs text-sm leading-relaxed text-foreground-secondary">
-              {SITE_CONFIG.description}
+              {t("footer.tagline")}
             </p>
           </div>
 

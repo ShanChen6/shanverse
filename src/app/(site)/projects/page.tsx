@@ -6,7 +6,7 @@ import { ArrowRight, ArrowUpRight, BriefcaseBusiness, Code2, Layers3, Search, Sp
 
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { EmptyState } from "@/components/common/EmptyState";
-import { Pagination } from "@/components/layout/pagination";
+import { Pagination, paginationLabels } from "@/components/layout/pagination";
 import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/routes";
 import { ProjectCard } from "@/features/home/common/ProjectCard";
@@ -26,6 +26,7 @@ const filterClass = "inline-flex min-w-0 items-center rounded-full border px-3.5
 const textLinkClass = "rounded-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-primary";
 
 async function ProjectsDataSection({ query }: { query: ReturnType<typeof parseProjectQuery> }) {
+  const { t } = await getTranslator();
   const data = await getProjectData();
   const technologies = uniqueNames(data.projects.flatMap((project) => project.techStack));
   const tags = uniqueNames(data.projects.flatMap((project) => project.tags));
@@ -124,7 +125,7 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
                     <div className="grid gap-6 sm:grid-cols-2">{pageProjects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
                   </section>
                 ) : null}
-                <Pagination currentPage={currentPage} totalPages={totalPages} hrefBuilder={(page) => projectHref(query, { page })} className="justify-center border-t border-border pt-6" />
+                <Pagination currentPage={currentPage} totalPages={totalPages} hrefBuilder={(page) => projectHref(query, { page })} labels={paginationLabels(t)} className="justify-center border-t border-border pt-6" />
               </div>
 
               <aside aria-labelledby="project-tags-heading" className="min-w-0 rounded-2xl border border-border bg-surface p-5 lg:sticky lg:top-24">

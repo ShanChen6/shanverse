@@ -51,9 +51,9 @@ export function BlogSearchPanel({ query, categories, documents, totalPosts }: Pr
         submitLabel={t("blog.searchButton")}
         suggestionsLabel={t("search.suggestions")}
         emptyLabel={t("search.noSuggestions")}
-        loadingLabel={locale === "vi" ? "Đang tìm kiếm..." : "Searching..."}
+        loadingLabel={t("search.loading")}
         clearLabel={t("search.clear")}
-        typeLabels={{ post: locale === "vi" ? "Bài viết" : "Article", project: locale === "vi" ? "Dự án" : "Project", category: locale === "vi" ? "Danh mục" : "Category", tag: locale === "vi" ? "Thẻ" : "Tag" }}
+        typeLabels={{ post: t("search.typePost"), project: t("search.typeProject"), category: t("search.typeCategory"), tag: t("search.typeTag") }}
       />
 
       <div>
