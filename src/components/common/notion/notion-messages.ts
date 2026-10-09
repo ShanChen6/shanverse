@@ -8,6 +8,9 @@ export const notionMessages = {
     imageError: "Unable to load image",
     warning: "Warning",
     note: "Note",
+    loadingDiagram: "Loading diagram…",
+    mermaidDiagram: "Mermaid diagram",
+    taskStatus: "Task status",
   },
   vi: {
     copyCode: "Sao chép",
@@ -18,6 +21,9 @@ export const notionMessages = {
     imageError: "Không thể tải hình ảnh",
     warning: "Cảnh báo",
     note: "Ghi chú",
+    loadingDiagram: "Đang tải sơ đồ…",
+    mermaidDiagram: "Sơ đồ Mermaid",
+    taskStatus: "Trạng thái công việc",
   },
 } as const;
 

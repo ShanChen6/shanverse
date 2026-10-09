@@ -18,6 +18,7 @@ import type {
 import { getHomeData } from "./home-data";
 import { createSearchDocuments } from "@/features/search/create-search-documents";
 import { HeroSpaceBackdrop } from "./components/HeroSpaceBackdrop";
+import { getTranslator } from "@/i18n/server";
 
 function postTimestamp(post: Post) {
   const value = Date.parse(post.publishedAt ?? post.createdAt);
@@ -116,7 +117,8 @@ async function HomeDataSections() {
   </>;
 }
 
-export function HomePageView() {
+export async function HomePageView() {
+  const { t } = await getTranslator();
   const socialLinks = getSocialLinks();
   return <>
     <section
@@ -127,12 +129,12 @@ export function HomePageView() {
       <div aria-hidden="true" className="brand-gradient-soft pointer-events-none absolute -right-32 -top-40 size-96 rounded-full blur-3xl" />
       <div className="hero-space-content relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-12 lg:items-center lg:gap-14 lg:py-20">
         <HeroSection socialLinks={socialLinks} />
-        <HeroProfileCard />
+        <HeroProfileCard codeLabel={t("home.codeProfileLabel")} />
       </div>
     </section>
-    <TechTicker />
+    <TechTicker label={t("home.techStackLabel")} />
     <div className="mx-auto max-w-6xl space-y-16 px-4 py-16 sm:px-6 lg:space-y-24 lg:py-24">
-      <Suspense fallback={<HomeContentSkeleton />}><HomeDataSections /></Suspense>
+      <Suspense fallback={<HomeContentSkeleton label={t("common.loadingContent")} />}><HomeDataSections /></Suspense>
       <ContactSection socialLinks={socialLinks} />
     </div>
   </>;

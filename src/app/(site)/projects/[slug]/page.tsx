@@ -57,17 +57,17 @@ function sameDay(first: string, second: string) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const { locale } = await getTranslator();
+  const { locale, t } = await getTranslator();
   try {
     const project = await getProjectDetail(slug);
     if (!project) {
       return {
-        title: "Project not found | Shanverse",
+        title: t("metadata.projectNotFound"),
         robots: { index: false, follow: false },
       };
     }
     const description =
-      project.description || `Technical case study for ${project.title}.`;
+      project.description || t("metadata.projectCaseStudy", { title: project.title });
     const canonical = buildAbsoluteUrl(`/${locale}/projects/${encodeURIComponent(project.slug)}`);
     const image = safeMetadataImage(project.coverImage ?? project.thumbnailImage);
     return {
@@ -91,8 +91,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   } catch {
     return {
-      title: "Project | Shanverse",
-      description: "Technical projects and case studies by Shan.",
+      title: t("metadata.projectFallbackTitle"),
+      description: t("metadata.projectFallbackDescription"),
       robots: { index: false, follow: false },
     };
   }
@@ -243,7 +243,7 @@ export default async function ProjectDetailPage({ params }: Props) {
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("projects.ctaTitle")}</h2>
           <p className="mx-auto mt-3 max-w-2xl leading-relaxed text-foreground-secondary">{t("projects.ctaDescription")}</p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href={ROUTES.CONTACT} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary">{t("projects.ctaContact")} <ArrowRight aria-hidden="true" className="size-4" /></Link>
+            <Link href={ROUTES.CONTACT} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary">{t("common.contactMe")} <ArrowRight aria-hidden="true" className="size-4" /></Link>
             <Link href={ROUTES.PROJECTS} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-semibold hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" /> {t("projects.back")}</Link>
           </div>
         </section>

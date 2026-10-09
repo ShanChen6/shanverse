@@ -9,11 +9,11 @@ import { giscusConfig } from "../giscus.config";
 
 const Giscus = React.lazy(() => import("@giscus/react"));
 
-function CommentsFallback() {
+function CommentsFallback({ label }: { label: string }) {
   return (
     <div
       role="status"
-      aria-label="Loading comments"
+      aria-label={label}
       className="h-40 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none"
     />
   );
@@ -69,7 +69,7 @@ export function BlogComments() {
       </div>
       <div className="min-h-40 min-w-0 overflow-x-hidden">
         {shouldLoad ? (
-          <React.Suspense fallback={<CommentsFallback />}>
+          <React.Suspense fallback={<CommentsFallback label={t("common.loadingComments")} />}>
             <Giscus
               id="blog-comments"
               repo={giscusConfig.config.repo}
@@ -87,7 +87,7 @@ export function BlogComments() {
             />
           </React.Suspense>
         ) : (
-          <CommentsFallback />
+          <CommentsFallback label={t("common.loadingComments")} />
         )}
       </div>
     </section>

@@ -29,26 +29,22 @@ import { BlogSearchPanel } from "@/features/blog/components/BlogSearchPanel";
 import { PostCard } from "@/features/home/common/PostCard";
 import { cn } from "@/lib/cn";
 import { getTranslator } from "@/i18n/server";
-import type { Locale } from "@/i18n/config";
 import type { Translate } from "@/i18n/messages";
 import { BlogDataSkeleton } from "@/components/common/PageSkeletons";
 import { buildAbsoluteUrl, buildPageMetadata, SEO_CONFIG } from "@/config/seo.config";
 import { JsonLd } from "@/components/seo/JsonLd";
 
-const description =
-  "Explore Shan's notes on Frontend, Backend, System Design, and the lessons learned from building real products.";
-
 export async function generateMetadata({ searchParams }: { searchParams: Promise<BlogSearchParams> }) {
-  const { locale } = await getTranslator();
+  const { locale, t } = await getTranslator();
   const query = parseBlogQuery(await searchParams);
-  const metadata = buildPageMetadata({ locale, path: "/blog", title: "Blog", description, keywords: ["frontend", "backend", "system design", "software engineering"], blogOnly: true });
+  const metadata = buildPageMetadata({ locale, path: "/blog", title: t("metadata.blogTitle"), description: t("metadata.blogDescription"), keywords: ["frontend", "backend", "system design", "software engineering"], blogOnly: true });
   return { ...metadata, robots: query.q || query.category || query.tag || query.page > 1 ? { index: false, follow: true } : metadata.robots };
 }
 
 const linkClass =
   "rounded-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-primary";
 
-async function BlogDataSection({ query, locale, t }: { query: ReturnType<typeof parseBlogQuery>; locale: Locale; t: Translate }) {
+async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlogQuery>; t: Translate }) {
   const data = await getBlogData();
   const categories = buildBlogFilterOptions(
     data.categories,
@@ -180,12 +176,12 @@ async function BlogDataSection({ query, locale, t }: { query: ReturnType<typeof 
                 {filteredPosts.length === 0 ? (
                   <EmptyState
                     icon={<Sprout className="size-10" />}
-                    title={data.posts.length === 0 ? (locale === "vi" ? "Những ý tưởng mới đang nảy mầm" : "New ideas are taking root") : t("blog.noResults")}
+                    title={data.posts.length === 0 ? t("blog.emptyNoneTitle") : t("blog.noResults")}
                     description={data.posts.length === 0
-                      ? (locale === "vi" ? "Hiện chưa có bài viết nào được xuất bản. Hãy quay lại để đọc những ghi chép mới." : "There are no published articles yet. Come back soon for fresh notes and ideas.")
+                      ? t("blog.emptyNoneDescription")
                       : query.q
-                        ? (locale === "vi" ? `Không có bài viết khớp với “${query.q}”. Hãy thử từ khóa khác hoặc xóa bộ lọc.` : `No articles matched “${query.q}”. Try another keyword or clear the current filters.`)
-                        : (locale === "vi" ? "Hãy xóa bộ lọc hiện tại để khám phá thêm bài viết." : "Try clearing the current filters to explore more writing.")}
+                        ? t("blog.emptyNoMatchQuery", { query: query.q })
+                        : t("blog.emptyNoMatchFilters")}
                     action={hasFilters ? (
                       <>
                         {query.q ? <Link href={blogHref(query, { q: "", page: 1 })} className={linkClass}>{t("blog.clearSearch")}</Link> : null}
@@ -284,10 +280,10 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
   const query = parseBlogQuery(await searchParams);
   const { locale, t } = await getTranslator();
   return <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-12">
-    <JsonLd data={{ "@context": "https://schema.org", "@type": "Blog", name: "Shanverse Blog", description, url: buildAbsoluteUrl("/vi/blog"), inLanguage: "vi-VN", author: { "@type": "Person", name: SEO_CONFIG.author }, publisher: { "@type": "Person", name: SEO_CONFIG.author } }} />
+    <JsonLd data={{ "@context": "https://schema.org", "@type": "Blog", name: "Shanverse Blog", description: t("metadata.blogDescription"), url: buildAbsoluteUrl(`/${locale}/blog`), inLanguage: "vi-VN", author: { "@type": "Person", name: SEO_CONFIG.author }, publisher: { "@type": "Person", name: SEO_CONFIG.author } }} />
     <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("common.blog") }]} />
-    <header className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/10 via-surface to-background p-6 sm:p-10 lg:p-12"><div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full border border-primary/10 sm:size-96" /><div className="relative max-w-3xl space-y-6"><p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-medium text-primary"><Sprout className="size-4" aria-hidden="true" /> Shan&apos;s digital garden</p><h1 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{t("blog.title")}</h1><p className="max-w-2xl text-pretty leading-relaxed text-foreground-secondary sm:text-lg">{t("blog.description")}</p></div></header>
+    <header className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/10 via-surface to-background p-6 sm:p-10 lg:p-12"><div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full border border-primary/10 sm:size-96" /><div className="relative max-w-3xl space-y-6"><p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-medium text-primary"><Sprout className="size-4" aria-hidden="true" /> {t("blog.gardenBadge")}</p><h1 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{t("blog.title")}</h1><p className="max-w-2xl text-pretty leading-relaxed text-foreground-secondary sm:text-lg">{t("blog.description")}</p></div></header>
     {locale === "en" ? <p role="note" className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground-secondary">{t("blog.vietnameseOnly")}</p> : null}
-    <Suspense fallback={<BlogDataSkeleton />}><BlogDataSection query={query} locale={locale} t={t} /></Suspense>
+    <Suspense fallback={<BlogDataSkeleton label={t("common.loadingArticles")} />}><BlogDataSection query={query} t={t} /></Suspense>
   </div>;
 }

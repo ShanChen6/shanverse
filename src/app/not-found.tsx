@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import Badge from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ROUTES } from "@/constants/routes";
+import { getTranslator } from "@/i18n/server";
 
-export default function NotFound() {
+export default async function NotFound() {
+  const { t } = await getTranslator();
   return (
     <LandingLayout>
       <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center space-y-8 max-w-2xl min-h-[60vh]">
@@ -19,26 +21,25 @@ export default function NotFound() {
 
           <div className="space-y-2">
             <Badge variant="danger" className="px-3 py-1">
-              404 Error
+              {t("errors.notFoundBadge")}
             </Badge>
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Page Not Found
+              {t("errors.notFound")}
             </h1>
             <p className="text-foreground-secondary text-sm sm:text-base leading-relaxed">
-              Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển sang
-              đường dẫn khác.
+              {t("errors.notFoundDescription")}
             </p>
           </div>
 
           <CardContent className="flex flex-wrap items-center justify-center gap-4 pt-4 border-t border-border">
             <Button asChild variant="default" size="lg">
               <Link href={ROUTES.HOME}>
-                <Home className="mr-2 h-4 w-4" /> Về Trang chủ
+                <Home className="mr-2 h-4 w-4" /> {t("errors.backHome")}
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg">
               <Link href={ROUTES.BLOG}>
-                <BookOpen className="mr-2 h-4 w-4" /> Xem Blog
+                <BookOpen className="mr-2 h-4 w-4" /> {t("errors.browseBlog")}
               </Link>
             </Button>
           </CardContent>

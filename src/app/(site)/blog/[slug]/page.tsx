@@ -58,18 +58,19 @@ function sameDay(first: string | null, second: string): boolean {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const { t } = await getTranslator();
   try {
     const post = await getBlogPost(slug);
     if (!post)
       return {
-        title: "Article not found | Shanverse",
+        title: t("metadata.articleNotFound"),
         robots: { index: false, follow: false },
       };
     const canonical = articleUrl(post.slug);
     const image = safeMetadataImage(post.coverImage ?? post.thumbnailImage);
     const description =
       post.excerpt.replace(/\s+/gu, " ").trim() ||
-      `Read ${post.title} on Shanverse.`;
+      t("metadata.articleReadOn", { title: post.title });
     return {
       title: { absolute: `${post.title} | Shanverse` },
       description,
@@ -103,8 +104,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   } catch {
     return {
-      title: "Blog article | Shanverse",
-      description: "Read ideas and practical engineering notes from Shanverse.",
+      title: t("metadata.articleFallbackTitle"),
+      description: t("metadata.articleFallbackDescription"),
       robots: { index: false, follow: false },
     };
   }

@@ -1,6 +1,8 @@
 import * as React from "react";
 
 import { DetailPageSkeleton } from "@/components/common/PageSkeletons";
-export default function BlogDetailLoading() {
-  return <DetailPageSkeleton label="Loading article" />;
+import { getTranslator } from "@/i18n/server";
+export default async function BlogDetailLoading() {
+  const { t } = await getTranslator();
+  return <DetailPageSkeleton label={t("common.loadingArticle")} />;
 }
