@@ -4,16 +4,18 @@ import { ArrowRight } from "lucide-react";
 
 import { ProjectCard } from "@/features/home/common/ProjectCard";
 import { ROUTES } from "@/constants/routes";
+import { getTranslator } from "@/i18n/server";
 import type { Project } from "@/types/project";
 
 interface FeaturedProjectsSectionProps {
   projects: Project[];
 }
 
-export function FeaturedProjectsSection({
+export async function FeaturedProjectsSection({
   projects,
 }: FeaturedProjectsSectionProps) {
   if (projects.length === 0) return null;
+  const { t } = await getTranslator();
   const [leadProject, ...supportingProjects] = projects;
 
   return (
@@ -21,20 +23,20 @@ export function FeaturedProjectsSection({
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-            Selected Work
+            {t("home.featuredProjectsEyebrow")}
           </p>
           <h2 className="text-2xl font-bold tracking-tight">
-            Featured Projects
+            {t("home.featuredProjects")}
           </h2>
           <p className="mt-1 text-sm text-foreground-secondary">
-            Products and technical experiments built with care.
+            {t("home.featuredProjectsDescription")}
           </p>
         </div>
         <Link
           href={ROUTES.PROJECTS}
           className="inline-flex items-center gap-1 rounded-sm text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
         >
-          View all Projects <ArrowRight className="h-3.5 w-3.5" />
+          {t("home.viewAllProjects")} <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
         </Link>
       </div>
 

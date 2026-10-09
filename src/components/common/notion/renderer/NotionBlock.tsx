@@ -43,7 +43,7 @@ export function NotionBlock({ block, headingIds, renderChildren, articleTitle, l
     case "numbered_list_item":
       return <li className="pl-1">{text}{children}</li>;
     case "to_do":
-      return <div className="flex items-start gap-3"><input type="checkbox" checked={block.checked ?? false} readOnly aria-label="Task status" className="mt-1 size-4 accent-primary" /><div className={block.checked ? "text-muted line-through" : undefined}>{text}{children}</div></div>;
+      return <div className="flex items-start gap-3"><input type="checkbox" checked={block.checked ?? false} readOnly aria-label={notionMessages[locale].taskStatus} className="mt-1 size-4 accent-primary" /><div className={block.checked ? "text-muted line-through" : undefined}>{text}{children}</div></div>;
     case "quote":
       return <blockquote className="border-l-4 border-primary/40 bg-primary/5 px-5 py-3 italic text-foreground-secondary">{text}{children}</blockquote>;
     case "callout":

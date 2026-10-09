@@ -130,10 +130,13 @@ const personAvatar = (property: NotionProperty | undefined): string | null => {
 export class NotionService {
 	private client: Client | undefined;
 	private databaseId: string | undefined;
-	private readonly dataSourceIds = new Map<string, string>();
+	// IDs from env may be database IDs or data source IDs; they are resolved once.
+	private readonly configuredIds = new Map<string, string>();
+	private readonly resolvedDataSourceIds = new Map<string, string>();
+	private readonly pendingDataSourceIds = new Map<string, Promise<string>>();
 
 	constructor() {
-		for (const [collection, id] of Object.entries(notionDataSourceEnv)) if (id) this.dataSourceIds.set(collection, id);
+		for (const [collection, id] of Object.entries(notionDataSourceEnv)) if (id) this.configuredIds.set(collection, id);
 	}
 
 	private getClient(): Client {
@@ -152,18 +155,37 @@ export class NotionService {
 	}
 
 	private async getDataSourceId(collection: keyof typeof notionDataSourceEnv): Promise<string> {
-		const configuredId = this.dataSourceIds.get(collection);
+		const resolved = this.resolvedDataSourceIds.get(collection);
+		if (resolved) return resolved;
+
+		let pending = this.pendingDataSourceIds.get(collection);
+		if (!pending) {
+			pending = this.resolveDataSourceId(collection).finally(() => {
+				this.pendingDataSourceIds.delete(collection);
+			});
+			this.pendingDataSourceIds.set(collection, pending);
+		}
+		return pending;
+	}
+
+	private async resolveDataSourceId(collection: keyof typeof notionDataSourceEnv): Promise<string> {
+		const configuredId = this.configuredIds.get(collection);
 		if (configuredId) {
 			try {
 				const database = await this.getClient().databases.retrieve({ database_id: configuredId });
 				if (database.object === "database" && "data_sources" in database && database.data_sources.length > 0) {
 					const dataSourceId = database.data_sources[0].id;
-					this.dataSourceIds.set(collection, dataSourceId);
+					this.resolvedDataSourceIds.set(collection, dataSourceId);
 					return dataSourceId;
 				}
-			} catch {
-				// The configured value may already be a data source ID.
+			} catch (error) {
+				// Notion rejects a data source ID passed as a database ID. That answer is
+				// permanent, so remember it; transient failures are retried next time.
+				if (!isNotionClientError(error) || (error.code !== "object_not_found" && error.code !== "validation_error")) {
+					return configuredId;
+				}
 			}
+			this.resolvedDataSourceIds.set(collection, configuredId);
 			return configuredId;
 		}
 
@@ -173,7 +195,7 @@ export class NotionService {
 				throw new NotionServiceError(`No data source found for ${collection}`);
 			}
 			const dataSourceId = database.data_sources[0].id;
-			this.dataSourceIds.set(collection, dataSourceId);
+			this.resolvedDataSourceIds.set(collection, dataSourceId);
 			return dataSourceId;
 		} catch (error) {
 			if (error instanceof NotionServiceError) throw error;
@@ -312,14 +334,23 @@ export class NotionService {
 		return Promise.all(pages.map((page) => this.mapPost(page, false, authorLookup, categoryLookup, tagLookup)));
 	}
 
-	async isPublishedPostSlug(slug: string): Promise<boolean> {
-		if (!slug.trim()) return false;
-		// Check current publication state without loading article blocks, authors,
-		// categories, or the detail page's five-minute cache.
-		const page = (await this.queryPages("posts")).find((item) => propertyText(firstProperty(item.properties, notionPropertyNames.slug)) === slug);
-		return Boolean(page && !page.archived && !page.in_trash &&
-			propertyBoolean(firstProperty(page.properties, notionPropertyNames.published)) &&
-			propertyText(firstProperty(page.properties, notionPropertyNames.title)).trim());
+	// Slugs of live posts, without loading article blocks, authors, categories or
+	// tags. Callers should cache this (see features/blog/published-slugs.ts).
+	async getPublishedPostSlugs(): Promise<string[]> {
+		const slugs = new Set<string>();
+		for (const page of await this.queryPages("posts")) {
+			const slug = propertyText(firstProperty(page.properties, notionPropertyNames.slug));
+			if (
+				slug.trim() &&
+				!page.archived &&
+				!page.in_trash &&
+				propertyBoolean(firstProperty(page.properties, notionPropertyNames.published)) &&
+				propertyText(firstProperty(page.properties, notionPropertyNames.title)).trim()
+			) {
+				slugs.add(slug);
+			}
+		}
+		return [...slugs];
 	}
 
 	async getPostBySlug(slug: string): Promise<Post | null> {

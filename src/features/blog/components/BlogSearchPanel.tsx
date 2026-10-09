@@ -36,7 +36,7 @@ export function BlogSearchPanel({ query, categories, documents, totalPosts }: Pr
   return (
     <section aria-labelledby="blog-search-heading" className="space-y-5 rounded-3xl border border-border bg-surface p-4 sm:p-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">{locale === "vi" ? "Tìm nội dung bạn quan tâm" : "Find your next read"}</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">{t("blog.searchEyebrow")}</p>
         <h2 id="blog-search-heading" className="mt-1 text-xl font-semibold">{t("blog.searchTitle")}</h2>
       </div>
 
@@ -51,9 +51,9 @@ export function BlogSearchPanel({ query, categories, documents, totalPosts }: Pr
         submitLabel={t("blog.searchButton")}
         suggestionsLabel={t("search.suggestions")}
         emptyLabel={t("search.noSuggestions")}
-        loadingLabel={locale === "vi" ? "Đang tìm kiếm..." : "Searching..."}
+        loadingLabel={t("search.loading")}
         clearLabel={t("search.clear")}
-        typeLabels={{ post: locale === "vi" ? "Bài viết" : "Article", project: locale === "vi" ? "Dự án" : "Project", category: locale === "vi" ? "Danh mục" : "Category", tag: locale === "vi" ? "Thẻ" : "Tag" }}
+        typeLabels={{ post: t("search.typePost"), project: t("search.typeProject"), category: t("search.typeCategory"), tag: t("search.typeTag") }}
       />
 
       <div>
@@ -72,7 +72,7 @@ export function BlogSearchPanel({ query, categories, documents, totalPosts }: Pr
       </div>
 
       {hasActiveFilters ? <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4 text-sm">
-        <span className="text-foreground-secondary">Active:</span>
+        <span className="text-foreground-secondary">{t("blog.activeFilters")}</span>
         {query.q ? <button type="button" onClick={() => navigate({ q: "" })} className="inline-flex min-h-9 items-center gap-1 rounded-full border border-border bg-background px-3 focus-visible:ring-2 focus-visible:ring-primary">“{query.q}” <X className="size-3.5" aria-hidden="true" /></button> : null}
         {query.category ? <button type="button" onClick={() => navigate({ category: "" })} className="inline-flex min-h-9 items-center gap-1 rounded-full border border-border bg-background px-3 focus-visible:ring-2 focus-visible:ring-primary">{categories.find((item) => normalizeSearchText(item.slug) === normalizeSearchText(query.category))?.name ?? query.category}<X className="size-3.5" aria-hidden="true" /></button> : null}
         {query.tag ? <button type="button" onClick={() => navigate({ tag: "" })} className="inline-flex min-h-9 items-center gap-1 rounded-full border border-border bg-background px-3 focus-visible:ring-2 focus-visible:ring-primary">#{query.tag} <X className="size-3.5" aria-hidden="true" /></button> : null}

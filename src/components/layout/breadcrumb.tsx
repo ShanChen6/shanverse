@@ -1,6 +1,9 @@
+"use client";
+
 import * as React from "react";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 
+import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 
 export interface BreadcrumbItem {
@@ -19,8 +22,9 @@ export function Breadcrumb({
   className,
   separator = <span aria-hidden="true">/</span>,
 }: BreadcrumbProps) {
+  const { t } = useI18n();
   return (
-    <nav aria-label="Breadcrumb" className={cn("text-sm", className)}>
+    <nav aria-label={t("common.breadcrumb")} className={cn("text-sm", className)}>
       <ol className="flex flex-wrap items-center gap-2 text-foreground-secondary">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
