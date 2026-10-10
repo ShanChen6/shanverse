@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    // Next 16 only serves local images with a query string when allowed here.
+    // /api/notion-media/... uses ?v= to bust caches when a Notion image changes.
+    localPatterns: [
+      { pathname: "/api/notion-media/**" },
+      { pathname: "/**", search: "" },
+    ],
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
       {

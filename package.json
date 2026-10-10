@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "analyze": "next experimental-analyze --output",
-    "test": "tsx --test src/features/blog/related-posts.test.ts src/features/blog/share-post.test.ts src/features/blog/blog-view-session.test.ts src/features/blog/observe-blog-content.test.ts src/features/search/search.test.ts src/features/comments/giscus.config.test.ts && pnpm test:views",
+    "test": "tsx --test src/features/blog/related-posts.test.ts src/features/blog/share-post.test.ts src/features/blog/blog-view-session.test.ts src/features/blog/observe-blog-content.test.ts src/features/search/search.test.ts src/features/comments/giscus.config.test.ts src/lib/notion-media.test.ts && pnpm test:views",
     "test:views": "tsx --conditions=react-server --test src/features/blog/view-count.test.ts",
     "sync:reading-time": "tsx scripts/sync-notion-reading-time.ts"
   },
