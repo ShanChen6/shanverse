@@ -9,7 +9,6 @@ import {
   Clock,
   RefreshCw,
   Tag,
-  UserRound,
 } from "lucide-react";
 
 import { Breadcrumb } from "@/components/layout/breadcrumb";
@@ -38,6 +37,7 @@ import {
   safeMetadataImage,
   SEO_CONFIG,
 } from "@/config/seo.config";
+import { TianwuBadge } from "@/components/mascot/Tianwu";
 
 type Props = { params: Promise<{ slug: string }> };
 function articleUrl(slug: string): string {
@@ -227,13 +227,15 @@ export default async function BlogDetailPage({ params }: Props) {
                       alt=""
                       className="size-6 rounded-full object-cover"
                     />
-                  ) : (
+                  ) : post.authorAvatar ? (
                     <span
                       aria-hidden="true"
                       className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-xs text-primary"
                     >
-                      {post.authorAvatar ?? <UserRound className="size-3.5" />}
+                      {post.authorAvatar}
                     </span>
+                  ) : (
+                    <TianwuBadge className="size-6 shrink-0" />
                   )}
                   {post.authorName ?? "Shanverse"}
                 </span>
@@ -333,13 +335,15 @@ export default async function BlogDetailPage({ params }: Props) {
                   alt={`${post.authorName ?? "Author"}'s avatar`}
                   className="size-16 shrink-0 rounded-full object-cover"
                 />
-              ) : (
+              ) : post.authorAvatar ? (
                 <div
                   aria-hidden="true"
                   className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-2xl"
                 >
-                  {post.authorAvatar ?? "S"}
+                  {post.authorAvatar}
                 </div>
+              ) : (
+                <TianwuBadge className="size-16 shrink-0" />
               )}
               <div>
                 <p className="text-sm font-medium text-primary">

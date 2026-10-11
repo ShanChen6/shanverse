@@ -12,6 +12,7 @@ import { AboutStorySection } from "./components/AboutStorySection";
 import { ApproachSection } from "./components/ApproachSection";
 import { JourneySection } from "./components/JourneySection";
 import { SkillsSection } from "./components/SkillsSection";
+import { TianwuStorySection } from "./components/TianwuStorySection";
 import { ValuesSection } from "./components/ValuesSection";
 
 async function AboutStatsData() {
@@ -42,6 +43,7 @@ export async function AboutPageView() {
         <ApproachSection />
         <JourneySection />
         <ValuesSection />
+        <TianwuStorySection />
         <AboutCTASection />
     </div>
   );

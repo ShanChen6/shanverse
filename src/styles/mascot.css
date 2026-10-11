@@ -1,0 +1,85 @@
+/* Tianwu, the Shanverse mascot: backdrops and slow, gentle motion. */
+
+.tw-sky {
+  background:
+    radial-gradient(circle at 80% 20%, rgb(46 85 168 / 0.45), transparent 55%),
+    linear-gradient(160deg, #0a1c45, #031242);
+}
+
+.tw-twinkle {
+  animation: tw-twinkle 3.2s ease-in-out infinite;
+}
+
+/* The ship crosses the strip slowly: Tianwu is never in a hurry. */
+.tw-glide {
+  animation: tw-glide 9s linear infinite;
+}
+
+.tw-bob {
+  animation: tw-bob 2.4s ease-in-out infinite;
+}
+
+.tw-flame {
+  transform-box: fill-box;
+  transform-origin: right center;
+  animation: tw-flame 0.35s ease-in-out infinite alternate;
+}
+
+.tw-drift {
+  animation: tw-drift 8s ease-in-out infinite;
+}
+
+.tw-sway {
+  transform-origin: 50% 90%;
+  animation: tw-sway 5s ease-in-out infinite;
+}
+
+@keyframes tw-twinkle {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+@keyframes tw-glide {
+  from { transform: translateX(-7.5rem); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes tw-bob {
+  0%, 100% { margin-top: -3px; }
+  50% { margin-top: 3px; }
+}
+
+@keyframes tw-flame {
+  from { transform: scaleX(0.75); opacity: 0.8; }
+  to { transform: scaleX(1.1); opacity: 1; }
+}
+
+@keyframes tw-drift {
+  0%, 100% { transform: translate(-50%, 0) rotate(-10deg); }
+  50% { transform: translate(-46%, -14px) rotate(8deg); }
+}
+
+@keyframes tw-sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tw-twinkle,
+  .tw-glide,
+  .tw-bob,
+  .tw-flame,
+  .tw-drift,
+  .tw-sway {
+    animation: none;
+  }
+
+  /* Park the ship in the middle of the strip instead of flying. */
+  .tw-glide {
+    transform: translateX(calc(50% - 3.5rem));
+  }
+
+  .tw-drift {
+    transform: translate(-50%, 0) rotate(-6deg);
+  }
+}

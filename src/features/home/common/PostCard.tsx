@@ -8,7 +8,6 @@ import {
   CalendarDays,
   Clock,
   Sparkles,
-  UserRound,
 } from "lucide-react";
 
 import Badge from "@/components/ui/badge";
@@ -24,6 +23,7 @@ import { cn } from "@/lib/cn";
 import type { Post } from "@/types/post";
 import { useI18n } from "@/i18n/client";
 import { formatDate } from "@/i18n/format";
+import { TianwuBadge } from "@/components/mascot/Tianwu";
 
 function imageSource(value: string | null): string | null {
   const source = value?.trim();
@@ -169,12 +169,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
               className="size-7 shrink-0 rounded-full border border-border object-cover"
             />
           ) : (
-            <span
-              className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"
-              aria-hidden="true"
-            >
-              <UserRound className="size-3.5" />
-            </span>
+            <TianwuBadge className="size-7 shrink-0" />
           )}
           <span className="truncate">{authorName}</span>
         </CardContent>

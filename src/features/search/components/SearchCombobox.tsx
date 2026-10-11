@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/cn";
 import { DEFAULT_SEARCH_LIMIT, FUSE_SEARCH_OPTIONS, MIN_SEARCH_LENGTH, SEARCH_DEBOUNCE_MS } from "../search.config";
 import type { SearchDocument, SearchDocumentType } from "../search.types";
+import { TianwuBadge } from "@/components/mascot/Tianwu";
 
 type Props = {
   documents: SearchDocument[];
@@ -135,7 +136,7 @@ export function SearchCombobox({ documents, value, onValueChange, onSelect, onSu
             <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold"><HighlightedText text={result.item.title} matches={result.matches?.filter((match) => match.key === "title")} /></span>{result.item.description ? <span className="mt-0.5 block line-clamp-1 text-xs text-foreground-secondary"><HighlightedText text={result.item.description} matches={result.matches?.filter((match) => match.key === "description")} /></span> : null}</span>
             <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-[10px] font-medium text-muted">{typeLabels[result.item.type]}</span>
           </button>;
-        }) : <p className="px-4 py-5 text-center text-sm text-foreground-secondary">{emptyLabel}</p>}
+        }) : <div className="flex flex-col items-center gap-2 px-4 py-5 text-center"><TianwuBadge className="tw-sway size-12" /><p className="text-sm text-foreground-secondary">{emptyLabel}</p></div>}
       </div>
     </div> : null}
     <p className="sr-only" aria-live="polite" aria-atomic="true">{open && !searching ? `${results.length} ${suggestionsLabel}` : ""}</p>

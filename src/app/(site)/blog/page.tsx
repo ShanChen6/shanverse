@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { EmptyState } from "@/components/common/EmptyState";
+import { Tianwu, TianwuShip } from "@/components/mascot/Tianwu";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { Pagination, paginationLabels } from "@/components/layout/pagination";
 import { ROUTES } from "@/constants/routes";
@@ -175,7 +176,8 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
               <div className="min-w-0 space-y-8">
                 {filteredPosts.length === 0 ? (
                   <EmptyState
-                    icon={<Sprout className="size-10" />}
+                    illustration={data.posts.length === 0 ? <TianwuShip className="h-auto w-full" /> : <Tianwu pose="determined" className="h-auto w-full" />}
+                    note={data.posts.length === 0 ? t("mascot.emptyComing") : t("mascot.emptySearching")}
                     title={data.posts.length === 0 ? t("blog.emptyNoneTitle") : t("blog.noResults")}
                     description={data.posts.length === 0
                       ? t("blog.emptyNoneDescription")

@@ -10,6 +10,7 @@
 @import "./typography.css";
 @import "./responsive.css";
 @import "./games.css";
+@import "./mascot.css";
 
 .dark .shiki-token {
   color: var(--shiki-dark) !important;
