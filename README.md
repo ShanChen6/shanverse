@@ -36,7 +36,7 @@ Shanverse is my digital space for sharing technical articles, learning notes, pr
 - 📊 **Reading time** estimated at 200 words per minute
 - 📬 **Contact form** that delivers messages through Resend
 - 👁️ **Blog view counts** backed by Upstash Redis
-- 🎮 **Mini games**: 2048 (`/games/2048`) and Minesweeper (`/games/minesweeper`), with keyboard, mouse and touch controls
+- 🎮 **Mini games** at `/games`: 2048, Minesweeper, Typing Speed, Tech Memory and Snake, with keyboard, mouse and touch controls, plus a teaser on the home page
 - 🖼️ **Optimized images** with thumbnail → cover → placeholder fallback
 - 🌙 **Light / dark mode** and 📱 **responsive layout**
 

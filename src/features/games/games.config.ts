@@ -10,6 +10,8 @@ export type GameEntry = {
   titleKey: TranslationKey;
   descriptionKey: TranslationKey;
   tagKeys: TranslationKey[];
+  /** Shown in the mini game section on the home page (up to three). */
+  featured?: boolean;
 };
 
 export const GAMES: GameEntry[] = [
@@ -27,4 +29,35 @@ export const GAMES: GameEntry[] = [
     descriptionKey: "games.minesweeperDescription",
     tagKeys: ["games.tagPuzzle", "games.tagMouse", "games.tagTouch"],
   },
+  {
+    slug: "typing",
+    href: ROUTES.GAME_DETAIL("typing"),
+    titleKey: "games.typingTitle",
+    descriptionKey: "games.typingDescription",
+    tagKeys: ["games.tagCode", "games.tagKeyboard"],
+    featured: true,
+  },
+  {
+    slug: "memory",
+    href: ROUTES.GAME_DETAIL("memory"),
+    titleKey: "games.memoryTitle",
+    descriptionKey: "games.memoryDescription",
+    tagKeys: ["games.tagMemory", "games.tagTouch", "games.tagMouse"],
+    featured: true,
+  },
+  {
+    slug: "snake",
+    href: ROUTES.GAME_DETAIL("snake"),
+    titleKey: "games.snakeTitle",
+    descriptionKey: "games.snakeDescription",
+    tagKeys: ["games.tagReflex", "games.tagKeyboard", "games.tagTouch"],
+    featured: true,
+  },
 ];
+
+/** Games for the home page: the featured ones, topped up from the list. */
+export function homeGames(limit = 3): GameEntry[] {
+  const featured = GAMES.filter((game) => game.featured);
+  const rest = GAMES.filter((game) => !game.featured);
+  return [...featured, ...rest].slice(0, limit);
+}

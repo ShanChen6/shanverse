@@ -7,15 +7,9 @@ import { Breadcrumb } from "@/components/layout/breadcrumb";
 import Badge from "@/components/ui/badge";
 import { buildPageMetadata } from "@/config/seo.config";
 import { ROUTES } from "@/constants/routes";
-import { Game2048Preview } from "@/features/games/components/Game2048Preview";
-import { MinesweeperPreview } from "@/features/games/components/MinesweeperPreview";
+import { GamePreview } from "@/features/games/components/GamePreview";
 import { GAMES } from "@/features/games/games.config";
 import { getTranslator } from "@/i18n/server";
-
-const PREVIEWS: Record<string, React.ComponentType> = {
-  "2048": Game2048Preview,
-  minesweeper: MinesweeperPreview,
-};
 
 export async function generateMetadata(): Promise<Metadata> {
   const { locale, t } = await getTranslator();
@@ -24,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
     path: ROUTES.GAMES,
     title: t("metadata.gamesTitle"),
     description: t("metadata.gamesDescription"),
-    keywords: ["Shanverse", "mini game", "2048", "minesweeper", "browser game"],
+    keywords: ["Shanverse", "mini game", "2048", "minesweeper", "typing test", "memory game", "snake", "browser game"],
   });
 }
 
@@ -48,7 +42,6 @@ export default async function GamesPage() {
 
       <section aria-label={t("games.listLabel")} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {GAMES.map((game) => {
-          const Preview = PREVIEWS[game.slug];
           const title = t(game.titleKey);
           return (
             <article key={game.slug} className="brand-card-border group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface-elevated transition-shadow hover:shadow-md">
@@ -57,8 +50,8 @@ export default async function GamesPage() {
                 aria-label={t("games.playGame", { title })}
                 className="block border-b border-border bg-linear-to-br from-primary/15 via-surface to-background p-6 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
               >
-                <div className="transition-transform duration-300 group-hover:scale-[1.02] motion-reduce:transition-none">
-                  {Preview ? <Preview /> : null}
+                <div className="flex h-64 items-center justify-center transition-transform duration-300 group-hover:scale-[1.02] motion-reduce:transition-none">
+                  <GamePreview slug={game.slug} />
                 </div>
               </Link>
               <div className="flex flex-1 flex-col gap-3 p-5 sm:p-6">
