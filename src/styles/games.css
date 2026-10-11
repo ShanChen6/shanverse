@@ -1,0 +1,125 @@
+/* 2048 board. Tiles are positioned with transforms so they can slide. */
+
+.g2048-board {
+  --g2048-gap: clamp(6px, 2.2vw, 12px);
+  --g2048-board: #d8cdb7;
+  --g2048-cell: rgb(250 247 240 / 0.55);
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  border-radius: 1.25rem;
+  padding: calc(var(--g2048-gap) / 2);
+  background: var(--g2048-board);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dark .g2048-board {
+  --g2048-board: #0a1c45;
+  --g2048-cell: rgb(37 66 118 / 0.55);
+  box-shadow: inset 0 0 0 1px rgb(96 119 162 / 0.45);
+}
+
+.g2048-layer {
+  position: absolute;
+  inset: calc(var(--g2048-gap) / 2);
+}
+
+.g2048-slot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 25%;
+  height: 25%;
+  padding: calc(var(--g2048-gap) / 2);
+}
+
+.g2048-cell {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.75rem;
+  background: var(--g2048-cell);
+}
+
+.g2048-move {
+  transition: transform 110ms ease-in-out;
+}
+
+.g2048-tile {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.5rem, 8.5vw, 2.6rem);
+  background: #fffdf8;
+  color: #031242;
+  box-shadow: 0 1px 0 rgb(3 18 66 / 0.08);
+}
+
+.g2048-tile[data-digits="3"] { font-size: clamp(1.25rem, 7vw, 2.15rem); }
+.g2048-tile[data-digits="4"] { font-size: clamp(1rem, 5.6vw, 1.75rem); }
+.g2048-tile[data-digits="5"] { font-size: clamp(0.85rem, 4.6vw, 1.4rem); }
+
+/* Brand palette: cream → gold → orange → periwinkle → navy, then 2048 glows. */
+.g2048-tile[data-value="2"] { background: #fffdf8; color: #031242; }
+.g2048-tile[data-value="4"] { background: #f3e6cc; color: #031242; }
+.g2048-tile[data-value="8"] { background: #ebcb8b; color: #031242; }
+.g2048-tile[data-value="16"] { background: #d9af62; color: #031242; }
+.g2048-tile[data-value="32"] { background: #e2873a; color: #ffffff; }
+.g2048-tile[data-value="64"] { background: #b8551f; color: #ffffff; }
+.g2048-tile[data-value="128"] { background: #8fb0f5; color: #031242; }
+.g2048-tile[data-value="256"] { background: #5677be; color: #ffffff; }
+.g2048-tile[data-value="512"] { background: #1d3a7d; color: #ffffff; }
+.g2048-tile[data-value="1024"] { background: #122859; color: #f0c27b; box-shadow: inset 0 0 0 2px rgb(217 175 98 / 0.55); }
+.g2048-tile[data-value="2048"] {
+  background: linear-gradient(135deg, #1d3a7d 0%, #786f70 50%, #d9af62 100%);
+  color: #ffffff;
+  box-shadow: 0 0 24px rgb(217 175 98 / 0.55), inset 0 0 0 2px rgb(250 247 240 / 0.35);
+}
+.g2048-tile[data-big="true"] { background: #031242; color: #f0c27b; box-shadow: 0 0 20px rgb(217 175 98 / 0.4), inset 0 0 0 2px #d9af62; }
+
+/* Small static board on the game card. */
+.g2048-board[data-preview] { --g2048-gap: 8px; border-radius: 1rem; }
+.g2048-board[data-preview] .g2048-tile,
+.g2048-board[data-preview] .g2048-cell { border-radius: 0.5rem; }
+.g2048-board[data-preview] .g2048-tile { font-size: 1.1rem; }
+.g2048-board[data-preview] .g2048-tile[data-digits="3"] { font-size: 0.95rem; }
+.g2048-board[data-preview] .g2048-tile[data-digits="4"] { font-size: 0.8rem; }
+
+.dark .g2048-tile[data-value="512"] { box-shadow: inset 0 0 0 1px rgb(143 176 245 / 0.5); }
+.dark .g2048-tile[data-value="1024"] { background: #1a356a; }
+
+.g2048-tile[data-state="new"] { animation: g2048-appear 180ms ease-out 90ms both; }
+.g2048-tile[data-state="merged"] { animation: g2048-pop 200ms ease-out 90ms both; }
+
+@keyframes g2048-appear {
+  from { opacity: 0; transform: scale(0.2); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes g2048-pop {
+  0% { transform: scale(0.85); }
+  55% { transform: scale(1.14); }
+  100% { transform: scale(1); }
+}
+
+@keyframes g2048-score {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-1.5rem); }
+}
+
+.g2048-score-gain { animation: g2048-score 650ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .g2048-move { transition: none; }
+  .g2048-tile[data-state],
+  .g2048-score-gain { animation: none; }
+  .g2048-score-gain { opacity: 0; }
+}

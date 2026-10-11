@@ -17,7 +17,7 @@ export function MobileBottomNavigation() {
       aria-label={t("navigation.mobile")}
       className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur-xl md:hidden"
     >
-      <div className="grid h-(--mobile-bottom-nav-height) grid-cols-5 px-1">
+      <div className="grid h-(--mobile-bottom-nav-height) grid-cols-6 px-0.5">
         {NAVIGATION_ITEMS.map((item) => {
           const active = isActiveRoute(pathname, item.href);
           const Icon = item.icon;
@@ -36,7 +36,7 @@ export function MobileBottomNavigation() {
               <span
                 aria-hidden="true"
                 className={cn(
-                  "inline-flex min-h-7 min-w-12 items-center justify-center rounded-full",
+                  "inline-flex min-h-7 min-w-10 items-center justify-center rounded-full",
                   active && "bg-primary/10",
                 )}
               >

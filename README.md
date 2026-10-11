@@ -36,6 +36,7 @@ Shanverse is my digital space for sharing technical articles, learning notes, pr
 - 📊 **Reading time** estimated at 200 words per minute
 - 📬 **Contact form** that delivers messages through Resend
 - 👁️ **Blog view counts** backed by Upstash Redis
+- 🎮 **Mini games**: a 2048 game at `/games/2048`, with keyboard and swipe controls
 - 🖼️ **Optimized images** with thumbnail → cover → placeholder fallback
 - 🌙 **Light / dark mode** and 📱 **responsive layout**
 

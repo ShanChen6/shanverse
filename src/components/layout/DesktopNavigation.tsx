@@ -22,7 +22,7 @@ export function DesktopNavigation() {
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "relative rounded-lg px-3 py-2 text-sm font-medium text-foreground-secondary transition-colors hover:bg-surface hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary",
+              "relative rounded-lg px-2.5 py-2 text-sm font-medium text-foreground-secondary lg:px-3 transition-colors hover:bg-surface hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary",
               active &&
                 "brand-active-indicator bg-surface text-foreground after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:rounded-full",
               item.href === "/contact" && "ml-1 border border-primary/30 text-primary",
