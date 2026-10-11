@@ -9,6 +9,7 @@ import type {
 
 import { notionDataSourceEnv, notionPropertyNames } from "@/config/notion.config";
 import { getNotionEnv } from "@/lib/env";
+import { notionMediaUrl, type NotionMediaTarget, type NotionPageImageSlot } from "@/lib/notion-media";
 import type { NotionAuthor, NotionCategory, NotionContentBlock, NotionIcon, NotionRichText, NotionTag } from "@/types/notion";
 import type { Post } from "@/types/post";
 import type { Project } from "@/types/project";
@@ -119,6 +120,33 @@ const imageUrl = (property: NotionProperty | undefined): string | null => {
 		return file.type === "external" ? file.external.url : file.file.url;
 	}
 	return propertyText(property) || null;
+};
+
+type NotionFile = { type: "external" | "file"; url: string };
+
+const propertyFile = (property: NotionProperty | undefined): NotionFile | null => {
+	if (property?.type === "files") {
+		const file = property.files[0];
+		if (!file) return null;
+		return file.type === "external" ? { type: "external", url: file.external.url } : { type: "file", url: file.file.url };
+	}
+	const url = imageUrl(property);
+	return url ? { type: "external", url } : null;
+};
+
+const pageImageFile = (page: NotionPage, slot: NotionPageImageSlot): NotionFile | null => {
+	if (slot === "thumbnailImage") return propertyFile(firstProperty(page.properties, notionPropertyNames.thumbnailImage));
+	if (slot === "coverImage") return propertyFile(firstProperty(page.properties, notionPropertyNames.coverImage));
+	if (page.cover?.type === "external") return { type: "external", url: page.cover.external.url };
+	if (page.cover?.type === "file") return { type: "file", url: page.cover.file.url };
+	return null;
+};
+
+// Uploaded Notion files get a stable proxy URL; external links are kept as-is.
+const pageImage = (page: NotionPage, slot: NotionPageImageSlot): string | null => {
+	const file = pageImageFile(page, slot);
+	if (!file) return null;
+	return file.type === "file" ? notionMediaUrl({ kind: "page", id: page.id, slot }, page.last_edited_time) : file.url;
 };
 
 const personAvatar = (property: NotionProperty | undefined): string | null => {
@@ -251,6 +279,11 @@ export class NotionService {
 					: source === "file"
 						? (data.file as { url?: string } | undefined)?.url
 						: undefined;
+				const url = typeof data.url === "string"
+					? data.url
+					: block.type === "image" && source === "file" && file
+						? notionMediaUrl({ kind: "block", id: block.id }, block.last_edited_time)
+						: file;
 				const icon = data.icon as { type?: string; emoji?: string; external?: { url?: string }; file?: { url?: string } } | undefined;
 				return {
 					id: block.id,
@@ -262,7 +295,7 @@ export class NotionService {
 					...(block.type === "code" ? { code: richText(rawRichText) } : {}),
 					...(typeof data.language === "string" ? { language: data.language } : {}),
 					...(rawCaption.length ? { caption: mapRichText(rawCaption) } : {}),
-					...(typeof data.url === "string" ? { url: data.url } : file ? { url: file } : {}),
+					...(url ? { url } : {}),
 					...(source ? { source } : {}),
 					...(icon ? { icon: blockIcon(icon) } : {}),
 				} satisfies NotionContentBlock;
@@ -300,8 +333,8 @@ export class NotionService {
 			excerpt: description || propertyText(firstProperty(properties, notionPropertyNames.excerpt)),
 			content,
 			...(contentBlocks ? { contentBlocks } : {}),
-			thumbnailImage: imageUrl(firstProperty(properties, notionPropertyNames.thumbnailImage)),
-			coverImage: imageUrl(firstProperty(properties, notionPropertyNames.coverImage)) ?? (page.cover?.type === "external" ? page.cover.external.url : page.cover?.type === "file" ? page.cover.file.url : null),
+			thumbnailImage: pageImage(page, "thumbnailImage"),
+			coverImage: pageImage(page, "coverImage") ?? pageImage(page, "cover"),
 			category: categoryRelationId ? categoryLookup?.get(categoryRelationId) ?? null : propertyText(categoryProperty) || null,
 			tags: tagProperty?.type === "relation"
 				? rawTags.flatMap((id) => {
@@ -396,6 +429,27 @@ export class NotionService {
 		}));
 	}
 
+	/**
+	 * A fresh signed URL for an uploaded image, or null when the target no
+	 * longer exists or is not an uploaded image. Used by /api/notion-media.
+	 */
+	async getFreshFileUrl(target: NotionMediaTarget): Promise<string | null> {
+		try {
+			if (target.kind === "block") {
+				const block = await this.getClient().blocks.retrieve({ block_id: target.id });
+				if (!("type" in block) || block.type !== "image" || ("in_trash" in block && block.in_trash)) return null;
+				return block.image.type === "file" ? block.image.file.url : null;
+			}
+			const page = await this.getClient().pages.retrieve({ page_id: target.id });
+			if (!isFullPage(page) || page.in_trash) return null;
+			const file = pageImageFile(page, target.slot);
+			return file?.type === "file" ? file.url : null;
+		} catch (error) {
+			if (isNotionClientError(error) && (error.code === "object_not_found" || error.code === "validation_error")) return null;
+			throw new NotionServiceError("Unable to load Notion file", { cause: error });
+		}
+	}
+
 	async getProjects(): Promise<Project[]> {
 		return Promise.all((await this.queryPages("projects")).map((page) => this.mapProject(page)));
 	}
@@ -415,8 +469,8 @@ export class NotionService {
 			description: propertyText(firstProperty(properties, notionPropertyNames.description)),
 			content: contentBlocks ? blocksToText(contentBlocks) : propertyText(firstProperty(properties, notionPropertyNames.content)),
 			...(contentBlocks ? { contentBlocks } : {}),
-			thumbnailImage: imageUrl(firstProperty(properties, notionPropertyNames.thumbnailImage)),
-			coverImage: imageUrl(firstProperty(properties, notionPropertyNames.coverImage)) ?? (page.cover?.type === "external" ? page.cover.external.url : page.cover?.type === "file" ? page.cover.file.url : null),
+			thumbnailImage: pageImage(page, "thumbnailImage"),
+			coverImage: pageImage(page, "coverImage") ?? pageImage(page, "cover"),
 			techStack: propertyMultiText(firstProperty(properties, notionPropertyNames.techStack)),
 			tags: propertyMultiText(firstProperty(properties, notionPropertyNames.tags)),
 			githubUrl: propertyUrl(firstProperty(properties, notionPropertyNames.githubUrl)),

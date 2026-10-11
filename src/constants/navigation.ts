@@ -1,4 +1,4 @@
-import { FolderKanban, Home, Mail, Newspaper, UserRound } from "lucide-react";
+import { FolderKanban, Gamepad2, Home, Mail, Newspaper, UserRound } from "lucide-react";
 
 import { ROUTES } from "./routes";
 
@@ -6,6 +6,7 @@ export const NAVIGATION_ITEMS = [
   { href: ROUTES.HOME, labelKey: "common.home", icon: Home },
   { href: ROUTES.BLOG, labelKey: "common.blog", icon: Newspaper },
   { href: ROUTES.PROJECTS, labelKey: "common.projects", icon: FolderKanban },
+  { href: ROUTES.GAMES, labelKey: "common.games", icon: Gamepad2 },
   { href: ROUTES.ABOUT, labelKey: "common.about", icon: UserRound },
   { href: ROUTES.CONTACT, labelKey: "common.contact", icon: Mail },
 ] as const;
