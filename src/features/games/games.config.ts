@@ -16,6 +16,13 @@ export type GameEntry = {
 
 export const GAMES: GameEntry[] = [
   {
+    slug: "sokoban",
+    href: ROUTES.GAME_DETAIL("sokoban"),
+    titleKey: "games.sokobanTitle",
+    descriptionKey: "games.sokobanDescription",
+    tagKeys: ["games.tagPuzzle", "games.tagKeyboard", "games.tagTouch"],
+  },
+  {
     slug: "2048",
     href: ROUTES.GAME_DETAIL("2048"),
     titleKey: "games.game2048Title",
