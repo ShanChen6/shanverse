@@ -8,11 +8,13 @@ import Badge from "@/components/ui/badge";
 import { buildPageMetadata } from "@/config/seo.config";
 import { ROUTES } from "@/constants/routes";
 import { Game2048Preview } from "@/features/games/components/Game2048Preview";
+import { MinesweeperPreview } from "@/features/games/components/MinesweeperPreview";
 import { GAMES } from "@/features/games/games.config";
 import { getTranslator } from "@/i18n/server";
 
 const PREVIEWS: Record<string, React.ComponentType> = {
   "2048": Game2048Preview,
+  minesweeper: MinesweeperPreview,
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
     path: ROUTES.GAMES,
     title: t("metadata.gamesTitle"),
     description: t("metadata.gamesDescription"),
-    keywords: ["Shanverse", "mini game", "2048", "browser game"],
+    keywords: ["Shanverse", "mini game", "2048", "minesweeper", "browser game"],
   });
 }
 
