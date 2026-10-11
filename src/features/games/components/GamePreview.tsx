@@ -4,6 +4,7 @@ import { Game2048Preview } from "./Game2048Preview";
 import { MemoryPreview } from "./MemoryPreview";
 import { MinesweeperPreview } from "./MinesweeperPreview";
 import { SnakePreview } from "./SnakePreview";
+import { SokobanPreview } from "./SokobanPreview";
 import { TypingPreview } from "./TypingPreview";
 
 const PREVIEWS: Record<string, React.ComponentType> = {
@@ -12,6 +13,7 @@ const PREVIEWS: Record<string, React.ComponentType> = {
   typing: TypingPreview,
   memory: MemoryPreview,
   snake: SnakePreview,
+  sokoban: SokobanPreview,
 };
 
 /** The static board shown on a game's card, on /games and on the home page. */
