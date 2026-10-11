@@ -6,6 +6,7 @@ import { ArrowRight, ArrowUpRight, BriefcaseBusiness, Code2, Layers3, Search, Sp
 
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { EmptyState } from "@/components/common/EmptyState";
+import { Tianwu, TianwuShip } from "@/components/mascot/Tianwu";
 import { Pagination, paginationLabels } from "@/components/layout/pagination";
 import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/routes";
@@ -115,7 +116,8 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
               <div className="min-w-0 space-y-8">
                 {filteredProjects.length === 0 ? (
                   <EmptyState
-                    icon={<Layers3 className="size-10" />}
+                    illustration={data.projects.length === 0 ? <TianwuShip className="h-auto w-full" /> : <Tianwu pose="determined" className="h-auto w-full" />}
+                    note={data.projects.length === 0 ? t("mascot.emptyComing") : t("mascot.emptySearching")}
                     title={data.projects.length === 0 ? t("projects.emptyNoneTitle") : t("projects.emptyNoMatchTitle")}
                     description={data.projects.length === 0 ? t("projects.emptyNoneDescription") : t("projects.emptyNoMatchDescription")}
                     action={hasFilters ? <Link href={ROUTES.PROJECTS} className={textLinkClass}>{t("blog.clearFilters")}</Link> : undefined}

@@ -247,3 +247,46 @@ export function TianwuBadge({ className, title }: SvgProps) {
     </svg>
   );
 }
+
+/**
+ * Side view (version B): the shell is a little spaceship with a porthole and
+ * a jet. Used for loading screens, where Tianwu glides slowly across the page.
+ * The flame carries `tw-flame` so CSS can make it flicker.
+ */
+export function TianwuShip({ className, title }: SvgProps) {
+  return (
+    <svg viewBox="0 0 240 180" className={className} {...a11y(title)}>
+      <g className="tw-flame">
+        <path d="M42 112 Q12 104 4 112 Q12 120 42 118Z" fill="#F0A44B" opacity="0.85" />
+        <path d="M42 112 Q24 108 18 112 Q24 116 42 116Z" fill="#FFE6A6" />
+      </g>
+      <rect x="38" y="104" width="14" height="20" rx="4" fill={C.metal} />
+      <ellipse cx="80" cy="146" rx="13" ry="16" fill={C.limb} />
+      <ellipse cx="150" cy="146" rx="13" ry="16" fill={C.limb} />
+      <ellipse cx="80" cy="158" rx="14" ry="6" fill={C.shell} />
+      <ellipse cx="150" cy="158" rx="14" ry="6" fill={C.shell} />
+      <path d="M46 128 Q115 150 184 128 L184 120 L46 120Z" fill={C.plate} stroke={C.plateLine} strokeWidth="2" />
+      <path d="M46 124 Q48 46 115 42 Q182 46 184 124Z" fill={C.shell} stroke={C.gold} strokeWidth="4" />
+      <path d="M60 110 Q64 60 115 52" stroke="#2E55A8" strokeWidth="10" strokeLinecap="round" fill="none" opacity="0.6" />
+      <g fill="none" stroke={C.gold} strokeOpacity="0.55" strokeWidth="2">
+        <path d="M100 62 L115 54 L130 62 L130 78 L115 86 L100 78Z" />
+        <path d="M70 86 L85 78 L100 86 L100 102 L85 110 L70 102Z" />
+        <path d="M130 86 L145 78 L160 86 L160 102 L145 110 L130 102Z" />
+      </g>
+      <circle cx="115" cy="100" r="9" fill={C.sweat} stroke={C.gold} strokeWidth="3" />
+      <circle cx="112" cy="97" r="2.5" fill="#FFFFFF" />
+      {star(74, 71, 5, C.gold)}
+      {star(156, 68, 4, C.gold)}
+      <path d="M178 112 Q196 100 200 86" stroke={C.limb} strokeWidth="20" strokeLinecap="round" fill="none" />
+      <circle cx="204" cy="74" r="26" fill={C.glass} stroke={C.glassLine} strokeWidth="3" />
+      <ellipse cx="206" cy="77" rx="17" ry="16" fill={C.skin} />
+      <ellipse cx="212" cy="74" rx="4.5" ry="5.5" fill={C.ink} />
+      <circle cx="213.5" cy="72.5" r="1.5" fill="#FFFFFF" />
+      <path d="M208 85 Q214 88 219 84" stroke={C.mouth} strokeWidth="2.2" fill="none" strokeLinecap="round" />
+      <ellipse cx="203" cy="82" rx="3.5" ry="2" fill={C.cheek} opacity="0.7" />
+      <path d="M188 62 Q193 52 204 50" stroke="#FFFFFF" strokeWidth="4" strokeLinecap="round" fill="none" />
+      <path d="M204 48 V34" stroke={C.metal} strokeWidth="3" strokeLinecap="round" />
+      {star(204, 32, 8, C.goldLight)}
+    </svg>
+  );
+}

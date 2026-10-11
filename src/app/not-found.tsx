@@ -1,11 +1,10 @@
 import * as React from "react";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
-import { AlertCircle, BookOpen, Home } from "lucide-react";
+import { BookOpen, FolderKanban, Home } from "lucide-react";
 
 import { LandingLayout } from "@/components/layout/LandingLayout";
+import { TianwuLost } from "@/components/mascot/TianwuScenes";
 import { Button } from "@/components/ui/button";
-import Badge from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { ROUTES } from "@/constants/routes";
 import { getTranslator } from "@/i18n/server";
 
@@ -13,25 +12,14 @@ export default async function NotFound() {
   const { t } = await getTranslator();
   return (
     <LandingLayout>
-      <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center space-y-8 max-w-2xl min-h-[60vh]">
-        <Card className="w-full p-8 space-y-6 bg-surface-elevated border-2 border-border shadow-lg">
-          <div className="mx-auto h-16 w-16 rounded-2xl bg-destructive/10 text-destructive flex items-center justify-center">
-            <AlertCircle className="h-8 w-8" />
-          </div>
-
-          <div className="space-y-2">
-            <Badge variant="danger" className="px-3 py-1">
-              {t("errors.notFoundBadge")}
-            </Badge>
-            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-              {t("errors.notFound")}
-            </h1>
-            <p className="text-foreground-secondary text-sm sm:text-base leading-relaxed">
-              {t("errors.notFoundDescription")}
-            </p>
-          </div>
-
-          <CardContent className="flex flex-wrap items-center justify-center gap-4 pt-4 border-t border-border">
+      <div className="container mx-auto grid min-h-[60vh] max-w-5xl items-center gap-10 px-4 py-16 sm:py-20 md:grid-cols-2">
+        <TianwuLost className="order-first md:order-last" />
+        <div className="space-y-5 text-center md:text-left">
+          <p className="text-sm font-semibold uppercase tracking-widest text-primary">{t("mascot.lostEyebrow")}</p>
+          <h1 className="text-balance text-3xl font-extrabold tracking-tight sm:text-4xl">{t("mascot.lostTitle")}</h1>
+          <p className="text-pretty text-xl font-medium leading-relaxed">“{t("mascot.lostLine")}”</p>
+          <p className="text-pretty leading-relaxed text-foreground-secondary">{t("mascot.lostHint")}</p>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2 md:justify-start">
             <Button asChild variant="default" size="lg">
               <Link href={ROUTES.HOME}>
                 <Home className="mr-2 h-4 w-4" /> {t("errors.backHome")}
@@ -42,8 +30,13 @@ export default async function NotFound() {
                 <BookOpen className="mr-2 h-4 w-4" /> {t("errors.browseBlog")}
               </Link>
             </Button>
-          </CardContent>
-        </Card>
+            <Button asChild variant="outline" size="lg">
+              <Link href={ROUTES.PROJECTS}>
+                <FolderKanban className="mr-2 h-4 w-4" /> {t("common.viewProjects")}
+              </Link>
+            </Button>
+          </div>
+        </div>
       </div>
     </LandingLayout>
   );
