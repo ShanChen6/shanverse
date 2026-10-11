@@ -219,3 +219,147 @@
 
 /* Small static board on the game card. */
 .ms-board[data-preview] { --ms-cell: 1.55rem; --ms-gap: 3px; padding: 6px; }
+
+/* Typing test */
+
+.typing-char { position: relative; }
+.typing-cursor::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 12%;
+  bottom: 12%;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--primary);
+  animation: typing-blink 1s steps(1) infinite;
+}
+
+@keyframes typing-blink {
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typing-cursor::before { animation: none; }
+}
+
+/* Memory match */
+
+.mem-grid {
+  display: grid;
+  width: 100%;
+  max-width: 30rem;
+  gap: clamp(0.5rem, 2vw, 0.85rem);
+  grid-template-columns: repeat(var(--mem-mobile-cols), minmax(0, 1fr));
+}
+
+.mem-grid[data-level="hard"] { max-width: 42rem; }
+
+@media (min-width: 640px) {
+  .mem-grid { grid-template-columns: repeat(var(--mem-cols), minmax(0, 1fr)); }
+}
+
+.mem-card {
+  aspect-ratio: 4 / 5;
+  perspective: 900px;
+  border-radius: 0.9rem;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mem-card:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.mem-card:disabled { cursor: default; }
+
+.mem-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 380ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.mem-card[data-open] .mem-inner { transform: rotateY(180deg); }
+
+.mem-back,
+.mem-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  border-radius: 0.9rem;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.mem-back {
+  background:
+    radial-gradient(circle at 30% 25%, rgb(217 175 98 / 0.35), transparent 55%),
+    linear-gradient(145deg, #1d3a7d 0%, #031242 100%);
+  box-shadow: inset 0 0 0 1px rgb(217 175 98 / 0.4), 0 4px 10px rgb(3 18 66 / 0.18);
+}
+
+.dark .mem-back { box-shadow: inset 0 0 0 1px rgb(217 175 98 / 0.6), 0 4px 14px rgb(0 0 0 / 0.35); }
+.mem-card:not(:disabled):hover .mem-back { box-shadow: inset 0 0 0 2px rgb(217 175 98 / 0.75), 0 6px 14px rgb(3 18 66 / 0.22); }
+
+.mem-back-logo { width: 42%; height: auto; opacity: 0.9; pointer-events: none; user-select: none; }
+
+.mem-face {
+  transform: rotateY(180deg);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08), 0 4px 10px rgb(3 18 66 / 0.18);
+}
+
+.mem-mark { font-weight: 800; font-size: clamp(1.4rem, 7vw, 2.2rem); line-height: 1; letter-spacing: -0.02em; }
+.mem-name { font-size: clamp(0.6rem, 2.4vw, 0.78rem); font-weight: 600; opacity: 0.85; text-align: center; padding: 0 0.25rem; }
+
+.mem-grid[data-level="hard"] .mem-mark { font-size: clamp(1.2rem, 6vw, 1.8rem); }
+
+.mem-card[data-matched] .mem-face { box-shadow: inset 0 0 0 3px #d9af62, 0 0 18px rgb(217 175 98 / 0.45); }
+.mem-card[data-matched] { animation: mem-match 420ms ease-out; }
+.mem-card[data-wrong] .mem-face { animation: mem-shake 360ms ease-in-out 380ms; }
+
+@keyframes mem-match {
+  50% { transform: scale(1.06); }
+}
+
+@keyframes mem-shake {
+  25% { transform: rotateY(180deg) translateX(-4px); }
+  75% { transform: rotateY(180deg) translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mem-inner { transition: none; }
+  .mem-card[data-matched],
+  .mem-card[data-wrong] .mem-face { animation: none; }
+}
+
+/* Snake */
+
+.snake-wrap {
+  --snake-board: #efe6d3;
+  --snake-grid: rgb(3 18 66 / 0.035);
+  --snake-head: #031242;
+  --snake-body: #1d3a7d;
+  --snake-tail: #8fb0f5;
+  --snake-food: #e2873a;
+  --snake-eye: #faf7f0;
+}
+
+.dark .snake-wrap {
+  --snake-board: #0a1c45;
+  --snake-grid: rgb(250 247 240 / 0.035);
+  --snake-head: #f0c27b;
+  --snake-body: #8fb0f5;
+  --snake-tail: #2e5090;
+  --snake-food: #f0a46b;
+  --snake-eye: #031242;
+}
+
+.snake-wrap canvas { box-shadow: inset 0 0 0 1px var(--border); outline: 1px solid var(--border); outline-offset: -1px; }
+
+.mem-preview { max-width: 15rem; gap: 0.4rem; }
+.mem-preview .mem-mark { font-size: 1.05rem; }
+.mem-preview .mem-card, .mem-preview .mem-back, .mem-preview .mem-face { border-radius: 0.5rem; }

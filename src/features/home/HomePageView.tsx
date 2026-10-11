@@ -9,6 +9,7 @@ import { FeaturedPostsSection } from "./components/FeaturedPostsSection";
 import { LatestPostsSection } from "./components/LatestPostsSection";
 import { FeaturedProjectsSection } from "./components/FeaturedProjectsSection";
 import { ContactSection } from "./components/ContactSection";
+import { HomeGamesSection } from "./components/HomeGamesSection";
 import type { Post } from "@/types/post";
 import type { Project } from "@/types/project";
 import { getSocialLinks } from "@/config/social.config";
@@ -135,6 +136,7 @@ export async function HomePageView() {
     <TechTicker label={t("home.techStackLabel")} />
     <div className="mx-auto max-w-6xl space-y-16 px-4 py-16 sm:px-6 lg:space-y-24 lg:py-24">
       <Suspense fallback={<HomeContentSkeleton label={t("common.loadingContent")} />}><HomeDataSections /></Suspense>
+      <HomeGamesSection />
       <ContactSection socialLinks={socialLinks} />
     </div>
   </>;
