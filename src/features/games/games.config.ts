@@ -20,4 +20,11 @@ export const GAMES: GameEntry[] = [
     descriptionKey: "games.game2048Description",
     tagKeys: ["games.tagPuzzle", "games.tagKeyboard", "games.tagTouch"],
   },
+  {
+    slug: "minesweeper",
+    href: ROUTES.GAME_DETAIL("minesweeper"),
+    titleKey: "games.minesweeperTitle",
+    descriptionKey: "games.minesweeperDescription",
+    tagKeys: ["games.tagPuzzle", "games.tagMouse", "games.tagTouch"],
+  },
 ];

@@ -123,3 +123,99 @@
   .g2048-score-gain { animation: none; }
   .g2048-score-gain { opacity: 0; }
 }
+
+/* Minesweeper */
+
+.ms-board {
+  --ms-cell: clamp(1.9rem, calc((100vw - 3.5rem) / 9), 2.6rem);
+  --ms-gap: 3px;
+  --ms-board: #d8cdb7;
+  --ms-hidden: #ecd7aa;
+  --ms-hidden-edge: #b8955a;
+  --ms-hidden-hover: #f3e3c0;
+  --ms-open: #faf7f0;
+  --ms-flag: #c2410c;
+  --ms-wrong: #b42318;
+  --ms-exploded: #f2b8b5;
+  --ms-mine: #031242;
+  display: grid;
+  width: max-content;
+  gap: var(--ms-gap);
+  padding: 8px;
+  border-radius: 1rem;
+  background: var(--ms-board);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.ms-board[data-size="medium"] { --ms-cell: clamp(1.45rem, calc((100vw - 4.5rem) / 16), 2.1rem); }
+.ms-board[data-size="hard"] { --ms-cell: clamp(1.6rem, calc((100vw - 6rem) / 30), 1.95rem); }
+
+.dark .ms-board {
+  --ms-board: #0a1c45;
+  --ms-hidden: #254276;
+  --ms-hidden-edge: #12285a;
+  --ms-hidden-hover: #2e5090;
+  --ms-open: #102653;
+  --ms-flag: #f0c27b;
+  --ms-wrong: #ff8a80;
+  --ms-exploded: #7f1d1d;
+  --ms-mine: #faf7f0;
+  --ms-mine-shine: #031242;
+  box-shadow: inset 0 0 0 1px rgb(96 119 162 / 0.45);
+}
+
+.ms-cell {
+  display: flex;
+  width: var(--ms-cell);
+  height: var(--ms-cell);
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.4rem;
+  font-weight: 800;
+  font-size: calc(var(--ms-cell) * 0.55);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--ms-mine);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ms-cell:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; position: relative; z-index: 1; }
+
+.ms-cell[data-state="hidden"],
+.ms-cell[data-state="flagged"] {
+  background: var(--ms-hidden);
+  box-shadow: inset 0 -3px 0 var(--ms-hidden-edge);
+  cursor: pointer;
+}
+
+.ms-cell[data-state="hidden"]:hover { background: var(--ms-hidden-hover); }
+.ms-cell[data-state="hidden"]:active { box-shadow: none; transform: translateY(1px); }
+.ms-cell[data-state="revealed"] { background: var(--ms-open); box-shadow: inset 0 0 0 1px rgb(3 18 66 / 0.06); cursor: default; }
+.ms-cell[data-state="revealed"][data-n]:not([data-n="0"]) { cursor: pointer; }
+.ms-cell[data-exploded] { background: var(--ms-exploded); }
+.ms-cell[data-wrong] { background: var(--ms-open); box-shadow: none; }
+
+/* Number colours, readable on both themes. */
+.ms-cell[data-n="1"] { color: #1d4ed8; }
+.ms-cell[data-n="2"] { color: #15803d; }
+.ms-cell[data-n="3"] { color: #c2410c; }
+.ms-cell[data-n="4"] { color: #1d3a7d; }
+.ms-cell[data-n="5"] { color: #9f1239; }
+.ms-cell[data-n="6"] { color: #0f766e; }
+.ms-cell[data-n="7"] { color: #031242; }
+.ms-cell[data-n="8"] { color: #53617b; }
+
+.dark .ms-cell[data-n="1"] { color: #8fb0f5; }
+.dark .ms-cell[data-n="2"] { color: #6ee7a8; }
+.dark .ms-cell[data-n="3"] { color: #f0a46b; }
+.dark .ms-cell[data-n="4"] { color: #d9af62; }
+.dark .ms-cell[data-n="5"] { color: #fda4af; }
+.dark .ms-cell[data-n="6"] { color: #5eead4; }
+.dark .ms-cell[data-n="7"] { color: #faf7f0; }
+.dark .ms-cell[data-n="8"] { color: #b7c2d7; }
+
+/* Small static board on the game card. */
+.ms-board[data-preview] { --ms-cell: 1.55rem; --ms-gap: 3px; padding: 6px; }
