@@ -19,6 +19,7 @@ import { ROUTES } from "@/constants/routes";
 import { formatMonthYear } from "@/i18n/format";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
+import { safeImageSource } from "@/lib/notion-media";
 import type { Project } from "@/types/project";
 
 interface ProjectCardProps {
@@ -47,8 +48,8 @@ export function ProjectCard({
 }: ProjectCardProps) {
   const { locale, t } = useI18n();
   const thumbnailImage =
-    safeExternalUrl(project.thumbnailImage) ??
-    safeExternalUrl(project.coverImage) ??
+    safeImageSource(project.thumbnailImage) ??
+    safeImageSource(project.coverImage) ??
     PLACEHOLDER_IMAGE;
   const githubUrl = safeExternalUrl(project.githubUrl);
   const liveUrl = safeExternalUrl(project.liveUrl);
