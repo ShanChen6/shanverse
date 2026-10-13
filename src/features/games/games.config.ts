@@ -30,6 +30,13 @@ export const GAMES: GameEntry[] = [
     tagKeys: ["games.tagPuzzle", "games.tagKeyboard", "games.tagTouch"],
   },
   {
+    slug: "word-guess",
+    href: ROUTES.GAME_DETAIL("word-guess"),
+    titleKey: "games.wordGuessTitle",
+    descriptionKey: "games.wordGuessDescription",
+    tagKeys: ["games.tagWords", "games.tagKeyboard", "games.tagTouch"],
+  },
+  {
     slug: "2048",
     href: ROUTES.GAME_DETAIL("2048"),
     titleKey: "games.game2048Title",

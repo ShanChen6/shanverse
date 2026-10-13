@@ -7,6 +7,7 @@ import { MinesweeperPreview } from "./MinesweeperPreview";
 import { SnakePreview } from "./SnakePreview";
 import { SokobanPreview } from "./SokobanPreview";
 import { TypingPreview } from "./TypingPreview";
+import { WordGuessPreview } from "./WordGuessPreview";
 
 const PREVIEWS: Record<string, React.ComponentType> = {
   "2048": Game2048Preview,
@@ -16,6 +17,7 @@ const PREVIEWS: Record<string, React.ComponentType> = {
   snake: SnakePreview,
   sokoban: SokobanPreview,
   go: GoPreview,
+  "word-guess": WordGuessPreview,
 };
 
 /** The static board shown on a game's card, on /games and on the home page. */
