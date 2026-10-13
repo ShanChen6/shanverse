@@ -23,13 +23,27 @@ export type SokobanState = {
   pushes: number;
 };
 
+/** Everything needed to take one move back, without storing whole states. */
+export type MoveRecord = {
+  direction: Direction;
+  /** Id of the pushed crate, or -1 for a plain walk. */
+  crate: number;
+  /** Which way the player faced before the move. */
+  facing: Direction;
+};
+
 export type MoveResult = {
   state: SokobanState;
   moved: boolean;
   pushed: boolean;
   /** Walked into a wall or a crate that cannot move. */
   blocked: boolean;
+  /** Present when the player actually moved, for undo. */
+  record?: MoveRecord;
 };
+
+/** Undos per attempt. Restarting the level refills them. */
+export const UNDO_LIMIT = 5;
 
 const DELTA: Record<Direction, [number, number]> = {
   up: [0, -1],
@@ -37,6 +51,9 @@ const DELTA: Record<Direction, [number, number]> = {
   left: [-1, 0],
   right: [1, 0],
 };
+
+const OPPOSITE: Record<Direction, Direction> = { up: "down", down: "up", left: "right", right: "left" };
+const DIRECTIONS = Object.keys(DELTA) as Direction[];
 
 export function step(state: Pick<SokobanState, "width" | "height">, cell: number, direction: Direction): number {
   const [dx, dy] = DELTA[direction];
@@ -101,7 +118,13 @@ export function move(state: SokobanState, direction: Direction): MoveResult {
 
   const crate = state.crates.indexOf(target);
   if (crate === -1) {
-    return { state: { ...turned, player: target, moves: state.moves + 1 }, moved: true, pushed: false, blocked: false };
+    return {
+      state: { ...turned, player: target, moves: state.moves + 1 },
+      moved: true,
+      pushed: false,
+      blocked: false,
+      record: { direction, crate: -1, facing: state.facing },
+    };
   }
 
   const beyond = step(state, target, direction);
@@ -115,6 +138,27 @@ export function move(state: SokobanState, direction: Direction): MoveResult {
     moved: true,
     pushed: true,
     blocked: false,
+    record: { direction, crate, facing: state.facing },
+  };
+}
+
+/** Takes back the move described by `record`, which must be the last one made. */
+export function undoMove(state: SokobanState, record: MoveRecord): SokobanState {
+  const previous = step(state, state.player, OPPOSITE[record.direction]);
+  if (previous === -1 || state.walls[previous]) throw new Error("Cannot undo a move that was not made");
+  let crates = state.crates;
+  if (record.crate !== -1) {
+    crates = state.crates.slice();
+    // The crate was pushed from where the player now stands.
+    crates[record.crate] = state.player;
+  }
+  return {
+    ...state,
+    crates,
+    player: previous,
+    facing: record.facing,
+    moves: state.moves - 1,
+    pushes: state.pushes - (record.crate === -1 ? 0 : 1),
   };
 }
 
@@ -124,21 +168,91 @@ export const isSolved = (state: Pick<SokobanState, "crates" | "goals">) =>
 export const cratesOnGoals = (state: Pick<SokobanState, "crates" | "goals">) =>
   state.crates.filter((crate) => state.goals.includes(crate)).length;
 
+type Board = Pick<SokobanState, "width" | "height" | "walls" | "inside" | "goals">;
+
+// Dead squares depend only on the level layout, and every state of a level
+// shares the same `walls` array, so they are computed once per level.
+const deadCache = new WeakMap<boolean[], boolean[]>();
+
 /**
- * Crates that can never move again because they sit in a corner of walls
- * and are not on a pad. Only certain dead ends are reported, never guesses,
- * so the game can safely tell the player to restart.
+ * Floor cells a crate can never leave for a pad, even with every other crate
+ * gone: corners, and cells along a wall with no pad on it. Found by pulling a
+ * crate backwards from every pad; whatever it never reaches is dead.
+ */
+export function deadSquares(board: Board): boolean[] {
+  const cached = deadCache.get(board.walls);
+  if (cached) return cached;
+  const open = (cell: number) => cell !== -1 && !board.walls[cell] && board.inside[cell];
+  const live = new Array<boolean>(board.walls.length).fill(false);
+  const queue = board.goals.slice();
+  for (const goal of queue) live[goal] = true;
+  while (queue.length) {
+    const cell = queue.pop() as number;
+    for (const direction of DIRECTIONS) {
+      // A crate reaches `cell` from `from` when the player stands at `behind`.
+      const from = step(board, cell, direction);
+      const behind = from === -1 ? -1 : step(board, from, direction);
+      if (open(from) && open(behind) && !live[from]) {
+        live[from] = true;
+        queue.push(from);
+      }
+    }
+  }
+  const dead = board.walls.map((wall, cell) => !wall && board.inside[cell] && !live[cell]);
+  deadCache.set(board.walls, dead);
+  return dead;
+}
+
+/**
+ * Crates that can never reach a pad again: crates on a dead square, and
+ * crates frozen in place off a pad (blocked both ways by walls, dead squares
+ * or other frozen crates). Only certain dead ends are reported, never
+ * guesses, so the game can safely say the level is lost from here.
  */
 export function stuckCrates(state: SokobanState): number[] {
-  const wall = (cell: number) => cell === -1 || state.walls[cell];
-  return state.crates.filter((crate) => {
-    if (state.goals.includes(crate)) return false;
-    const up = wall(step(state, crate, "up"));
-    const down = wall(step(state, crate, "down"));
-    const left = wall(step(state, crate, "left"));
-    const right = wall(step(state, crate, "right"));
-    return (up || down) && (left || right);
+  const dead = deadSquares(state);
+  const crates = new Set(state.crates);
+  const goals = new Set(state.goals);
+
+  // `fixed` holds crates already assumed immovable further up the chain;
+  // they act as walls for the crates next to them.
+  const frozen = (cell: number, fixed: ReadonlySet<number>): boolean => {
+    const assumed = new Set(fixed).add(cell);
+    return blocked(cell, "left", "right", assumed) && blocked(cell, "up", "down", assumed);
+  };
+  const blocked = (cell: number, a: Direction, b: Direction, fixed: ReadonlySet<number>): boolean => {
+    const sides = [step(state, cell, a), step(state, cell, b)];
+    if (sides.some((side) => side === -1 || state.walls[side] || fixed.has(side))) return true;
+    if (sides.every((side) => dead[side])) return true;
+    return sides.some((side) => crates.has(side) && frozen(side, fixed));
+  };
+
+  return state.crates.filter((crate) => !goals.has(crate) && (dead[crate] || frozen(crate, new Set())));
+}
+
+/** One line of the hint: push this crate (by its starting cell) onto this pad. */
+export type PlanStep = { crate: number; goal: number };
+
+/**
+ * Turns a full solution into a high-level plan: which crate goes to which
+ * pad, in the order the crates are finished. Crates that start on a pad and
+ * are never touched are left out.
+ */
+export function planFromSolution(start: SokobanState, solution: readonly Direction[]): PlanStep[] {
+  let state = start;
+  const finishedAt = start.crates.map(() => -1);
+  solution.forEach((direction, index) => {
+    const result = move(state, direction);
+    if (!result.moved) throw new Error(`Solution move ${index + 1} is blocked`);
+    if (result.record && result.record.crate !== -1) finishedAt[result.record.crate] = index;
+    state = result.state;
   });
+  if (!isSolved(state)) throw new Error("Solution does not solve the level");
+  return start.crates
+    .map((cell, id) => ({ id, cell }))
+    .filter(({ id }) => finishedAt[id] !== -1)
+    .sort((a, b) => finishedAt[a.id] - finishedAt[b.id])
+    .map(({ id, cell }) => ({ crate: cell, goal: state.crates[id] }));
 }
 
 /** Stars for a solved level: at par or close to it earns three. */

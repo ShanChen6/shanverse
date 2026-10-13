@@ -3,7 +3,22 @@ export type NotionCollection =
 	| "categories"
 	| "tags"
 	| "projects"
-	| "authors";
+	| "authors"
+	| "words";
+
+/** One row of the Notion "Word Guess" database, as read from its properties. */
+export type NotionWordRow = {
+	pageId: string;
+	answer: string;
+	question: string;
+	/** Hint 1 to Hint 5, in order; missing ones are empty strings. */
+	hints: string[];
+	/** Other spellings, comma separated. */
+	accept: string;
+	/** The Topic select option's name. */
+	topic: string;
+	published: boolean;
+};
 
 export type NotionSelect = {
 	id: string;

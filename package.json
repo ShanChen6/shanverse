@@ -8,10 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "analyze": "next experimental-analyze --output",
-    "test": "tsx --test src/features/blog/related-posts.test.ts src/features/blog/share-post.test.ts src/features/blog/blog-view-session.test.ts src/features/blog/observe-blog-content.test.ts src/features/search/search.test.ts src/features/comments/giscus.config.test.ts src/lib/notion-media.test.ts src/features/games/game-2048/logic.test.ts src/features/games/minesweeper/logic.test.ts src/features/games/typing/logic.test.ts src/features/games/memory/logic.test.ts src/features/games/snake/logic.test.ts src/features/games/sokoban/logic.test.ts src/features/games/go/logic.test.ts src/features/games/go/mcts.test.ts && pnpm test:views",
+    "test": "tsx --test src/features/blog/related-posts.test.ts src/features/blog/share-post.test.ts src/features/blog/blog-view-session.test.ts src/features/blog/observe-blog-content.test.ts src/features/search/search.test.ts src/features/comments/giscus.config.test.ts src/lib/notion-media.test.ts src/features/games/game-2048/logic.test.ts src/features/games/minesweeper/logic.test.ts src/features/games/typing/logic.test.ts src/features/games/memory/logic.test.ts src/features/games/snake/logic.test.ts src/features/games/sokoban/logic.test.ts src/features/games/word-guess/logic.test.ts src/features/games/word-guess/notion-words.test.ts src/features/games/go/logic.test.ts src/features/games/go/mcts.test.ts && pnpm test:views",
     "test:views": "tsx --conditions=react-server --test src/features/blog/view-count.test.ts",
     "sync:reading-time": "tsx scripts/sync-notion-reading-time.ts",
-    "stickers:tianwu": "tsx scripts/generate-tianwu-stickers.tsx"
+    "stickers:tianwu": "tsx scripts/generate-tianwu-stickers.tsx",
+    "sokoban:plans": "tsx scripts/generate-sokoban-plans.ts"
   },
   "dependencies": {
     "@giscus/react": "^3.1.0",
