@@ -438,3 +438,90 @@
   --go-wood: #d4b37a;
   --go-line: #4a361d;
 }
+
+/* Hỏa thiêu Xích Bích: a dark river board in both themes ---------------- */
+.rc-board {
+  --rc-cell: min(4rem, calc((100vw - 2.5rem) / 6));
+  --rc-water: #0f3b52;
+  --rc-water-light: #16506b;
+  position: relative;
+  width: calc(var(--rc-cell) * 6);
+  height: calc(var(--rc-cell) * 6);
+  border-radius: 0.9rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 20% 15%, rgb(255 255 255 / 0.07), transparent 40%),
+    linear-gradient(160deg, var(--rc-water-light), var(--rc-water));
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.rc-grid {
+  display: grid;
+  grid-template-columns: repeat(6, var(--rc-cell));
+  grid-auto-rows: var(--rc-cell);
+}
+
+.rc-cell {
+  position: relative;
+  padding: calc(var(--rc-cell) * 0.04);
+  border-radius: 0.6rem;
+  transition: transform 120ms ease-out;
+}
+.rc-cell:not(:disabled):hover { transform: translateY(-2px); }
+.rc-cell:focus-visible { outline: 2px solid #f0c27b; outline-offset: -2px; }
+.rc-cell[data-hint="true"] { box-shadow: 0 0 0 3px #f0c27b, 0 0 18px 4px rgb(240 194 123 / 0.55); animation: rc-hint 1.1s ease-in-out infinite; }
+.rc-cell [data-hit="true"] { animation: rc-hit 220ms ease-out; }
+
+.rc-flame { transform-origin: 50% 90%; animation: rc-flicker 0.9s ease-in-out infinite alternate; }
+.rc-smoke { animation: rc-drift 2.4s ease-in-out infinite alternate; }
+
+.rc-torch {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--rc-cell);
+  height: var(--rc-cell);
+  pointer-events: none;
+  z-index: 3;
+  transition: transform var(--rc-tick, 130ms) linear;
+}
+
+.rc-blast {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--rc-cell);
+  height: var(--rc-cell);
+  pointer-events: none;
+  z-index: 2;
+  animation: rc-blast 420ms ease-out forwards;
+}
+
+@keyframes rc-flicker {
+  from { transform: scale(1, 1); }
+  to { transform: scale(0.94, 1.08); }
+}
+@keyframes rc-drift {
+  from { transform: translateY(0); opacity: 0.85; }
+  to { transform: translateY(-4px); opacity: 0.55; }
+}
+@keyframes rc-hint {
+  50% { box-shadow: 0 0 0 3px #f0c27b, 0 0 26px 8px rgb(240 194 123 / 0.8); }
+}
+@keyframes rc-hit {
+  40% { transform: scale(0.9); filter: brightness(1.6); }
+  100% { transform: scale(1); filter: none; }
+}
+@keyframes rc-blast {
+  from { transform: scale(0.4); opacity: 1; }
+  to { transform: scale(1.5); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rc-cell, .rc-torch { transition: none; }
+  .rc-flame, .rc-smoke, .rc-cell[data-hint="true"], .rc-cell [data-hit="true"] { animation: none; }
+  .rc-blast { display: none; }
+}
