@@ -7,10 +7,10 @@ import type {
 	RichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 
-import { notionDataSourceEnv, notionPropertyNames } from "@/config/notion.config";
+import { notionDataSourceEnv, notionPropertyNames, notionWordHintNames } from "@/config/notion.config";
 import { getNotionEnv } from "@/lib/env";
 import { notionMediaUrl, type NotionMediaTarget, type NotionPageImageSlot } from "@/lib/notion-media";
-import type { NotionAuthor, NotionCategory, NotionContentBlock, NotionIcon, NotionRichText, NotionTag } from "@/types/notion";
+import type { NotionAuthor, NotionCategory, NotionContentBlock, NotionIcon, NotionRichText, NotionTag, NotionWordRow } from "@/types/notion";
 import type { Post } from "@/types/post";
 import type { Project } from "@/types/project";
 
@@ -448,6 +448,27 @@ export class NotionService {
 			if (isNotionClientError(error) && (error.code === "object_not_found" || error.code === "validation_error")) return null;
 			throw new NotionServiceError("Unable to load Notion file", { cause: error });
 		}
+	}
+
+	/**
+	 * Rows of the Word Guess database. Returns nothing when
+	 * NOTION_WORDS_DATA_SOURCE_ID is not set: without it the lookup would fall
+	 * back to NOTION_DATABASE_ID, which is the blog.
+	 */
+	async getWords(): Promise<NotionWordRow[]> {
+		if (!this.configuredIds.has("words")) return [];
+		return (await this.queryPages("words")).map((page) => {
+			const { properties } = page;
+			return {
+				pageId: page.id,
+				answer: propertyText(firstProperty(properties, notionPropertyNames.wordAnswer)),
+				question: propertyText(firstProperty(properties, notionPropertyNames.wordQuestion)),
+				hints: [1, 2, 3, 4, 5].map((n) => propertyText(firstProperty(properties, notionWordHintNames(n)))),
+				accept: propertyText(firstProperty(properties, notionPropertyNames.wordAccept)),
+				topic: propertyText(firstProperty(properties, notionPropertyNames.wordTopic)),
+				published: propertyBoolean(firstProperty(properties, notionPropertyNames.published)),
+			};
+		});
 	}
 
 	async getProjects(): Promise<Project[]> {

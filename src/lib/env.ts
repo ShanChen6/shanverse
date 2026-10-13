@@ -16,4 +16,5 @@ export const getNotionEnv = () => ({
 	tagsDataSourceId: process.env.NOTION_TAGS_DATA_SOURCE_ID,
 	projectsDataSourceId: process.env.NOTION_PROJECTS_DATA_SOURCE_ID,
 	authorsDataSourceId: process.env.NOTION_AUTHORS_DATA_SOURCE_ID,
+	wordsDataSourceId: process.env.NOTION_WORDS_DATA_SOURCE_ID,
 });

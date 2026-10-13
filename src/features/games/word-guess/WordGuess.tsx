@@ -18,14 +18,25 @@ import {
   takeHint,
   type Round,
   type Verdict,
+  type WordEntry,
 } from "./logic";
-import { TOPICS, WORDS } from "./words";
+import type { TopicLabels } from "./notion-words";
 
 const STORAGE_KEY = "shanverse:word-guess:progress";
 
-const WORD_BY_ID = new Map(WORDS.map((word) => [word.id, word]));
-/** Topics in the order they first appear in the data. */
-const TOPIC_IDS = [...new Set(WORDS.map((word) => word.topic))];
+/** The words this page was rendered with (built-in plus Notion), indexed. */
+type Library = {
+  words: WordEntry[];
+  byId: Map<string, WordEntry>;
+  /** Topics in the order they first appear in the data. */
+  topicIds: string[];
+};
+
+const makeLibrary = (words: WordEntry[]): Library => ({
+  words,
+  byId: new Map(words.map((word) => [word.id, word])),
+  topicIds: [...new Set(words.map((word) => word.topic))],
+});
 
 type Stats = { solved: number; failed: number; stars: number; streak: number; bestStreak: number };
 
@@ -42,14 +53,19 @@ type Saved = {
 const emptyStats: Stats = { solved: 0, failed: 0, stars: 0, streak: 0, bestStreak: 0 };
 const emptySaved: Saved = { played: [], topic: null, stats: emptyStats };
 
-const fitsTopic = (id: string, topic: string | null) => topic === null || WORD_BY_ID.get(id)?.topic === topic;
+const fitsTopic = (lib: Library, id: string, topic: string | null) => topic === null || lib.byId.get(id)?.topic === topic;
 
-function readSaved(): Saved {
+/**
+ * Saved progress, cleaned against the current word list: words removed or
+ * unpublished in Notion drop out of `played`, and a saved word in progress
+ * that no longer exists is discarded.
+ */
+function readSaved(lib: Library): Saved {
   try {
     const value = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null") as Partial<Saved> | null;
     if (!value || typeof value !== "object") return emptySaved;
-    const topic = typeof value.topic === "string" && TOPIC_IDS.includes(value.topic) ? value.topic : null;
-    const played = Array.isArray(value.played) ? value.played.filter((id): id is string => typeof id === "string" && WORD_BY_ID.has(id)) : [];
+    const topic = typeof value.topic === "string" && lib.topicIds.includes(value.topic) ? value.topic : null;
+    const played = Array.isArray(value.played) ? value.played.filter((id): id is string => typeof id === "string" && lib.byId.has(id)) : [];
     const raw = value.stats && typeof value.stats === "object" ? value.stats : {};
     const count = (n: unknown) => (typeof n === "number" && Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0);
     const stats: Stats = {
@@ -63,8 +79,8 @@ function readSaved(): Saved {
     const current =
       round &&
       typeof round.id === "string" &&
-      WORD_BY_ID.has(round.id) &&
-      fitsTopic(round.id, topic) &&
+      lib.byId.has(round.id) &&
+      fitsTopic(lib, round.id, topic) &&
       Array.isArray(round.guesses) &&
       round.guesses.every((g) => typeof g === "string") &&
       Number.isInteger(round.hints) &&
@@ -88,15 +104,16 @@ function writeSaved(saved: Saved) {
 }
 
 /** Starts a fresh word from the topic, starting the topic over if it is used up. */
-function withNextWord(saved: Saved): Saved {
-  const next = pickNext(WORDS, saved.topic, saved.played);
+function withNextWord(lib: Library, saved: Saved): Saved {
+  const next = pickNext(lib.words, saved.topic, saved.played);
   if (!next) return { ...saved, current: undefined };
   return { ...saved, played: next.played, current: newRound(next.id) };
 }
 
-export function WordGuess() {
+export function WordGuess({ words, topics }: { words: WordEntry[]; topics: TopicLabels }) {
   const { t, locale } = useI18n();
   const lang = locale === "en" ? "en" : "vi";
+  const lib = React.useMemo(() => makeLibrary(words), [words]);
   const [saved, setSaved] = React.useState<Saved | null>(null);
   const [text, setText] = React.useState("");
   const [verdict, setVerdict] = React.useState<Verdict | null>(null);
@@ -111,14 +128,14 @@ export function WordGuess() {
 
   // Load after hydration: the word is random, so it cannot be rendered on the server.
   React.useEffect(() => {
-    const loaded = readSaved();
-    const ready = loaded.current ? loaded : withNextWord(loaded);
+    const loaded = readSaved(lib);
+    const ready = loaded.current ? loaded : withNextWord(lib, loaded);
     writeSaved(ready);
     setSaved(ready);
-  }, []);
+  }, [lib]);
 
   const round = saved?.current;
-  const word = round ? WORD_BY_ID.get(round.id) : undefined;
+  const word = round ? lib.byId.get(round.id) : undefined;
   const finished = round ? round.status !== "playing" : false;
 
   /** Records a finished round: marks the word played and updates the stats. */
@@ -161,7 +178,7 @@ export function WordGuess() {
     if (!saved) return;
     setText("");
     setVerdict(null);
-    commit(withNextWord(saved));
+    commit(withNextWord(lib, saved));
     // The input mounts again on the next render.
     window.requestAnimationFrame(() => inputRef.current?.focus());
   };
@@ -172,23 +189,23 @@ export function WordGuess() {
     setText("");
     setVerdict(null);
     // A finished word is already in `played`; an unfinished one is simply dropped.
-    commit(withNextWord({ ...saved, topic, current: undefined }));
+    commit(withNextWord(lib, { ...saved, topic, current: undefined }));
   };
 
-  const topicName = (id: string) => TOPICS[id]?.[lang] ?? id;
+  const topicName = (id: string) => topics[id]?.[lang] ?? id;
 
   if (!saved) {
     return <div aria-busy="true" className="mx-auto h-[28rem] max-w-2xl animate-pulse rounded-2xl border border-border bg-surface" />;
   }
 
-  const pool = poolIds(WORDS, saved.topic);
+  const pool = poolIds(lib.words, saved.topic);
   const playedInPool = pool.filter((id) => saved.played.includes(id)).length;
   const shown = finished ? MAX_HINTS : (round?.hints ?? 0);
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <nav aria-label={t("games.wgTopics")} className="flex flex-wrap justify-center gap-2">
-        {[null, ...TOPIC_IDS].map((topic) => {
+        {[null, ...lib.topicIds].map((topic) => {
           const active = saved.topic === topic;
           return (
             <button

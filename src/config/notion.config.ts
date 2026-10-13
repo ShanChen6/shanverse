@@ -29,7 +29,15 @@ export const notionPropertyNames = {
 	status: ["Status", "status"],
 	bio: ["Bio", "Biography", "bio", "biography"],
 	avatar: ["Avatar", "Profile Image", "avatar", "profileImage"],
+	// Word Guess database. Hints are read from "Hint 1" … "Hint 5" (or "Gợi ý 1" …).
+	wordAnswer: ["Answer", "Đáp án", "Title", "Name"],
+	wordQuestion: ["Question", "Câu hỏi"],
+	wordAccept: ["Accept", "Cách viết khác"],
+	wordTopic: ["Topic", "Chủ đề"],
 } as const;
+
+/** Property names for hint number `n` (1 to 5) in the Word Guess database. */
+export const notionWordHintNames = (n: number) => [`Hint ${n}`, `Gợi ý ${n}`, `hint${n}`] as const;
 
 export const notionDataSourceEnv: Record<NotionCollection, string | undefined> = {
 	posts: process.env.NOTION_POSTS_DATA_SOURCE_ID,
@@ -37,4 +45,5 @@ export const notionDataSourceEnv: Record<NotionCollection, string | undefined> =
 	tags: process.env.NOTION_TAGS_DATA_SOURCE_ID,
 	projects: process.env.NOTION_PROJECTS_DATA_SOURCE_ID,
 	authors: process.env.NOTION_AUTHORS_DATA_SOURCE_ID,
+	words: process.env.NOTION_WORDS_DATA_SOURCE_ID,
 };
