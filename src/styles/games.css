@@ -426,3 +426,15 @@
   .sk-move { transition: none; }
   .sk-bump, .sk-stuck { animation: none; }
 }
+
+/* Go ------------------------------------------------------------------- */
+.go-board {
+  --go-wood: #e8c98d;
+  --go-line: #5b4426;
+  background: var(--go-wood);
+}
+
+.dark .go-board {
+  --go-wood: #d4b37a;
+  --go-line: #4a361d;
+}
