@@ -30,6 +30,13 @@ export const GAMES: GameEntry[] = [
     tagKeys: ["games.tagPuzzle", "games.tagKeyboard", "games.tagTouch"],
   },
   {
+    slug: "red-cliffs",
+    href: ROUTES.GAME_DETAIL("red-cliffs"),
+    titleKey: "games.redCliffsTitle",
+    descriptionKey: "games.redCliffsDescription",
+    tagKeys: ["games.tagPuzzle", "games.goTagStrategy", "games.tagTouch"],
+  },
+  {
     slug: "word-guess",
     href: ROUTES.GAME_DETAIL("word-guess"),
     titleKey: "games.wordGuessTitle",
