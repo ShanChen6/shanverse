@@ -427,45 +427,6 @@
   .sk-bump, .sk-stuck { animation: none; }
 }
 
-/* ---------------------------------------------------------------------------
-   Go: a warm wooden board in both themes, lines and labels in deep navy. */
-
-.go-board {
-  --go-wood: #e6c68b;
-  --go-wood-edge: #c9a25e;
-  --go-line: #3a2c14;
-  --go-label: #6b5532;
-}
-
-.dark .go-board {
-  --go-wood: #d4b073;
-  --go-wood-edge: #a8833f;
-  --go-line: #2e2210;
-  --go-label: #57421f;
-}
-
-.go-wood { fill: var(--go-wood); stroke: var(--go-wood-edge); stroke-width: 0.06; }
-.go-line line { stroke: var(--go-line); }
-.go-star { fill: var(--go-line); }
-.go-label { fill: var(--go-label); font-weight: 600; font-family: inherit; }
-.go-cursor { stroke: #1d3a7d; }
-.go-terr-black { fill: #0b1638; opacity: 0.75; }
-.go-terr-white { fill: #f8f5ec; stroke: #9a917d; stroke-width: 0.03; }
-
-.go-stone-in { animation: go-place 140ms ease-out; transform-box: fill-box; transform-origin: center; }
-
-@keyframes go-place {
-  from { transform: scale(0.8); opacity: 0.4; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .go-stone-in { animation: none; }
-}
-.go-icon-black { stroke: #1d3a7d; }
-.dark .go-icon-black { stroke: #7c93c9; }
-.go-icon-white { stroke: #bdb4a0; }
-
 /* Go ------------------------------------------------------------------- */
 .go-board {
   --go-wood: #e8c98d;
