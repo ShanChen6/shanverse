@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { LEVELS } from "./levels";
-import { cratesOnGoals, isSolved, move, parseLevel, rating, stuckCrates } from "./logic";
+import { cratesOnGoals, deadSquares, isSolved, move, parseLevel, planFromSolution, rating, stuckCrates, undoMove, type Direction, type SokobanState } from "./logic";
+import { PLANS } from "./plans.generated";
 import { solve } from "./solver";
 
 test("parses walls, pads, crates, the player and the inside of the station", () => {
@@ -64,10 +65,156 @@ test("solved when every crate is on a pad", () => {
 test("reports crates stuck in a corner, but not on a pad or along a wall", () => {
   const corner = parseLevel(["#####", "#$ .#", "# @ #", "#####"]);
   assert.deepEqual(stuckCrates(corner), corner.crates);
-  const onPad = parseLevel(["#####", "#* .#", "#@$ #", "#####"]);
+  const onPad = parseLevel(["#####", "#* .#", "# $ #", "#  @#", "#####"]);
   assert.deepEqual(stuckCrates(onPad), []);
   const alongWall = parseLevel(["######", "# $ .#", "# @  #", "######"]);
   assert.deepEqual(stuckCrates(alongWall), []);
+});
+
+test("undo takes back walks and pushes exactly", () => {
+  const start = parseLevel(["#######", "#@ $ .#", "#    .#", "#  $  #", "#######"]);
+  const directions: Direction[] = ["right", "right", "down", "left", "up", "right"];
+  const states: SokobanState[] = [start];
+  const records = [];
+  let state = start;
+  for (const direction of directions) {
+    const result = move(state, direction);
+    if (!result.record) continue;
+    records.push(result.record);
+    state = result.state;
+    states.push(state);
+  }
+  assert.ok(records.some((record) => record.crate !== -1), "the sequence pushes a crate");
+  for (let i = records.length - 1; i >= 0; i--) {
+    state = undoMove(state, records[i]);
+    assert.deepEqual(state, states[i], `undo back to step ${i}`);
+  }
+});
+
+test("a blocked move gives no undo record", () => {
+  const start = parseLevel(["#######", "#@ $ .#", "#######"]);
+  assert.equal(move(start, "up").record, undefined);
+  assert.ok(move(start, "right").record);
+});
+
+test("dead squares are corners and wall runs with no pad, never pads", () => {
+  const state = parseLevel([
+    "#######",
+    "#     #",
+    "# $.@ #",
+    "#     #",
+    "#######",
+  ]);
+  const dead = deadSquares(state);
+  const at = (x: number, y: number) => dead[y * state.width + x];
+  assert.equal(at(1, 1), true, "corner");
+  assert.equal(at(3, 1), true, "top wall run without a pad");
+  assert.equal(at(1, 2), true, "left wall run without a pad");
+  assert.equal(at(3, 2), false, "the pad");
+  assert.equal(at(2, 2), false, "next to the pad");
+  assert.equal(at(0, 0), false, "walls are not dead squares");
+});
+
+test("a crate pushed against a padless wall is stuck", () => {
+  const state = parseLevel(["#######", "#  $  #", "#  @ .#", "#######"]);
+  assert.deepEqual(stuckCrates(state), state.crates);
+});
+
+test("two crates side by side against a wall freeze each other", () => {
+  const state = parseLevel([
+    "#######",
+    "#.$$ .#",
+    "#  @  #",
+    "#######",
+  ]);
+  // Crates on the top row: both against the wall, and they lock each other sideways.
+  assert.equal(stuckCrates(state).length > 0, true);
+
+  const free = parseLevel([
+    "#######",
+    "#     #",
+    "# $$  #",
+    "#. @ .#",
+    "#######",
+  ]);
+  assert.deepEqual(stuckCrates(free), []);
+});
+
+test("a frozen pair is fine when both crates are on pads", () => {
+  const state = parseLevel(["######", "#**  #", "# @  #", "######"]);
+  assert.deepEqual(stuckCrates(state), []);
+});
+
+// Walks every state reachable within a few moves of each level's start and
+// checks that whatever stuckCrates reports as lost really cannot be solved.
+test("deadlock detection never reports a solvable state", () => {
+  const directions: Direction[] = ["up", "down", "left", "right"];
+  for (const level of LEVELS.slice(0, 6)) {
+    let frontier = [parseLevel(level.map)];
+    const seen = new Set<string>();
+    for (let depth = 0; depth < 6; depth++) {
+      const next: SokobanState[] = [];
+      for (const state of frontier) {
+        for (const direction of directions) {
+          const result = move(state, direction);
+          if (!result.moved) continue;
+          const key = `${result.state.player}|${result.state.crates.join(",")}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          if (stuckCrates(result.state).length) {
+            assert.equal(solveIgnoringDeadlocks(result.state), false, `${level.id}: flagged state is solvable`);
+          } else {
+            next.push(result.state);
+          }
+        }
+      }
+      frontier = next;
+    }
+  }
+});
+
+/** Plain breadth-first search with no pruning, to check pruning is sound. */
+function solveIgnoringDeadlocks(start: SokobanState, limit = 200_000): boolean {
+  const key = (s: SokobanState) => `${s.player}|${s.crates.slice().sort((a, b) => a - b).join(",")}`;
+  const seen = new Set([key(start)]);
+  let frontier = [start];
+  while (frontier.length && seen.size < limit) {
+    const next: SokobanState[] = [];
+    for (const state of frontier) {
+      for (const direction of ["up", "down", "left", "right"] as Direction[]) {
+        const result = move(state, direction);
+        if (!result.moved) continue;
+        if (isSolved(result.state)) return true;
+        const k = key(result.state);
+        if (seen.has(k)) continue;
+        seen.add(k);
+        next.push(result.state);
+      }
+    }
+    frontier = next;
+  }
+  assert.ok(seen.size < limit, "search ran out of room, the check is inconclusive");
+  return false;
+}
+
+test("a plan lists each crate's pad in the order the crates are finished", () => {
+  const state = parseLevel(["#######", "#.   .#", "# $$  #", "#  @  #", "#######"]);
+  const solution = solve(state);
+  assert.ok(solution);
+  const plan = planFromSolution(state, solution);
+  assert.equal(plan.length, 2);
+  assert.deepEqual(new Set(plan.map((s) => s.crate)), new Set(state.crates));
+  assert.deepEqual(new Set(plan.map((s) => s.goal)), new Set(state.goals));
+});
+
+test("the generated hint plans match the solver, so they cannot drift from the levels", () => {
+  assert.deepEqual(Object.keys(PLANS).sort(), LEVELS.map((l) => l.id).sort(), "run pnpm sokoban:plans");
+  for (const level of LEVELS) {
+    const state = parseLevel(level.map);
+    const solution = solve(state);
+    assert.ok(solution);
+    assert.deepEqual(PLANS[level.id], planFromSolution(state, solution), `${level.id}: run pnpm sokoban:plans`);
+  }
 });
 
 test("rating gives three stars at or near par", () => {

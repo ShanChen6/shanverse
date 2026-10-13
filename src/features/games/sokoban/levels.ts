@@ -8,6 +8,11 @@ export type SokobanLevel = {
   /** Fewest moves that solve the level, verified by the solver. */
   par: number;
   map: string[];
+  /**
+   * Optional handwritten tip shown with the hint, on top of the generated
+   * plan (plans.generated.ts). Describe the idea, not the exact moves.
+   */
+  note?: { vi: string; en: string };
 };
 
 export const LEVELS: SokobanLevel[] = [
