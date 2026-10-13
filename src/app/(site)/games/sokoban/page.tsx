@@ -29,7 +29,7 @@ export default async function SokobanPage() {
       intro={t("games.sokobanIntro")}
       description={t("metadata.sokobanDescription")}
       genre="Puzzle"
-      steps={[t("games.skHowMove"), t("games.skHowPush"), t("games.skHowNoUndo"), t("games.skHowWin")]}
+      steps={[t("games.skHowMove"), t("games.skHowPush"), t("games.skHowUndo"), t("games.skHowWin")]}
       savedNote={t("games.skSavedNote")}
     >
       <Sokoban />

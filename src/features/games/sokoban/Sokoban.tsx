@@ -1,17 +1,33 @@
 "use client";
 
 import * as React from "react";
-import { Lock, RefreshCw } from "lucide-react";
+import { Lightbulb, Lock, RefreshCw, Undo2 } from "lucide-react";
 
 import { MASCOT_NAME, Tianwu, TianwuBadge, TianwuTop } from "@/components/mascot/Tianwu";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import { LEVELS } from "./levels";
-import { cratesOnGoals, isSolved, move, parseLevel, rating, stuckCrates, type Direction, type SokobanState } from "./logic";
+import {
+  UNDO_LIMIT,
+  cratesOnGoals,
+  isSolved,
+  move,
+  parseLevel,
+  rating,
+  stuckCrates,
+  undoMove,
+  type Direction,
+  type MoveRecord,
+  type PlanStep,
+  type SokobanState,
+} from "./logic";
+import { PLANS } from "./plans.generated";
 
 const STORAGE_KEY = "shanverse:sokoban:progress";
 const SWIPE_THRESHOLD = 24;
+/** A swipe counts only when it is mostly along one axis. */
+const SWIPE_STRAIGHTNESS = 2;
 
 const KEYS: Record<string, Direction> = {
   ArrowUp: "up",
@@ -29,10 +45,27 @@ type Progress = {
   best: Record<string, number>;
   /** Attempts per level id, including the current one. */
   attempts: Record<string, number>;
+  /** Levels cleared at least once with no undo and no hint (value is always 1). */
+  clean: Record<string, number>;
   last?: string;
 };
 
-const emptyProgress: Progress = { best: {}, attempts: {} };
+/** One play-through of a level, from opening it or restarting it. */
+type Attempt = {
+  /** Moves made so far, newest last, for undo. */
+  history: MoveRecord[];
+  undosLeft: number;
+  hintUsed: boolean;
+  showHint: boolean;
+  /** Set on the first move; the hint stays locked even if the player undoes back to the start. */
+  moved: boolean;
+  /** How many moves had been made when the level became lost, or null. */
+  stuckAt: number | null;
+};
+
+const emptyProgress: Progress = { best: {}, attempts: {}, clean: {} };
+
+const freshAttempt = (): Attempt => ({ history: [], undosLeft: UNDO_LIMIT, hintUsed: false, showHint: false, moved: false, stuckAt: null });
 
 function readProgress(): Progress {
   try {
@@ -44,7 +77,12 @@ function readProgress(): Progress {
           ([id, n]) => LEVELS.some((level) => level.id === id) && typeof n === "number" && n > 0,
         ),
       ) as Record<string, number>;
-    return { best: clean(value.best), attempts: clean(value.attempts), last: typeof value.last === "string" ? value.last : undefined };
+    return {
+      best: clean(value.best),
+      attempts: clean(value.attempts),
+      clean: clean(value.clean),
+      last: typeof value.last === "string" ? value.last : undefined,
+    };
   } catch {
     return emptyProgress;
   }
@@ -66,17 +104,25 @@ export function Sokoban() {
   const { t, locale } = useI18n();
   const [index, setIndex] = React.useState(0);
   const [game, setGame] = React.useState<SokobanState>(() => parseLevel(LEVELS[0].map));
+  const [attempt, setAttempt] = React.useState<Attempt>(freshAttempt);
   const [progress, setProgress] = React.useState<Progress>(emptyProgress);
   const [bump, setBump] = React.useState(0);
   const [record, setRecord] = React.useState(false);
+  const [cleanWin, setCleanWin] = React.useState(false);
   const boardRef = React.useRef<HTMLDivElement>(null);
   const pointer = React.useRef<{ x: number; y: number; id: number } | null>(null);
 
+  const lang = locale === "en" ? "en" : "vi";
   const level = LEVELS[index];
+  const plan: PlanStep[] = PLANS[level.id] ?? [];
   const solved = isSolved(game);
-  const stuck = !solved && stuckCrates(game).length > 0;
+  const stuckList = React.useMemo(() => (solved ? [] : stuckCrates(game)), [game, solved]);
+  const stuck = stuckList.length > 0;
   const attempts = progress.attempts[level.id] ?? 1;
-  const levelName = (i: number) => LEVELS[i].name[locale === "en" ? "en" : "vi"];
+  const levelName = (i: number) => LEVELS[i].name[lang];
+  /** Undos needed to get back to just before the move that lost the level. */
+  const stepsBack = stuck && attempt.stuckAt !== null ? attempt.history.length - attempt.stuckAt + 1 : 0;
+  const hintAvailable = !attempt.moved && !solved;
 
   const updateProgress = React.useCallback((change: (current: Progress) => Progress) => {
     setProgress((current) => {
@@ -86,19 +132,25 @@ export function Sokoban() {
     });
   }, []);
 
+  const startAttempt = React.useCallback((map: string[]) => {
+    setGame(parseLevel(map));
+    setAttempt(freshAttempt());
+    setRecord(false);
+    setCleanWin(false);
+  }, []);
+
   const openLevel = React.useCallback(
     (nextIndex: number, saved: Progress) => {
       const id = LEVELS[nextIndex].id;
       setIndex(nextIndex);
-      setGame(parseLevel(LEVELS[nextIndex].map));
-      setRecord(false);
+      startAttempt(LEVELS[nextIndex].map);
       updateProgress((current) => ({
         ...current,
         last: id,
         attempts: { ...current.attempts, [id]: current.attempts[id] ?? saved.attempts[id] ?? 1 },
       }));
     },
-    [updateProgress],
+    [startAttempt, updateProgress],
   );
 
   // Resume where the player left off, after hydration.
@@ -110,14 +162,13 @@ export function Sokoban() {
   }, [openLevel]);
 
   const restart = React.useCallback(() => {
-    setGame(parseLevel(level.map));
-    setRecord(false);
+    startAttempt(level.map);
     updateProgress((current) => ({
       ...current,
       attempts: { ...current.attempts, [level.id]: (current.attempts[level.id] ?? 1) + 1 },
     }));
     boardRef.current?.focus();
-  }, [level, updateProgress]);
+  }, [level, startAttempt, updateProgress]);
 
   const play = React.useCallback(
     (direction: Direction) => {
@@ -125,18 +176,58 @@ export function Sokoban() {
       const result = move(game, direction);
       if (result.blocked) setBump((n) => n + 1);
       setGame(result.state);
+      if (!result.record) return;
+
+      const moveRecord = result.record;
+      const madeMoves = attempt.history.length + 1;
+      const becameStuck = result.pushed && stuckCrates(game).length === 0 && stuckCrates(result.state).length > 0;
+      setAttempt((current) => ({
+        ...current,
+        history: [...current.history, moveRecord],
+        moved: true,
+        showHint: false,
+        stuckAt: becameStuck ? madeMoves : current.stuckAt,
+      }));
+
       if (result.pushed && isSolved(result.state)) {
         const moves = result.state.moves;
         const previous = progress.best[level.id];
+        const clean = attempt.undosLeft === UNDO_LIMIT && !attempt.hintUsed;
         setRecord(previous === undefined || moves < previous);
+        setCleanWin(clean);
         updateProgress((current) => ({
           ...current,
           best: { ...current.best, [level.id]: Math.min(moves, current.best[level.id] ?? Infinity) },
+          clean: clean ? { ...current.clean, [level.id]: 1 } : current.clean,
         }));
       }
     },
-    [game, level, progress.best, updateProgress],
+    [game, attempt, level, progress.best, updateProgress],
   );
+
+  /** Takes back up to `count` moves, limited by the undos left in this attempt. */
+  const undo = React.useCallback(
+    (count = 1) => {
+      if (isSolved(game)) return;
+      const steps = Math.min(count, attempt.undosLeft, attempt.history.length);
+      if (steps <= 0) {
+        setBump((n) => n + 1);
+        return;
+      }
+      let state = game;
+      const history = attempt.history.slice();
+      for (let i = 0; i < steps; i++) state = undoMove(state, history.pop() as MoveRecord);
+      setGame(state);
+      setAttempt((current) => ({ ...current, history, undosLeft: current.undosLeft - steps }));
+      boardRef.current?.focus();
+    },
+    [game, attempt],
+  );
+
+  const revealHint = React.useCallback(() => {
+    if (!hintAvailable) return;
+    setAttempt((current) => ({ ...current, hintUsed: true, showHint: true }));
+  }, [hintAvailable]);
 
   const goNext = React.useCallback(() => {
     if (index + 1 < LEVELS.length) openLevel(index + 1, progress);
@@ -153,6 +244,16 @@ export function Sokoban() {
         restart();
         return;
       }
+      if (key === "z" || key === "u") {
+        event.preventDefault();
+        undo();
+        return;
+      }
+      if (key === "h") {
+        event.preventDefault();
+        revealHint();
+        return;
+      }
       if (key === "n" && solved) {
         event.preventDefault();
         goNext();
@@ -165,7 +266,7 @@ export function Sokoban() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [play, restart, goNext, solved]);
+  }, [play, restart, undo, revealHint, goNext, solved]);
 
   const onPointerDown = (event: React.PointerEvent) => {
     pointer.current = { x: event.clientX, y: event.clientY, id: event.pointerId };
@@ -177,7 +278,10 @@ export function Sokoban() {
     if (!start || start.id !== event.pointerId) return;
     const dx = event.clientX - start.x;
     const dy = event.clientY - start.y;
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < SWIPE_THRESHOLD) return;
+    const major = Math.max(Math.abs(dx), Math.abs(dy));
+    const minor = Math.min(Math.abs(dx), Math.abs(dy));
+    // Too short, or too diagonal to tell which way was meant: ignore it.
+    if (major < SWIPE_THRESHOLD || major < minor * SWIPE_STRAIGHTNESS) return;
     play(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up");
   };
 
@@ -199,13 +303,15 @@ export function Sokoban() {
         {LEVELS.map((item, i) => {
           const open = isUnlocked(i, progress);
           const best = progress.best[item.id];
+          const shell = progress.clean[item.id] !== undefined;
+          const label = open ? t("games.skLevelButton", { n: i + 1, name: levelName(i) }) : t("games.skLocked", { n: i + 1 });
           return (
             <button
               key={item.id}
               type="button"
               disabled={!open}
               aria-current={i === index ? "true" : undefined}
-              aria-label={open ? t("games.skLevelButton", { n: i + 1, name: levelName(i) }) : t("games.skLocked", { n: i + 1 })}
+              aria-label={shell ? `${label}, ${t("games.skShellBadge")}` : label}
               onClick={() => openLevel(i, progress)}
               className={cn(
                 "relative flex size-11 items-center justify-center rounded-xl border text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:ring-primary",
@@ -216,7 +322,7 @@ export function Sokoban() {
               {open ? i + 1 : <Lock aria-hidden="true" className="size-4" />}
               {best !== undefined ? (
                 <span aria-hidden="true" className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-[#D9AF62] text-[9px] text-[#031242]">
-                  ★
+                  {shell ? "🐢" : "★"}
                 </span>
               ) : null}
             </button>
@@ -235,7 +341,34 @@ export function Sokoban() {
         <Stat label={t("games.skCrates")} value={`${cratesOnGoals(game)}/${game.crates.length}`} highlight />
         <Stat label={t("games.skAttempt")} value={String(attempts)} />
         <Stat label={t("games.skPar")} value={String(level.par)} />
-        <Button type="button" variant="outline" size="sm" onClick={restart} aria-keyshortcuts="R" className="h-auto gap-1.5 self-stretch px-3">
+      </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => undo()}
+          disabled={solved || attempt.undosLeft === 0 || attempt.history.length === 0}
+          aria-keyshortcuts="Z"
+          aria-label={t("games.skUndoLabel", { n: attempt.undosLeft })}
+          className="gap-1.5"
+        >
+          <Undo2 aria-hidden="true" className="size-4" /> {t("games.skUndo", { n: attempt.undosLeft, max: UNDO_LIMIT })}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={revealHint}
+          disabled={!hintAvailable || attempt.showHint}
+          aria-keyshortcuts="H"
+          title={hintAvailable ? undefined : t("games.skHintLocked")}
+          className="gap-1.5"
+        >
+          <Lightbulb aria-hidden="true" className="size-4" /> {attempt.hintUsed ? t("games.skHintUsed") : t("games.skHintButton")}
+        </Button>
+        <Button type="button" variant="outline" size="sm" onClick={restart} aria-keyshortcuts="R" className="gap-1.5">
           <RefreshCw aria-hidden="true" className="size-4" /> {t("games.skRestart")}
         </Button>
       </div>
@@ -265,7 +398,7 @@ export function Sokoban() {
           <div className="sk-layer" aria-hidden="true">
             {game.crates.map((cell, id) => (
               <div key={id} className="sk-piece sk-move" style={position(cell)}>
-                <CrateTile done={game.goals.includes(cell)} stuck={stuck && stuckCrates(game).includes(cell)} />
+                <CrateTile done={game.goals.includes(cell)} stuck={stuckList.includes(cell)} />
               </div>
             ))}
             <div className="sk-piece sk-move sk-player" style={position(game.player)}>
@@ -274,6 +407,7 @@ export function Sokoban() {
               </div>
             </div>
           </div>
+          {attempt.showHint ? <HintOverlay plan={plan} width={game.width} height={game.height} /> : null}
         </div>
       </div>
 
@@ -292,6 +426,7 @@ export function Sokoban() {
                 {" · "}
                 {attempts > 1 ? t("games.skWinPersist", { n: attempts }) : t("games.skWinFirst")}
               </p>
+              {cleanWin ? <p className="text-sm font-semibold text-[#D9AF62]">🐢 {t("games.skShellWin")}</p> : null}
               {record ? <p className="text-sm font-semibold text-primary">{t("games.newRecord")}</p> : null}
               {allDone ? <p className="text-sm text-foreground-secondary">{t("games.skAllDone", { name: MASCOT_NAME })}</p> : null}
             </div>
@@ -302,19 +437,42 @@ export function Sokoban() {
             ) : null}
           </div>
         ) : stuck ? (
-          <div className="flex items-center gap-4 rounded-2xl border border-[#D9AF62] bg-[#102653] p-4 text-[#FAF7F0] sm:p-5">
+          <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-[#D9AF62] bg-[#102653] p-4 text-[#FAF7F0] sm:flex-nowrap sm:p-5">
             <TianwuBadge className="size-16 shrink-0" />
             <div className="min-w-0 flex-1">
-              <p className="font-bold">{t("games.skStuckTitle", { n: attempts })}</p>
-              <p className="text-sm text-[#E0E6F1]">{t("games.skStuck", { name: MASCOT_NAME })}</p>
+              <p className="font-bold">{t("games.skStuckTitle", { name: MASCOT_NAME })}</p>
+              <p className="text-sm text-[#E0E6F1]">
+                {stepsBack > 0 && stepsBack <= attempt.undosLeft
+                  ? t("games.skStuckUndo", { n: stepsBack })
+                  : t("games.skStuckRestart", { name: MASCOT_NAME })}
+              </p>
             </div>
-            <button
-              type="button"
-              onClick={restart}
-              className="min-h-11 shrink-0 rounded-xl bg-[#D9AF62] px-4 text-sm font-bold text-[#031242] hover:bg-[#F0C27B] focus-visible:ring-2 focus-visible:ring-[#FAF7F0]"
-            >
-              {t("games.skRestart")}
-            </button>
+            {stepsBack > 0 && stepsBack <= attempt.undosLeft ? (
+              <button
+                type="button"
+                onClick={() => undo(stepsBack)}
+                className="min-h-11 shrink-0 rounded-xl bg-[#D9AF62] px-4 text-sm font-bold text-[#031242] hover:bg-[#F0C27B] focus-visible:ring-2 focus-visible:ring-[#FAF7F0]"
+              >
+                {t("games.skStuckUndoButton", { n: stepsBack })}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={restart}
+                className="min-h-11 shrink-0 rounded-xl bg-[#D9AF62] px-4 text-sm font-bold text-[#031242] hover:bg-[#F0C27B] focus-visible:ring-2 focus-visible:ring-[#FAF7F0]"
+              >
+                {t("games.skRestart")}
+              </button>
+            )}
+          </div>
+        ) : attempt.showHint ? (
+          <div className="flex gap-3 rounded-2xl border border-[#D9AF62]/60 bg-surface p-4">
+            <Lightbulb aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-[#D9AF62]" />
+            <div className="min-w-0 space-y-1 text-sm">
+              <p className="font-semibold">{t("games.skHintTitle")}</p>
+              <p className="text-foreground-secondary">{t("games.skHintPlan")}</p>
+              {level.note ? <p className="text-foreground-secondary">{level.note[lang]}</p> : null}
+            </div>
           </div>
         ) : (
           <p className="hidden text-center text-xs text-muted sm:block">{t("games.skHint")}</p>
@@ -333,6 +491,58 @@ export function Sokoban() {
         <span />
       </div>
     </div>
+  );
+}
+
+/**
+ * The hint, drawn over the starting board: each crate gets a number, and a
+ * dashed arrow leads it to its pad. Numbers give the order to finish them in.
+ */
+function HintOverlay({ plan, width, height }: { plan: PlanStep[]; width: number; height: number }) {
+  const center = (cell: number) => ({ x: (cell % width) + 0.5, y: Math.floor(cell / width) + 0.5 });
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} aria-hidden="true" className="pointer-events-none absolute inset-0 z-[3] size-full">
+      <defs>
+        <marker id="sk-hint-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="#F0C27B" />
+        </marker>
+      </defs>
+      {plan.map((item, order) => {
+        const from = center(item.crate);
+        const to = center(item.goal);
+        const length = Math.hypot(to.x - from.x, to.y - from.y);
+        // Stop the line short of both centres so the badges stay readable.
+        const trim = (distance: number) => (length === 0 ? from : { x: from.x + ((to.x - from.x) * distance) / length, y: from.y + ((to.y - from.y) * distance) / length });
+        const start = trim(0.32);
+        const end = trim(Math.max(length - 0.36, 0.32));
+        return (
+          <g key={`${item.crate}-${order}`}>
+            {length > 0 ? (
+              <line
+                x1={start.x}
+                y1={start.y}
+                x2={end.x}
+                y2={end.y}
+                stroke="#F0C27B"
+                strokeWidth={0.07}
+                strokeDasharray="0.16 0.12"
+                strokeLinecap="round"
+                markerEnd="url(#sk-hint-arrow)"
+                opacity={0.9}
+              />
+            ) : null}
+            <circle cx={to.x} cy={to.y} r={0.3} fill="none" stroke="#F0C27B" strokeWidth={0.06} />
+            <text x={to.x} y={to.y} textAnchor="middle" dominantBaseline="central" fontSize={0.3} fontWeight={700} fill="#F0C27B">
+              {order + 1}
+            </text>
+            <circle cx={from.x - 0.28} cy={from.y - 0.28} r={0.2} fill="#F0C27B" stroke="#031242" strokeWidth={0.04} />
+            <text x={from.x - 0.28} y={from.y - 0.28} textAnchor="middle" dominantBaseline="central" fontSize={0.24} fontWeight={800} fill="#031242">
+              {order + 1}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
   );
 }
 
