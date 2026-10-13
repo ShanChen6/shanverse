@@ -23,13 +23,6 @@ export const GAMES: GameEntry[] = [
     tagKeys: ["games.goTagStrategy", "games.tagMouse", "games.tagTouch"],
   },
   {
-    slug: "go",
-    href: ROUTES.GAME_DETAIL("go"),
-    titleKey: "games.goTitle",
-    descriptionKey: "games.goDescription",
-    tagKeys: ["games.goTagStrategy", "games.tagMouse", "games.tagTouch"],
-  },
-  {
     slug: "sokoban",
     href: ROUTES.GAME_DETAIL("sokoban"),
     titleKey: "games.sokobanTitle",

@@ -2,7 +2,6 @@ import * as React from "react";
 
 import { Game2048Preview } from "./Game2048Preview";
 import { GoPreview } from "./GoPreview";
-import { GoPreview } from "./GoPreview";
 import { MemoryPreview } from "./MemoryPreview";
 import { MinesweeperPreview } from "./MinesweeperPreview";
 import { SnakePreview } from "./SnakePreview";
@@ -16,7 +15,6 @@ const PREVIEWS: Record<string, React.ComponentType> = {
   memory: MemoryPreview,
   snake: SnakePreview,
   sokoban: SokobanPreview,
-  go: GoPreview,
   go: GoPreview,
 };
 
