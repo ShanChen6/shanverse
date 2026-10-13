@@ -5,6 +5,7 @@ import { buildPageMetadata } from "@/config/seo.config";
 import { ROUTES } from "@/constants/routes";
 import { GamePageShell } from "@/features/games/components/GamePageShell";
 import { WordGuess } from "@/features/games/word-guess/WordGuess";
+import { getWordGuessData } from "@/features/games/word-guess/word-data";
 import { getTranslator } from "@/i18n/server";
 
 const PATH = ROUTES.GAME_DETAIL("word-guess");
@@ -21,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function WordGuessPage() {
-  const { t } = await getTranslator();
+  const [{ t }, { words, topics }] = await Promise.all([getTranslator(), getWordGuessData()]);
   return (
     <GamePageShell
       path={PATH}
@@ -32,7 +33,7 @@ export default async function WordGuessPage() {
       steps={[t("games.wgHowRead"), t("games.wgHowGuess"), t("games.wgHowHint"), t("games.wgHowWin")]}
       savedNote={t("games.wgSavedNote")}
     >
-      <WordGuess />
+      <WordGuess words={words} topics={topics} />
     </GamePageShell>
   );
 }
