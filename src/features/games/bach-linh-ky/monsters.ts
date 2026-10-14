@@ -70,7 +70,7 @@ export type Monster = {
   /** Ranged attack, if it has one: strength and reach (in cells, diagonals count as one). */
   ranged: { power: number; range: number } | null;
   abilities: Ability[];
-  /** In every player's collection from the start. Exactly one per level. */
+  /** In every player's collection from the start. Two per level, one of each set of five elements across a set. */
   starter?: boolean;
   /** One line of folklore for the collection and tooltips. */
   lore: Text;
@@ -115,7 +115,7 @@ export const MONSTERS: Monster[] = [
     [t("Nam quốc sơn hà: đồng minh kề bên +1 cấp khi bị đánh.", "Southern land: allies next to it defend one level higher.")]),
   m("bach-ho", t("Bạch Hổ", "White Tiger"), { level: 5, element: "kim", path: "land", steps: 3, melee: 5, ranged: null }, [{ kind: "leap", range: 3 }],
     t("Thánh thú phương Tây, tiếng gầm trấn áp tà ma.", "Sacred beast of the West whose roar cows every demon."),
-    [t("Hổ vồ (1 lần): nhảy tới ô bất kỳ trong 3 ô, nhảy vào địch là đánh cận chiến.", "Pounce (once): leap to any cell within 3; onto an enemy is a melee attack.")]),
+    [t("Hổ vồ (1 lần): nhảy tới ô bất kỳ trong 3 ô, nhảy vào địch là đánh cận chiến.", "Pounce (once): leap to any cell within 3; onto an enemy is a melee attack.")], true),
   m("tran-hung-dao", t("Trần Hưng Đạo", "Trần Hưng Đạo"), { level: 5, element: "kim", path: "land", steps: 2, melee: 4, ranged: { power: 3, range: 2 } }, [{ kind: "aura", on: "attack" }],
     t("Đức Thánh Trần, ba lần đánh tan quân Nguyên.", "Saint Trần, who beat back the Mongol armies three times."),
     [t("Hịch tướng sĩ: đồng minh kề bên +1 cấp khi tấn công.", "Call to arms: allies next to it attack one level higher.")]),
@@ -140,7 +140,7 @@ export const MONSTERS: Monster[] = [
     [t("Che chở: đồng minh kề bên +1 cấp khi bị đánh.", "Shelter: allies next to her defend one level higher.")]),
   m("chu-dong-tu", t("Chử Đồng Tử", "Chử Đồng Tử"), { level: 4, element: "moc", path: "land", steps: 2, melee: 3, ranged: null }, [{ kind: "terraform", to: "mountain", count: 2, radius: 1 }],
     t("Một trong Tứ bất tử, cắm gậy úp nón hóa thành quách trong một đêm.", "One of the Four Immortals, who raised a citadel overnight with a staff and a hat."),
-    [t("Thành quách (1 lần): dựng núi trên tối đa 2 ô đồng bằng kề bên.", "Citadel (once): raises mountains on up to 2 plains next to him.")]),
+    [t("Thành quách (1 lần): dựng núi trên tối đa 2 ô đồng bằng kề bên.", "Citadel (once): raises mountains on up to 2 plains next to him.")], true),
   m("chan-tinh", t("Chằn Tinh", "Ogre"), { level: 4, element: "moc", path: "land", steps: 2, melee: 5, ranged: null }, [],
     t("Yêu tinh ăn thịt người, bị Thạch Sanh hạ bằng búa thần.", "The man-eating ogre Thạch Sanh slew with his magic axe.")),
   m("mau-thuong-ngan", t("Mẫu Thượng Ngàn", "Mother of the Forests"), { level: 5, element: "moc", path: "land", steps: 2, melee: 3, ranged: { power: 3, range: 2 } }, [{ kind: "walk-mountain" }, { kind: "bind", range: 3, turns: 2 }],
@@ -164,7 +164,7 @@ export const MONSTERS: Monster[] = [
     [t("Mai cua: không bị đánh tầm xa.", "Crab shell: cannot be hit by ranged attacks.")]),
   m("nguu-tinh", t("Ngưu Tinh", "Water Buffalo Spirit"), { level: 3, element: "thuy", path: "water", steps: 2, melee: 5, ranged: null }, [{ kind: "river-bonus", levels: 1 }],
     t("Trâu tinh dưới đáy hồ, gọi mưa và húc ngã đối thủ.", "A buffalo demon in the lake bed that calls rain and gores its foes."),
-    [t("Húc dưới nước: đứng trên sông thì +1 cấp.", "River charge: fights one level higher on a river.")]),
+    [t("Húc dưới nước: đứng trên sông thì +1 cấp.", "River charge: fights one level higher on a river.")], true),
   m("ngu-tinh", t("Ngư Tinh", "Fish Demon"), { level: 3, element: "thuy", path: "water", steps: 2, melee: 3, ranged: { power: 2, range: 2 } }, [],
     t("Cá thành tinh ở biển Đông, bị Lạc Long Quân diệt.", "The sea fish demon slain by the Dragon Lord.")),
   m("thuy-tinh", t("Thủy Tinh", "Water God"), { level: 4, element: "thuy", path: "water", steps: 2, melee: 3, ranged: { power: 2, range: 2 } }, [{ kind: "terraform", to: "river", count: 3, radius: 1 }],
@@ -183,7 +183,7 @@ export const MONSTERS: Monster[] = [
   // --- Hỏa (Fire): heat, lightning, fury ------------------------------------------------
   m("coc-tia", t("Cóc Tía", "Purple Toad"), { level: 1, element: "hoa", path: "land", steps: 2, melee: 1, ranged: null }, [{ kind: "terraform", to: "river", count: 1, radius: 1 }],
     t("Con cóc là cậu ông trời, ai mà đánh cóc thì trời đánh cho.", "The toad is Heaven's uncle; strike it and Heaven strikes back."),
-    [t("Cóc kiện trời (1 lần): biến 1 ô đồng bằng kề bên thành sông.", "Suing Heaven (once): turns a plain next to it into river.")]),
+    [t("Cóc kiện trời (1 lần): biến 1 ô đồng bằng kề bên thành sông.", "Suing Heaven (once): turns a plain next to it into river.")], true),
   m("ma-troi", t("Ma Trơi", "Will-o'-the-Wisp"), { level: 1, element: "hoa", path: "air", steps: 3, melee: 1, ranged: { power: 1, range: 2 } }, [],
     t("Đốm lửa ma lập lòe trên bãi tha ma.", "A ghost flame flickering over the graves.")),
   m("ho-tinh", t("Hồ Tinh", "Fox Spirit"), { level: 2, element: "hoa", path: "land", steps: 3, melee: 3, ranged: null }, [{ kind: "fake-level", shown: 3 }],
@@ -218,7 +218,7 @@ export const MONSTERS: Monster[] = [
     [t("Mai cứng: không bị đánh tầm xa.", "Hard shell: cannot be hit by ranged attacks.")], true),
   m("lan", t("Lân", "Lân"), { level: 2, element: "tho", path: "land", steps: 2, melee: 3, ranged: null }, [{ kind: "guard-ranged" }],
     t("Linh vật trong Tứ linh, múa xua tà ma.", "One of the Four Sacred Beasts, dancing evil away."),
-    [t("Hộ vệ: đồng minh kề bên không bị đánh tầm xa.", "Guardian: allies next to it cannot be hit by ranged attacks.")]),
+    [t("Hộ vệ: đồng minh kề bên không bị đánh tầm xa.", "Guardian: allies next to it cannot be hit by ranged attacks.")], true),
   m("ong-dia", t("Ông Địa", "Earth God"), { level: 2, element: "tho", path: "land", steps: 2, melee: 2, ranged: null }, [{ kind: "terraform", to: "mountain", count: 1, radius: 1 }],
     t("Thần đất giữ nhà, bụng phệ cười hiền.", "The pot-bellied, smiling god who guards the home ground."),
     [t("Đắp đất (1 lần): dựng núi trên 1 ô đồng bằng kề bên.", "Raise the ground (once): raises a mountain on one plain next to him.")]),

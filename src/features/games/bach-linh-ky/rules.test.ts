@@ -57,19 +57,21 @@ const at = (x: number, y: number) => cellAt(x, y);
 const faceUp = (state: GameState) => ({ ...state, units: state.units.map((u) => ({ ...u, revealed: true })) });
 const cellsOf = (state: GameState, unit: number) => new Set(destinations(state, state.units.find((u) => u.id === unit) as Unit).map((d) => d.cell));
 const play = (state: GameState, action: Action) => apply(state, action);
+/** A legal team: the first starter of each level. */
+const TEAM = LEVELS.map((level) => STARTERS.find((id) => monster(id).level === level) as string);
 
 let seed = 3;
 const random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
 
 // --- Data -------------------------------------------------------------------------
 
-test("the roster: 50 monsters, two for every element and level, unique ids, one starter per level", () => {
+test("the roster: 50 monsters, two for every element and level, unique ids, two starters per level", () => {
   assert.equal(MONSTERS.length, 50);
   assert.equal(new Set(MONSTERS.map((m) => m.id)).size, MONSTERS.length);
   for (const level of LEVELS) {
     for (const element of ELEMENTS) assert.equal(MONSTERS.filter((m) => m.level === level && m.element === element).length, 2, `${element} level ${level}`);
   }
-  assert.deepEqual(STARTERS.map((id) => monster(id).level).sort(), [...LEVELS]);
+  assert.deepEqual(STARTERS.map((id) => monster(id).level).sort(), LEVELS.flatMap((l) => [l, l]));
   for (const m of MONSTERS) {
     assert.equal(m.abilityText.length, m.abilities.length, `${m.id}: one text per ability`);
     assert.ok(m.abilities.filter((a) => (ACTIVE_KINDS as readonly string[]).includes(a.kind)).length <= 1, `${m.id}: at most one active ability`);
@@ -115,19 +117,19 @@ test("every map is mirrored, fair and open", () => {
 // --- Setup ------------------------------------------------------------------------
 
 test("a team is five monsters, one of each level", () => {
-  assert.deepEqual(teamProblems(STARTERS), []);
+  assert.deepEqual(teamProblems(TEAM), []);
   assert.ok(teamProblems(["rua-con", "coc-tia", "lan", "son-tinh", "phu-dong"]).length, "two level 1s, no level 3");
-  assert.ok(teamProblems(STARTERS.slice(0, 4)).length);
+  assert.ok(teamProblems(TEAM.slice(0, 4)).length);
 });
 
 test("placement must be on the home rows, on open ground, one per cell", () => {
   const { terrain } = buildBoard(MAPS[0]);
-  const good = autoPlace(0, STARTERS, terrain, random);
+  const good = autoPlace(0, TEAM, terrain, random);
   assert.deepEqual(placementProblems(0, good, terrain), []);
   assert.ok(placementProblems(1, good, terrain).length, "the player's cells are not Tianwu's home rows");
   const stacked = good.map((p) => ({ ...p, cell: good[0].cell }));
   assert.ok(placementProblems(0, stacked, terrain).length);
-  assert.throws(() => newGame(MAPS[0].id, stacked, autoPlace(1, STARTERS, terrain, random)));
+  assert.throws(() => newGame(MAPS[0].id, stacked, autoPlace(1, TEAM, terrain, random)));
 });
 
 test("randomTeam picks one monster per level from the pool", () => {
