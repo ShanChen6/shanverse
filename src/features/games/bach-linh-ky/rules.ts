@@ -7,12 +7,14 @@
 //
 // A turn is one action by one monster: move (moving onto an enemy is a melee
 // attack), shoot (ranged attack), use its once-per-game ability, or pass.
+// Battles compare levels, adjusted by terrain and the five elements (khắc
+// +1, sinh +1 for a defender; see monsters.ts).
 // Monsters are face down until they fight or use their ability; their level
 // is always shown (a Fox Spirit shows a false one). viewFor() gives what one
 // side can see, and that is all Tianwu is allowed to look at.
 
 import { MAP_BY_ID, SIZE, buildBoard, type Terrain } from "./maps";
-import { LEVELS, activeAbility, hasAbility, monster, type Monster } from "./monsters";
+import { FEEDS, LEVELS, OVERCOMES, activeAbility, hasAbility, monster, type Monster } from "./monsters";
 
 export type Side = 0 | 1;
 export const MAX_TURNS = 80;
@@ -52,7 +54,7 @@ export type BattleResult = "attacker" | "defender" | "both" | "none" | "blocked"
 
 export type GameEvent =
   | { type: "move"; unit: number; from: number; to: number }
-  | { type: "battle"; kind: "melee" | "ranged"; attacker: number; defender: number; result: BattleResult }
+  | { type: "battle"; kind: "melee" | "ranged"; attacker: number; defender: number; result: BattleResult; levels: { attacker: number; defender: number } }
   | { type: "reveal"; unit: number }
   | { type: "evolve"; unit: number; level: number }
   | { type: "terraform"; unit: number; cells: number[]; to: "river" | "mountain" }
@@ -148,6 +150,21 @@ const def = (u: Unit): Monster => monster(u.monster);
 export function fightingLevel(state: GameState, u: Unit, cell = u.cell): number {
   const bonus = state.terrain[cell] === "river" ? (hasAbility(def(u), "river-bonus")?.levels ?? 0) : 0;
   return u.level + bonus;
+}
+
+/** +1 when this monster's element overcomes (khắc) the foe's. */
+export const counterBonus = (u: Unit, foe: Unit) => (OVERCOMES[def(u).element] === def(foe).element ? 1 : 0);
+
+/** +1 for a defender standing next to an ally whose element feeds (sinh) its own. Does not stack. */
+export const feedBonus = (state: GameState, u: Unit) =>
+  state.units.some((ally) => ally.side === u.side && ally.id !== u.id && reach(ally.cell, u.cell) === 1 && FEEDS[def(ally).element] === def(u).element) ? 1 : 0;
+
+/** The levels both sides fight at in one battle, with terrain, khắc and sinh. */
+export function battleLevels(state: GameState, attacker: Unit, defender: Unit, melee: boolean): { attacker: number; defender: number } {
+  return {
+    attacker: fightingLevel(state, attacker, melee ? defender.cell : attacker.cell) + counterBonus(attacker, defender),
+    defender: fightingLevel(state, defender) + counterBonus(defender, attacker) + feedBonus(state, defender),
+  };
 }
 
 /** True if ranged attacks cannot touch this monster where it stands. */
@@ -285,8 +302,7 @@ function visitTemple(state: GameState, u: Unit, events: GameEvent[]) {
 /** Ranged attack: the target falls only if the shooter wins. A losing shot does nothing. */
 function rangedHit(state: GameState, attacker: Unit, target: Unit, power: number): BattleResult {
   if (shielded(state, target)) return "blocked";
-  const a = fightingLevel(state, attacker);
-  const d = fightingLevel(state, target);
+  const { attacker: a, defender: d } = battleLevels(state, attacker, target, false);
   if (a > d) return "attacker";
   if (a < d) return "none";
   return power > (def(target).ranged?.power ?? 0) ? "attacker" : "none";
@@ -294,8 +310,7 @@ function rangedHit(state: GameState, attacker: Unit, target: Unit, power: number
 
 /** Melee: the higher level wins; at equal level the stronger fighter wins; a tie takes both. */
 function meleeResult(state: GameState, attacker: Unit, defender: Unit): BattleResult {
-  const a = fightingLevel(state, attacker, defender.cell);
-  const d = fightingLevel(state, defender);
+  const { attacker: a, defender: d } = battleLevels(state, attacker, defender, true);
   if (a !== d) return a > d ? "attacker" : "defender";
   const am = def(attacker).melee;
   const dm = def(defender).melee;
@@ -339,8 +354,9 @@ export function apply(state: GameState, action: Action): { state: GameState; eve
       } else {
         reveal(u, events);
         reveal(enemy, events);
+        const levels = battleLevels(next, u, enemy, true);
         const result = meleeResult(next, u, enemy);
-        events.push({ type: "battle", kind: "melee", attacker: u.id, defender: enemy.id, result });
+        events.push({ type: "battle", kind: "melee", attacker: u.id, defender: enemy.id, result, levels });
         if (result === "attacker" || result === "both") remove(enemy.id);
         if (result === "defender" || result === "both") remove(u.id);
         if (result === "attacker") {
@@ -356,8 +372,9 @@ export function apply(state: GameState, action: Action): { state: GameState; eve
       if (action.kind === "ability") u.abilityUsed = true;
       reveal(u, events);
       reveal(target, events);
+      const levels = battleLevels(next, u, target, false);
       const result = rangedHit(next, u, target, power);
-      events.push({ type: "battle", kind: "ranged", attacker: u.id, defender: target.id, result });
+      events.push({ type: "battle", kind: "ranged", attacker: u.id, defender: target.id, result, levels });
       if (result === "attacker") remove(target.id);
     } else {
       const ability = activeAbility(def(u)) as Extract<ReturnType<typeof activeAbility>, { kind: "terraform" }>;

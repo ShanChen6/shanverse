@@ -2,13 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { MAPS, SIZE, buildBoard, type Terrain } from "./maps";
-import { LEVELS, MONSTERS, STARTERS, activeAbility, monster } from "./monsters";
+import { ELEMENTS, LEVELS, MONSTERS, STARTERS, activeAbility, monster } from "./monsters";
 import {
   MAX_TURNS,
   apply,
   autoPlace,
   cellAt,
   destinations,
+  feedBonus,
   homeRows,
   isLegal,
   legalActions,
@@ -218,21 +219,22 @@ test("Ma Da fights a level higher on a river", () => {
 });
 
 test("ranged: in reach only; a lower level falls, a higher one shrugs it off", () => {
-  // The Lân stands 2 away from the toad, too far to guard it.
-  const state = position([[0, "moc-tinh", "3,5"], [1, "rua-con", "0,0"], [1, "coc-tia", "3,3"], [1, "lan", "5,4"]]);
+  // Wood Spirit (Mộc 2) against a toad (Hỏa 1) and an ogre (Mộc 3): no element bonus either way.
+  const state = position([[0, "moc-tinh", "3,5"], [1, "rua-con", "0,0"], [1, "coc-tia", "3,3"], [1, "chan-tinh", "5,4"]]);
   const targets = legalActions(state).filter((a) => a.kind === "shoot").map((a) => (a as { target: number }).target);
   assert.deepEqual(new Set(targets), new Set([at(3, 3), at(5, 4)]), "range 2, diagonals count as one");
-  assert.deepEqual(play(state, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.map((u) => u.monster).sort(), ["lan", "moc-tinh", "rua-con"]);
+  assert.deepEqual(play(state, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.map((u) => u.monster).sort(), ["chan-tinh", "moc-tinh", "rua-con"]);
   const { state: after, events } = play(state, { kind: "shoot", unit: 0, target: at(5, 4) });
   assert.equal(after.units.length, 4, "a lower-level shooter neither kills nor dies");
   assert.ok(events.some((e) => e.type === "battle" && e.result === "none"));
 });
 
 test("ranged at equal level compares ranged strength; the loser of a shot is unharmed", () => {
-  const state = position([[0, "phuong-hoang", "3,5"], [1, "thuy-tinh", "3,3"]]);
-  // Phoenix (ranged 3) vs Water God (ranged 2), both level 4: the shot wins.
+  // Dragon (Mộc, ranged 3) vs a Water God evolved to level 5 (Thủy, ranged 2); neither element overcomes the other.
+  const evolved = (s: GameState) => (s.units.find((u) => u.monster === "thuy-tinh")!.level = 5, s);
+  const state = evolved(position([[0, "rong", "3,5"], [1, "thuy-tinh", "3,3"]]));
   assert.equal(play(state, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.length, 1);
-  const back = position([[0, "thuy-tinh", "3,5"], [1, "phuong-hoang", "3,3"]]);
+  const back = evolved(position([[0, "thuy-tinh", "3,5"], [1, "rong", "3,3"]]));
   assert.equal(play(back, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.length, 2);
 });
 
@@ -387,5 +389,53 @@ test("random games on every map keep every rule and always end", () => {
         assert.ok(state.turn <= MAX_TURNS);
       }
     }
+  }
+});
+
+test("khắc: an element that overcomes its foe fights one level higher", () => {
+  // Fox Spirit (Hỏa 2, melee 3) attacks Iron Horse (Kim 3, melee 2): Hỏa nung Kim makes it 3 vs 3, and melee 3 beats 2.
+  const state = position([[0, "ho-tinh", "3,5"], [1, "ngua-sat", "3,4"], [1, "rua-con", "0,0"]]);
+  const { state: after, events } = play(state, { kind: "move", unit: 0, to: at(3, 4) });
+  assert.deepEqual(after.units.map((u) => u.monster).sort(), ["ho-tinh", "rua-con"]);
+  const battle = events.find((e) => e.type === "battle");
+  assert.deepEqual(battle?.type === "battle" && battle.levels, { attacker: 3, defender: 3 });
+  // Without the counter (Wood Spirit, Mộc 2) the higher level simply wins.
+  const plain = position([[0, "moc-tinh", "3,5"], [1, "ngua-sat", "3,4"], [1, "rua-con", "0,0"]]);
+  assert.deepEqual(play(plain, { kind: "move", unit: 0, to: at(3, 4) }).state.units.map((u) => u.monster).sort(), ["ngua-sat", "rua-con"]);
+});
+
+test("khắc works on defence and on ranged attacks too", () => {
+  // Water God (Thủy 4) shoots a Phoenix (Hỏa 4): Thủy dập Hỏa, 5 vs 4.
+  const shot = position([[0, "thuy-tinh", "3,5"], [1, "phuong-hoang", "3,3"]]);
+  assert.equal(play(shot, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.length, 1);
+  // Phoenix shoots the Water God: 4 vs 5, nothing happens.
+  const back = position([[0, "phuong-hoang", "3,5"], [1, "thuy-tinh", "3,3"]]);
+  assert.equal(play(back, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.length, 2);
+});
+
+test("sinh: a defender next to an ally that feeds its element defends one level higher", () => {
+  // Fox Spirit attacks the Iron Horse again, but a Lân (Thổ sinh Kim) stands beside the horse: 3 vs 4.
+  const state = position([[0, "ho-tinh", "3,5"], [1, "ngua-sat", "3,4"], [1, "lan", "4,3"]]);
+  const { state: after, events } = play(state, { kind: "move", unit: 0, to: at(3, 4) });
+  assert.deepEqual(after.units.map((u) => u.monster).sort(), ["lan", "ngua-sat"]);
+  const battle = events.find((e) => e.type === "battle");
+  assert.deepEqual(battle?.type === "battle" && battle.levels, { attacker: 3, defender: 4 });
+  // Only on defence, and two feeders do not stack.
+  assert.equal(feedBonus(state, state.units[1]), 1);
+  assert.equal(feedBonus(state, state.units[0]), 0);
+});
+
+test("a face-down monster's element is hidden", () => {
+  const state = position([[0, "ho-tinh", "3,5"], [1, "ngua-sat", "3,4"]]);
+  const enemy = viewFor(state, 0).units.find((u) => u.side === 1);
+  assert.equal(enemy?.monster, null);
+  assert.ok(enemy && !("element" in enemy));
+});
+
+test("the five elements: three monsters each, spread over the levels", () => {
+  for (const element of ELEMENTS) {
+    const members = MONSTERS.filter((m) => m.element === element);
+    assert.equal(members.length, 3, element);
+    assert.equal(new Set(members.map((m) => m.level)).size, 3, `${element}: three different levels`);
   }
 });

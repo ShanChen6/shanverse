@@ -10,6 +10,26 @@
 
 export type Path = "land" | "water" | "air";
 
+/**
+ * Ngũ hành, the five elements. In a fight, a monster whose element overcomes
+ * (khắc) its opponent's fights one level higher; a defender standing next to
+ * an ally whose element feeds (sinh) its own defends one level higher. While
+ * face down, a monster's element is hidden.
+ */
+export type Element = "kim" | "moc" | "thuy" | "hoa" | "tho";
+export const ELEMENTS: Element[] = ["kim", "moc", "thuy", "hoa", "tho"];
+export const ELEMENT_NAME: Record<Element, Text> = {
+  kim: { vi: "Kim", en: "Metal" },
+  moc: { vi: "Mộc", en: "Wood" },
+  thuy: { vi: "Thủy", en: "Water" },
+  hoa: { vi: "Hỏa", en: "Fire" },
+  tho: { vi: "Thổ", en: "Earth" },
+};
+/** Tương khắc: each element overcomes the next (Kim chặt Mộc, Mộc hút Thổ, Thổ ngăn Thủy, Thủy dập Hỏa, Hỏa nung Kim). */
+export const OVERCOMES: Record<Element, Element> = { kim: "moc", moc: "tho", tho: "thuy", thuy: "hoa", hoa: "kim" };
+/** Tương sinh: each element feeds the next (Kim sinh Thủy, Thủy sinh Mộc, Mộc sinh Hỏa, Hỏa sinh Thổ, Thổ sinh Kim). */
+export const FEEDS: Record<Element, Element> = { kim: "thuy", thuy: "moc", moc: "hoa", hoa: "tho", tho: "kim" };
+
 export type Ability =
   // Passive: always on.
   | { kind: "immune-ranged" } // cannot be hit by ranged attacks
@@ -28,6 +48,7 @@ export type Monster = {
   name: Text;
   level: 1 | 2 | 3 | 4 | 5;
   path: Path;
+  element: Element;
   /** Cells it can move per turn. */
   steps: number;
   /** Close-combat strength; only compared between monsters of equal level. */
@@ -49,6 +70,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Rùa con", en: "Little Turtle" },
     level: 1,
     path: "water",
+    element: "tho",
     steps: 1,
     melee: 2,
     ranged: null,
@@ -62,6 +84,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Cóc tía", en: "Purple Toad" },
     level: 1,
     path: "land",
+    element: "hoa",
     steps: 2,
     melee: 1,
     ranged: null,
@@ -74,6 +97,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Ma Da", en: "Ma Da" },
     level: 1,
     path: "water",
+    element: "thuy",
     steps: 2,
     melee: 3,
     ranged: null,
@@ -86,6 +110,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Mộc Tinh", en: "Tree Spirit" },
     level: 2,
     path: "land",
+    element: "moc",
     steps: 1,
     melee: 1,
     ranged: { power: 3, range: 2 },
@@ -99,6 +124,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Hồ Tinh", en: "Fox Spirit" },
     level: 2,
     path: "land",
+    element: "hoa",
     steps: 3,
     melee: 3,
     ranged: null,
@@ -111,6 +137,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Đại Bàng tinh", en: "Giant Eagle" },
     level: 2,
     path: "air",
+    element: "kim",
     steps: 3,
     melee: 2,
     ranged: null,
@@ -123,6 +150,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Lân", en: "Lân" },
     level: 3,
     path: "land",
+    element: "tho",
     steps: 2,
     melee: 3,
     ranged: null,
@@ -136,6 +164,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Chằn Tinh", en: "Chằn Tinh" },
     level: 3,
     path: "land",
+    element: "moc",
     steps: 2,
     melee: 5,
     ranged: null,
@@ -148,6 +177,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Ngựa sắt", en: "Iron Horse" },
     level: 3,
     path: "air",
+    element: "kim",
     steps: 3,
     melee: 2,
     ranged: { power: 2, range: 1 },
@@ -160,6 +190,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Sơn Tinh", en: "Mountain God" },
     level: 4,
     path: "land",
+    element: "tho",
     steps: 2,
     melee: 4,
     ranged: null,
@@ -176,6 +207,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Thủy Tinh", en: "Water God" },
     level: 4,
     path: "water",
+    element: "thuy",
     steps: 2,
     melee: 3,
     ranged: { power: 2, range: 2 },
@@ -188,6 +220,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Phượng Hoàng", en: "Phoenix" },
     level: 4,
     path: "air",
+    element: "hoa",
     steps: 3,
     melee: 2,
     ranged: { power: 3, range: 2 },
@@ -200,6 +233,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Thánh Gióng", en: "Saint Gióng" },
     level: 5,
     path: "land",
+    element: "kim",
     steps: 3,
     melee: 5,
     ranged: null,
@@ -213,6 +247,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Rồng thiêng", en: "Sacred Dragon" },
     level: 5,
     path: "air",
+    element: "moc",
     steps: 2,
     melee: 4,
     ranged: { power: 3, range: 2 },
@@ -225,6 +260,7 @@ export const MONSTERS: Monster[] = [
     name: { vi: "Kim Quy", en: "Golden Turtle" },
     level: 5,
     path: "water",
+    element: "thuy",
     steps: 1,
     melee: 3,
     ranged: { power: 5, range: 3 },
