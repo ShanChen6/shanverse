@@ -63,3 +63,9 @@ test("a team can only use owned monsters, one per level", () => {
   assert.ok(!canField(c, [...team.slice(0, 4), "son-tinh"]), "Sơn Tinh is not owned yet");
   assert.ok(!canField(c, team.slice(0, 4)));
 });
+
+test("every monster has its own portrait", async () => {
+  const { PORTRAITS } = await import("./portraits");
+  for (const m of MONSTERS) assert.equal(typeof PORTRAITS[m.id], "function", m.id);
+  assert.equal(Object.keys(PORTRAITS).length, MONSTERS.length);
+});
