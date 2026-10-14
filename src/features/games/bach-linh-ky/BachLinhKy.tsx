@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import { tianwuTeam, type Difficulty } from "./ai";
-import { Token } from "./art";
+import { ElementDot, Token } from "./art";
 import { afterGame, canField, LOSSES_PER_SUMMON, type Collection as CollectionData } from "./collection";
 import { describe, highlights, type Highlight, type LogLine } from "./describe";
 import { MAPS, MAP_BY_ID, SIZE, buildBoard, type Terrain } from "./maps";
@@ -385,7 +385,7 @@ export function BachLinhKy() {
 
         <section aria-labelledby="blk-map" className="space-y-2">
           <h2 id="blk-map" className="text-lg font-bold">{t("games.blkMap")}</h2>
-          <div role="radiogroup" aria-labelledby="blk-map" className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+          <div role="radiogroup" aria-labelledby="blk-map" className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
             {[...MAPS.map((m) => m.id), "random"].map((id) => {
               const on = prefs.map === id;
               const map = MAP_BY_ID.get(id);
@@ -402,7 +402,10 @@ export function BachLinhKy() {
                   )}
                 >
                   {map ? <MiniMap terrain={buildBoard(map).terrain} /> : <span aria-hidden="true" className="grid size-16 place-items-center rounded-md bg-surface-hover text-2xl">?</span>}
-                  <span>{map ? map.name[lang] : t("games.blkMapRandom")}</span>
+                  <span className="inline-flex items-center gap-1">
+                    {map?.element ? <ElementDot element={map.element} lang={lang} /> : null}
+                    {map ? map.name[lang] : t("games.blkMapRandom")}
+                  </span>
                 </button>
               );
             })}

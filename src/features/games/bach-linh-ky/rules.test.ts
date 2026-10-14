@@ -7,6 +7,7 @@ import {
   MAX_TURNS,
   apply,
   autoPlace,
+  canPlaceOn,
   cellAt,
   destinations,
   feedBonus,
@@ -27,7 +28,7 @@ import {
 
 // --- Helpers ----------------------------------------------------------------------
 
-const CODES: Record<string, Terrain> = { ".": "plain", "^": "mountain", "~": "river", m: "shrine", a: "temple", b: "temple" };
+const CODES: Record<string, Terrain> = { ".": "plain", "^": "mountain", "~": "river", m: "shrine", a: "temple", b: "temple", o: "ore", f: "forest", w: "marsh", l: "lava", d: "mound" };
 
 /** A hand-built position. Rows of terrain; units as [side, monster, "x,y"]. Defaults to an empty plain board. */
 function position(units: [Side, string, string][], rows: string[] = Array(SIZE).fill("........"), toMove: Side = 0): GameState {
@@ -81,7 +82,8 @@ test("the roster: 50 monsters, two for every element and level, unique ids, two 
 });
 
 test("every map is mirrored, fair and open", () => {
-  assert.equal(MAPS.length, 6);
+  assert.equal(MAPS.length, 15);
+  for (const element of ["kim", "moc", "thuy", "hoa", "tho"]) assert.equal(MAPS.filter((m) => m.element === element).length, 1, `one ${element} map`);
   for (const map of MAPS) {
     const { terrain, templeOwner } = buildBoard(map);
     assert.equal(terrain.length, SIZE * SIZE);
@@ -93,18 +95,19 @@ test("every map is mirrored, fair and open", () => {
     assert.equal(temples.filter((i) => templeOwner[i] === 1).length, 1, `${map.id}: one temple for Tianwu`);
     for (const i of temples) assert.ok((templeOwner[i] === 0) === i < (SIZE * SIZE) / 2, `${map.id}: a temple sits on the opponent's half`);
     for (const side of [0, 1] as const) {
-      const room = homeRows(side).flatMap((y) => Array.from({ length: SIZE }, (_, x) => terrain[at(x, y)])).filter((t) => t === "plain" || t === "shrine");
+      const room = homeRows(side).flatMap((y) => Array.from({ length: SIZE }, (_, x) => terrain[at(x, y)])).filter(canPlaceOn);
       assert.ok(room.length >= 8, `${map.id}: room to place on side ${side}`);
     }
-    // Every cell that is not a mountain can be reached from every other on foot.
-    const open = terrain.map((t, i) => (t !== "mountain" ? i : -1)).filter((i) => i >= 0);
+    // Every cell a walker can stand on can be reached from every other on foot.
+    const blocked = (t: Terrain) => t === "mountain" || t === "lava";
+    const open = terrain.map((t, i) => (!blocked(t) ? i : -1)).filter((i) => i >= 0);
     const seen = new Set([open[0]]);
     const queue = [open[0]];
     while (queue.length) {
       const c = queue.pop() as number;
       for (const [dx, dy] of [[0, 1], [0, -1], [1, 0], [-1, 0]]) {
         const n = cellAt((c % SIZE) + dx, Math.floor(c / SIZE) + dy);
-        if (n !== -1 && terrain[n] !== "mountain" && !seen.has(n)) {
+        if (n !== -1 && !blocked(terrain[n]) && !seen.has(n)) {
           seen.add(n);
           queue.push(n);
         }
@@ -395,6 +398,7 @@ test("random games on every map keep every rule and always end", () => {
         for (const u of state.units) {
           assert.ok(u.level >= monster(u.monster).level && u.level <= 6, `${map.id}: level ${u.level}`);
           if (state.terrain[u.cell] === "mountain") assert.ok(hasAbility(monster(u.monster), "walk-mountain"), `${map.id}: only climbers stand on a mountain`);
+          if (state.terrain[u.cell] === "lava") assert.equal(monster(u.monster).element, "hoa", `${map.id}: only Fire stands on lava`);
         }
         assert.ok(state.turn <= MAX_TURNS);
       }
@@ -572,4 +576,47 @@ test("partners attack together; Sơn Tinh and Thủy Tinh strike each other hard
   const feud = play(rivals, { kind: "move", unit: 0, to: at(3, 3) }).events.find((e) => e.type === "battle");
   // Thủy Tinh 4 +1 (feud) against Sơn Tinh 5 +1 (Earth stems Water).
   assert.deepEqual(feud?.type === "battle" && feud.levels, { attacker: 5, defender: 6 });
+});
+
+// --- Sacred ground (linh địa) ----------------------------------------------------------
+
+test("linh địa: a monster on its own element's ground fights one level higher", () => {
+  // Tiger's Thrall (Kim 1) on ore against a level-2 Lân (Thổ sinh Kim does not apply: no ally next to it).
+  const rows = ["........", "........", "........", "...o....", "........", "........", "........", "........"];
+  const state = faceUp(position([[0, "chu-cuoi", "3,4"], [1, "ma-tranh", "3,3"], [1, "rua-con", "0,0"]], rows));
+  const fight = play(state, { kind: "move", unit: 0, to: at(3, 3) }).events.find((e) => e.type === "battle");
+  // Cuội (Mộc 2) attacks the thrall (Kim 1, +1 on ore, +1 Kim khắc Mộc): 2 vs 3.
+  assert.deepEqual(fight?.type === "battle" && fight.levels, { attacker: 2, defender: 3 });
+});
+
+test("forest hides from shots; ore lengthens them", () => {
+  const forest = ["........", "........", "........", "...f....", "........", "........", "........", "........"];
+  const hidden = position([[0, "mai-an-tiem", "3,5"], [1, "coc-tia", "3,3"]], forest);
+  assert.equal(play(hidden, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.length, 2);
+  const ore = ["........", "........", "........", "........", "........", "...o....", "........", "........"];
+  const far = position([[0, "mai-an-tiem", "3,5"], [1, "coc-tia", "3,2"]], ore);
+  assert.ok(legalActions(far).some((a) => a.kind === "shoot" && a.target === at(3, 2)), "range 2 + 1 from ore");
+  const plain = position([[0, "mai-an-tiem", "3,5"], [1, "coc-tia", "3,2"]]);
+  assert.ok(!legalActions(plain).some((a) => a.kind === "shoot"), "out of reach on plain ground");
+});
+
+test("marsh stops walkers; lava bars all but Fire, flyers pass over it", () => {
+  const marsh = ["........", "........", "........", "~~~www~~", "........", "........", "........", "........"];
+  const walker = position([[0, "lan", "3,4"]], marsh);
+  assert.ok(cellsOf(walker, 0).has(at(3, 3)) && !cellsOf(walker, 0).has(at(3, 2)), "a walker stops in the marsh");
+  assert.ok(cellsOf(position([[0, "ma-da", "3,4"]], marsh), 0).has(at(3, 2)), "a swimmer goes through");
+  const lava = ["........", "........", "........", "llllllll", "........", "........", "........", "........"];
+  assert.ok(!cellsOf(position([[0, "lan", "3,4"]], lava), 0).has(at(3, 3)), "no walking on lava");
+  assert.ok(cellsOf(position([[0, "coc-tia", "3,4"]], lava), 0).has(at(3, 3)), "Fire walks on lava");
+  const eagle = cellsOf(position([[0, "dai-bang", "3,4"]], lava), 0);
+  assert.ok(!eagle.has(at(3, 3)) && eagle.has(at(3, 2)), "a flyer passes over but cannot land");
+});
+
+test("a monster on a mound cannot be bound or swapped", () => {
+  const rows = ["........", "........", "........", "...d....", "........", "........", "........", "........"];
+  const bind = position([[0, "mau-thuong-ngan", "3,5"], [1, "lan", "3,3"], [1, "rua-con", "0,0"]], rows);
+  assert.ok(!legalActions(bind).some((a) => a.kind === "ability" && a.cells[0] === at(3, 3)));
+  const swap = position([[0, "tu-dao-hanh", "3,5"], [1, "lan", "3,3"], [1, "rua-con", "4,4"]], rows);
+  const targets = legalActions(swap).filter((a) => a.kind === "ability").map((a) => (a as { cells: number[] }).cells[0]);
+  assert.ok(!targets.includes(at(3, 3)) && targets.includes(at(4, 4)));
 });

@@ -725,6 +725,39 @@
 .blk-cell[data-terrain="temple"][data-owner="1"] {
   background: radial-gradient(circle, #e7b3a8 0 30%, #9b2c22 31% 42%, rgb(155 44 34 / 0.2) 43% 70%, transparent 71%), #e8d9b5;
 }
+/* Linh địa: the sacred ground of each element. */
+.blk-cell[data-terrain="ore"], .blk-swatch[data-terrain="ore"], .blk-swatch-mini[data-terrain="ore"] {
+  background:
+    linear-gradient(135deg, transparent 40%, #f3e2a4 41% 47%, transparent 48%) 22% 30% / 40% 40% no-repeat,
+    linear-gradient(45deg, transparent 40%, #fff3c4 41% 47%, transparent 48%) 75% 70% / 34% 34% no-repeat,
+    radial-gradient(circle at 30% 30%, #b9a27a, #7d6a4a);
+}
+.blk-cell[data-terrain="forest"], .blk-swatch[data-terrain="forest"], .blk-swatch-mini[data-terrain="forest"] {
+  background:
+    radial-gradient(circle at 30% 38%, #3f8a4a 0 22%, transparent 23%),
+    radial-gradient(circle at 68% 34%, #357a40 0 24%, transparent 25%),
+    radial-gradient(circle at 50% 66%, #2e6b38 0 26%, transparent 27%),
+    #9cc08a;
+}
+.blk-cell[data-terrain="marsh"], .blk-swatch[data-terrain="marsh"], .blk-swatch-mini[data-terrain="marsh"] {
+  background:
+    linear-gradient(#4b6b3e, #4b6b3e) 25% 30% / 3% 30% no-repeat,
+    linear-gradient(#4b6b3e, #4b6b3e) 35% 26% / 3% 34% no-repeat,
+    linear-gradient(#4b6b3e, #4b6b3e) 70% 55% / 3% 30% no-repeat,
+    radial-gradient(ellipse at 50% 70%, #6f8f78 0 40%, transparent 41%),
+    #8aa597;
+}
+.blk-cell[data-terrain="lava"], .blk-swatch[data-terrain="lava"], .blk-swatch-mini[data-terrain="lava"] {
+  background:
+    radial-gradient(circle at 30% 35%, #ffd23f 0 10%, transparent 11%),
+    radial-gradient(circle at 70% 65%, #ffb02e 0 12%, transparent 13%),
+    linear-gradient(135deg, #3a120c 0 30%, #d1401e 31% 36%, #3a120c 37% 62%, #e65a1f 63% 68%, #3a120c 69%);
+}
+.blk-cell[data-terrain="mound"], .blk-swatch[data-terrain="mound"], .blk-swatch-mini[data-terrain="mound"] {
+  background:
+    radial-gradient(ellipse at 50% 85%, #b0813a 0 45%, #8a6118 46% 50%, transparent 51%),
+    #d8c08d;
+}
 .blk-swatch { display: inline-block; width: 1rem; height: 1rem; border-radius: 0.25rem; box-shadow: inset 0 0 0 1px rgb(91 58 30 / 0.35); }
 .blk-swatch-mini { display: block; background: #e8d9b5; }
 
