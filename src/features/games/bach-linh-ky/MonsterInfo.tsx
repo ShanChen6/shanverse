@@ -8,7 +8,7 @@ import type { UnitView } from "./rules";
 const PATH_KEY = { land: "games.blkPathLand", water: "games.blkPathWater", air: "games.blkPathAir" } as const;
 
 /** Name and stats of a monster, as the player may see them. */
-export function MonsterInfo({ unit, monsterId, mine }: { unit?: UnitView; monsterId?: string; mine?: boolean }) {
+export function MonsterInfo({ unit, monsterId, mine, showToken = true }: { unit?: UnitView; monsterId?: string; mine?: boolean; showToken?: boolean }) {
   const { t, locale } = useI18n();
   const lang = locale === "en" ? "en" : "vi";
   const id = unit ? unit.monster : (monsterId ?? null);
@@ -35,10 +35,10 @@ export function MonsterInfo({ unit, monsterId, mine }: { unit?: UnitView; monste
   return (
     <div className="space-y-3">
       <div className="flex items-start gap-3">
-        <Token monsterId={id} level={level} side={unit?.side ?? 0} className="size-14 shrink-0" />
-        <div className="min-w-0 space-y-0.5">
+        {showToken ? <Token monsterId={id} level={level} side={unit?.side ?? 0} className="size-14 shrink-0" /> : null}
+        <div className={showToken ? "min-w-0 space-y-0.5" : "w-full min-w-0 space-y-0.5 text-center"}>
           <p className="font-semibold leading-tight">{m.name[lang]}</p>
-          <p className="flex items-center gap-1.5 text-xs text-foreground-secondary">
+          <p className={showToken ? "flex items-center gap-1.5 text-xs text-foreground-secondary" : "flex items-center justify-center gap-1.5 text-xs text-foreground-secondary"}>
             <ElementDot element={m.element} lang={lang} />
             {ELEMENT_NAME[m.element][lang]} · {t("games.blkLevel", { n: level })}
           </p>

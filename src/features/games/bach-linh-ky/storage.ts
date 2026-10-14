@@ -25,6 +25,8 @@ export type SavedGame = {
   recorded?: boolean;
   /** The monster this game's result summoned, if any. */
   summoned?: string | null;
+  /** The player has opened the summon (watched the urn burst). */
+  summonSeen?: boolean;
 };
 
 function readJson(key: string): unknown {
@@ -105,6 +107,7 @@ export function loadGame(): SavedGame | null {
     resigned: raw.resigned === true,
     recorded: raw.recorded === true,
     summoned: typeof raw.summoned === "string" && MONSTER_BY_ID.has(raw.summoned) ? raw.summoned : null,
+    summonSeen: raw.summonSeen === true,
   };
 }
 
