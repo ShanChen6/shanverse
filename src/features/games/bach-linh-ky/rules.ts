@@ -15,7 +15,7 @@
 // side can see, and that is all Tianwu is allowed to look at.
 
 import { MAP_BY_ID, SIZE, buildBoard, type Terrain } from "./maps";
-import { FEEDS, LEVELS, OVERCOMES, activeAbility, hasAbility, monster, type Monster } from "./monsters";
+import { FEEDS, LEVELS, OVERCOMES, activeAbility, areRivals, arePartners, hasAbility, monster, type Ability, type Monster } from "./monsters";
 
 export type Side = 0 | 1;
 export const MAX_TURNS = 80;
@@ -31,6 +31,12 @@ export type Unit = {
   cell: number;
   revealed: boolean;
   abilityUsed: boolean;
+  /** Bound (cannot act) while the game's turn counter is below this. */
+  boundUntil?: number;
+  /** Sealed by Cao Biền: every ability is gone for good. */
+  sealed?: boolean;
+  /** A Phoenix that has already come back once. */
+  revived?: boolean;
 };
 
 export type GameState = {
@@ -39,6 +45,8 @@ export type GameState = {
   templeOwner: (Side | null)[];
   /** Monsters still on the board. */
   units: Unit[];
+  /** Monsters that have fallen, oldest first (a recall brings one back). */
+  fallen?: Unit[];
   toMove: Side;
   /** Actions taken so far, both sides together. */
   turn: number;
@@ -59,6 +67,11 @@ export type GameEvent =
   | { type: "reveal"; unit: number }
   | { type: "evolve"; unit: number; level: number }
   | { type: "terraform"; unit: number; cells: number[]; to: "river" | "mountain" }
+  | { type: "bind"; unit: number; target: number; until: number }
+  | { type: "seal"; unit: number; target: number }
+  | { type: "swap"; unit: number; other: number; from: number; to: number }
+  | { type: "revive"; unit: number; cell: number }
+  | { type: "recall"; unit: number; by: number; cell: number }
   | { type: "pass"; side: Side }
   | { type: "end"; winner: Side | "draw"; reason: "eliminated" | "turns" };
 
@@ -138,7 +151,7 @@ export function newGame(mapId: string, player: Placement, tianwu: Placement, fir
   const units: Unit[] = ([[0, player], [1, tianwu]] as const).flatMap(([side, placement]) =>
     placement.map(({ monster: m, cell }) => ({ id: id++, side, monster: m, level: monster(m).level, cell, revealed: false, abilityUsed: false })),
   );
-  return { mapId, terrain: board.terrain, templeOwner: board.templeOwner as (Side | null)[], units, toMove: first, turn: 0, winner: null };
+  return { mapId, terrain: board.terrain, templeOwner: board.templeOwner as (Side | null)[], units, fallen: [], toMove: first, turn: 0, winner: null };
 }
 
 // --- Reading the board --------------------------------------------------------
@@ -147,9 +160,17 @@ export const unitAt = (state: GameState, cell: number) => state.units.find((u) =
 export const unitById = (state: GameState, id: number) => state.units.find((u) => u.id === id);
 const def = (u: Unit): Monster => monster(u.monster);
 
+/** One of a monster's abilities, unless it has been sealed. */
+export const ability = <K extends Ability["kind"]>(u: Unit, kind: K): Extract<Ability, { kind: K }> | undefined => (u.sealed ? undefined : hasAbility(def(u), kind));
+/** Its active ability, if it still has one to use. */
+export const usableAbility = (u: Unit) => (u.sealed || u.abilityUsed ? undefined : activeAbility(def(u)));
+/** A bound monster cannot act this turn. */
+export const isBound = (state: GameState, u: Unit) => (u.boundUntil ?? 0) > state.turn;
+const adjacentAllies = (state: GameState, u: Unit) => state.units.filter((a) => a.side === u.side && a.id !== u.id && reach(a.cell, u.cell) === 1);
+
 /** The level a monster fights at here: its level, plus a river bonus if it has one and stands on a river. */
 export function fightingLevel(state: GameState, u: Unit, cell = u.cell): number {
-  const bonus = state.terrain[cell] === "river" ? (hasAbility(def(u), "river-bonus")?.levels ?? 0) : 0;
+  const bonus = state.terrain[cell] === "river" ? (ability(u, "river-bonus")?.levels ?? 0) : 0;
   return u.level + bonus;
 }
 
@@ -157,25 +178,39 @@ export function fightingLevel(state: GameState, u: Unit, cell = u.cell): number 
 export const counterBonus = (u: Unit, foe: Unit) => (OVERCOMES[def(u).element] === def(foe).element ? 1 : 0);
 
 /** +1 for a defender standing next to an ally whose element feeds (sinh) its own. Does not stack. */
-export const feedBonus = (state: GameState, u: Unit) =>
-  state.units.some((ally) => ally.side === u.side && ally.id !== u.id && reach(ally.cell, u.cell) === 1 && FEEDS[def(ally).element] === def(u).element) ? 1 : 0;
+export const feedBonus = (state: GameState, u: Unit) => (adjacentAllies(state, u).some((ally) => FEEDS[def(ally).element] === def(u).element) ? 1 : 0);
+
+/** +1 from an ally next to it with a matching aura (Trần Hưng Đạo, Nghê...). Does not stack. */
+export const auraBonus = (state: GameState, u: Unit, on: "attack" | "defense") => (adjacentAllies(state, u).some((ally) => ability(ally, "aura")?.on === on) ? 1 : 0);
+
+/** +1 for an attacker whose partner from the same tale stands next to it (đồng tâm). */
+export const partnerBonus = (state: GameState, u: Unit) => (adjacentAllies(state, u).some((ally) => arePartners(ally.monster, u.monster)) ? 1 : 0);
 
 /** +1 for attacking a monster that is still face down (đánh úp). */
 export const ambushBonus = (defender: Unit) => (defender.revealed ? 0 : 1);
 
-/** The levels both sides fight at in one battle, with terrain, khắc, sinh and đánh úp. Call it before the battle reveals anyone. */
+/**
+ * The levels both sides fight at in one battle: terrain, khắc, sinh, đánh úp,
+ * auras, partners and rivals. Call it before the battle reveals anyone.
+ */
 export function battleLevels(state: GameState, attacker: Unit, defender: Unit, melee: boolean): { attacker: number; defender: number } {
   return {
-    attacker: fightingLevel(state, attacker, melee ? defender.cell : attacker.cell) + counterBonus(attacker, defender) + ambushBonus(defender),
-    defender: fightingLevel(state, defender) + counterBonus(defender, attacker) + feedBonus(state, defender),
+    attacker:
+      fightingLevel(state, attacker, melee ? defender.cell : attacker.cell) +
+      counterBonus(attacker, defender) +
+      ambushBonus(defender) +
+      auraBonus(state, attacker, "attack") +
+      partnerBonus(state, attacker) +
+      (areRivals(attacker.monster, defender.monster) ? 1 : 0),
+    defender: fightingLevel(state, defender) + counterBonus(defender, attacker) + feedBonus(state, defender) + auraBonus(state, defender, "defense"),
   };
 }
 
 /** True if ranged attacks cannot touch this monster where it stands. */
 export function shielded(state: GameState, u: Unit): boolean {
-  if (hasAbility(def(u), "immune-ranged")) return true;
+  if (ability(u, "immune-ranged")) return true;
   if (state.terrain[u.cell] === "shrine") return true;
-  return state.units.some((ally) => ally.side === u.side && ally.id !== u.id && reach(ally.cell, u.cell) === 1 && hasAbility(def(ally), "guard-ranged"));
+  return adjacentAllies(state, u).some((ally) => ability(ally, "guard-ranged"));
 }
 
 // --- Movement ----------------------------------------------------------------
@@ -193,7 +228,7 @@ export type Destination = { cell: number; attack: boolean };
 export function destinations(state: GameState, u: Unit): Destination[] {
   const m = def(u);
   const flies = m.path === "air";
-  const climbs = !!hasAbility(m, "walk-mountain");
+  const climbs = !!ability(u, "walk-mountain");
   const directions = flies ? ALL_DIRECTIONS : ORTHOGONAL;
   const best = new Map<number, number>([[u.cell, m.steps]]); // steps left on arrival
   const out = new Map<number, boolean>();
@@ -233,19 +268,57 @@ export function shootTargets(state: GameState, u: Unit): number[] {
 
 /** Cells an active ability can be aimed at (before choosing how many). */
 export function abilityCells(state: GameState, u: Unit): number[] {
-  const ability = activeAbility(def(u));
-  if (!ability || u.abilityUsed) return [];
-  if (ability.kind === "strike") {
-    return state.units.filter((e) => e.side !== u.side && reach(u.cell, e.cell) <= ability.range).map((e) => e.cell);
+  const active = usableAbility(u);
+  if (!active) return [];
+  const enemiesWithin = (range: number) => state.units.filter((e) => e.side !== u.side && reach(u.cell, e.cell) <= range);
+  switch (active.kind) {
+    case "strike":
+      return enemiesWithin(active.range).map((e) => e.cell);
+    case "bind":
+      return enemiesWithin(active.range).filter((e) => !isBound(state, e)).map((e) => e.cell);
+    case "seal":
+      return enemiesWithin(active.range).filter((e) => !e.sealed).map((e) => e.cell);
+    case "swap":
+      // Nobody can be swapped onto a mountain it cannot stand on, so a monster on a mountain stays put.
+      return state.units.filter((o) => o.id !== u.id && reach(u.cell, o.cell) <= active.range && state.terrain[o.cell] !== "mountain").map((o) => o.cell);
+    case "rise":
+      return u.level < MAX_LEVEL ? [u.cell] : [];
+    case "recall":
+      return recallable(state, u.side, active.maxLevel) ? freeHomeCells(state, u.side) : [];
+    case "leap": {
+      const climbs = !!ability(u, "walk-mountain");
+      const out: number[] = [];
+      for (let cell = 0; cell < CELLS; cell++) {
+        if (cell === u.cell || reach(cell, u.cell) > active.range) continue;
+        if (state.terrain[cell] === "mountain" && !climbs) continue;
+        const occupant = unitAt(state, cell);
+        if (occupant && occupant.side === u.side) continue;
+        out.push(cell);
+      }
+      return out;
+    }
+    case "terraform": {
+      const out: number[] = [];
+      for (let cell = 0; cell < CELLS; cell++) {
+        if (cell === u.cell || reach(cell, u.cell) > active.radius || state.terrain[cell] !== "plain") continue;
+        // A mountain cannot rise under a monster; a river can flow under one.
+        if (active.to === "mountain" && unitAt(state, cell)) continue;
+        out.push(cell);
+      }
+      return out;
+    }
   }
-  const out: number[] = [];
-  for (let cell = 0; cell < CELLS; cell++) {
-    if (cell === u.cell || reach(cell, u.cell) > ability.radius || state.terrain[cell] !== "plain") continue;
-    // A mountain cannot rise under a monster; a river can flow under one.
-    if (ability.to === "mountain" && unitAt(state, cell)) continue;
-    out.push(cell);
-  }
-  return out;
+}
+
+/** Free cells of a side's home rows where a monster can be put back, back row first. */
+export function freeHomeCells(state: GameState, side: Side): number[] {
+  const rows = side === 0 ? [SIZE - 1, SIZE - 2] : [0, 1];
+  return rows.flatMap((y) => Array.from({ length: SIZE }, (_, x) => cellAt(x, y))).filter((cell) => canPlaceOn(state.terrain[cell]) && !unitAt(state, cell));
+}
+
+/** The ally a recall would bring back: the last to fall at or below this level. */
+export function recallable(state: GameState, side: Side, maxLevel: number): Unit | undefined {
+  return [...(state.fallen ?? [])].reverse().find((f) => f.side === side && def(f).level <= maxLevel);
 }
 
 function combinations<T>(items: readonly T[], k: number): T[][] {
@@ -264,14 +337,14 @@ export function legalActions(state: GameState): Action[] {
   if (state.winner !== null) return [];
   const actions: Action[] = [{ kind: "pass" }];
   for (const u of state.units) {
-    if (u.side !== state.toMove) continue;
+    if (u.side !== state.toMove || isBound(state, u)) continue;
     for (const d of destinations(state, u)) actions.push({ kind: "move", unit: u.id, to: d.cell });
     for (const target of shootTargets(state, u)) actions.push({ kind: "shoot", unit: u.id, target });
-    const ability = activeAbility(def(u));
+    const active = usableAbility(u);
     const cells = abilityCells(state, u);
-    if (ability && cells.length) {
-      if (ability.kind === "strike") for (const cell of cells) actions.push({ kind: "ability", unit: u.id, cells: [cell] });
-      else for (const set of combinations(cells, Math.min(ability.count, cells.length))) actions.push({ kind: "ability", unit: u.id, cells: set });
+    if (active && cells.length) {
+      if (active.kind === "terraform") for (const set of combinations(cells, Math.min(active.count, cells.length))) actions.push({ kind: "ability", unit: u.id, cells: set });
+      else for (const cell of cells) actions.push({ kind: "ability", unit: u.id, cells: [cell] });
     }
   }
   return actions;
@@ -284,6 +357,7 @@ const clone = (state: GameState): GameState => ({
   terrain: state.terrain.slice(),
   templeOwner: state.templeOwner.slice(),
   units: state.units.map((u) => ({ ...u })),
+  fallen: state.fallen?.slice(),
 });
 
 function reveal(u: Unit, events: GameEvent[]) {
@@ -325,14 +399,14 @@ export function isLegal(state: GameState, action: Action): boolean {
   if (state.winner !== null) return false;
   if (action.kind === "pass") return true;
   const u = unitById(state, action.unit);
-  if (!u || u.side !== state.toMove) return false;
+  if (!u || u.side !== state.toMove || isBound(state, u)) return false;
   if (action.kind === "move") return destinations(state, u).some((d) => d.cell === action.to);
   if (action.kind === "shoot") return shootTargets(state, u).includes(action.target);
-  const ability = activeAbility(def(u));
-  if (!ability || u.abilityUsed) return false;
+  const active = usableAbility(u);
+  if (!active) return false;
   const allowed = abilityCells(state, u);
   const cells = action.cells;
-  const max = ability.kind === "strike" ? 1 : ability.count;
+  const max = active.kind === "terraform" ? active.count : 1;
   return cells.length >= 1 && cells.length <= max && new Set(cells).size === cells.length && cells.every((c) => allowed.includes(c));
 }
 
@@ -341,8 +415,45 @@ export function apply(state: GameState, action: Action): { state: GameState; eve
   if (!isLegal(state, action)) throw new Error(`Illegal action ${JSON.stringify(action)}`);
   const next = clone(state);
   const events: GameEvent[] = [];
+  /** Takes a monster off the board; a Phoenix comes back once instead. */
   const remove = (id: number) => {
-    next.units = next.units.filter((u) => u.id !== id);
+    const u = unitById(next, id) as Unit;
+    const home = freeHomeCells(next, u.side).filter((cell) => cell !== u.cell);
+    if (ability(u, "revive") && !u.revived && home.length) {
+      u.revived = true;
+      u.cell = home[0];
+      u.boundUntil = 0;
+      events.push({ type: "revive", unit: u.id, cell: u.cell });
+      return;
+    }
+    next.units = next.units.filter((x) => x.id !== id);
+    next.fallen = [...(next.fallen ?? []), u];
+  };
+  const moveTo = (u: Unit, to: number) => {
+    events.push({ type: "move", unit: u.id, from: u.cell, to });
+    u.cell = to;
+    visitTemple(next, u, events);
+  };
+  /** A melee attack by `u` on `enemy`; the winner of an attack moves in. */
+  const melee = (u: Unit, enemy: Unit) => {
+    const to = enemy.cell;
+    const levels = battleLevels(next, u, enemy, true);
+    reveal(u, events);
+    reveal(enemy, events);
+    const result = meleeResult(u, enemy, levels);
+    events.push({ type: "battle", kind: "melee", attacker: u.id, defender: enemy.id, result, levels });
+    if (result === "attacker" || result === "both") remove(enemy.id);
+    if (result === "defender" || result === "both") remove(u.id);
+    // A reborn Phoenix is back home: the attacker only moves in if the cell is empty.
+    if (result === "attacker" && !unitAt(next, to)) moveTo(u, to);
+  };
+  const shot = (u: Unit, target: Unit, power: number) => {
+    const levels = battleLevels(next, u, target, false);
+    reveal(u, events);
+    reveal(target, events);
+    const result = rangedHit(next, u, target, power, levels);
+    events.push({ type: "battle", kind: "ranged", attacker: u.id, defender: target.id, result, levels });
+    if (result === "attacker") remove(target.id);
   };
 
   if (action.kind === "pass") {
@@ -351,41 +462,65 @@ export function apply(state: GameState, action: Action): { state: GameState; eve
     const u = unitById(next, action.unit) as Unit;
     if (action.kind === "move") {
       const enemy = unitAt(next, action.to);
-      if (!enemy) {
-        events.push({ type: "move", unit: u.id, from: u.cell, to: action.to });
-        u.cell = action.to;
-        visitTemple(next, u, events);
-      } else {
-        const levels = battleLevels(next, u, enemy, true);
-        reveal(u, events);
-        reveal(enemy, events);
-        const result = meleeResult(u, enemy, levels);
-        events.push({ type: "battle", kind: "melee", attacker: u.id, defender: enemy.id, result, levels });
-        if (result === "attacker" || result === "both") remove(enemy.id);
-        if (result === "defender" || result === "both") remove(u.id);
-        if (result === "attacker") {
-          events.push({ type: "move", unit: u.id, from: u.cell, to: action.to });
-          u.cell = action.to;
-          visitTemple(next, u, events);
-        }
-      }
-    } else if (action.kind === "shoot" || (action.kind === "ability" && activeAbility(def(u))?.kind === "strike")) {
-      const targetCell = action.kind === "shoot" ? action.target : action.cells[0];
-      const target = unitAt(next, targetCell) as Unit;
-      const power = action.kind === "shoot" ? (def(u).ranged?.power ?? 0) : (activeAbility(def(u)) as { power: number }).power;
-      if (action.kind === "ability") u.abilityUsed = true;
-      const levels = battleLevels(next, u, target, false);
-      reveal(u, events);
-      reveal(target, events);
-      const result = rangedHit(next, u, target, power, levels);
-      events.push({ type: "battle", kind: "ranged", attacker: u.id, defender: target.id, result, levels });
-      if (result === "attacker") remove(target.id);
+      if (enemy) melee(u, enemy);
+      else moveTo(u, action.to);
+    } else if (action.kind === "shoot") {
+      shot(u, unitAt(next, action.target) as Unit, def(u).ranged?.power ?? 0);
     } else {
-      const ability = activeAbility(def(u)) as Extract<ReturnType<typeof activeAbility>, { kind: "terraform" }>;
+      const active = usableAbility(u) as NonNullable<ReturnType<typeof usableAbility>>;
+      const cell = action.cells[0];
       u.abilityUsed = true;
       reveal(u, events);
-      for (const cell of action.cells) next.terrain[cell] = ability.to;
-      events.push({ type: "terraform", unit: u.id, cells: action.cells, to: ability.to });
+      switch (active.kind) {
+        case "strike":
+          shot(u, unitAt(next, cell) as Unit, active.power);
+          break;
+        case "terraform":
+          for (const c of action.cells) next.terrain[c] = active.to;
+          events.push({ type: "terraform", unit: u.id, cells: action.cells, to: active.to });
+          break;
+        case "leap": {
+          const enemy = unitAt(next, cell);
+          if (enemy) melee(u, enemy);
+          else moveTo(u, cell);
+          break;
+        }
+        case "bind": {
+          const target = unitAt(next, cell) as Unit;
+          target.boundUntil = state.turn + 2 * active.turns;
+          events.push({ type: "bind", unit: u.id, target: target.id, until: target.boundUntil });
+          break;
+        }
+        case "seal": {
+          const target = unitAt(next, cell) as Unit;
+          reveal(target, events);
+          target.sealed = true;
+          events.push({ type: "seal", unit: u.id, target: target.id });
+          break;
+        }
+        case "swap": {
+          const other = unitAt(next, cell) as Unit;
+          const from = u.cell;
+          u.cell = other.cell;
+          other.cell = from;
+          events.push({ type: "swap", unit: u.id, other: other.id, from, to: u.cell });
+          visitTemple(next, u, events);
+          visitTemple(next, other, events);
+          break;
+        }
+        case "rise":
+          u.level += 1;
+          events.push({ type: "evolve", unit: u.id, level: u.level });
+          break;
+        case "recall": {
+          const back = recallable(next, u.side, active.maxLevel) as Unit;
+          next.fallen = (next.fallen ?? []).filter((f) => f !== back);
+          const unit: Unit = { ...back, cell, level: def(back).level, revealed: true, boundUntil: 0 };
+          next.units = [...next.units, unit];
+          events.push({ type: "recall", unit: unit.id, by: u.id, cell });
+          break;
+        }
+      }
     }
   }
 
@@ -420,6 +555,10 @@ export type UnitView = {
   monster: string | null;
   revealed: boolean;
   abilityUsed: boolean;
+  /** Public effects: everyone sees a bind, a seal or a rebirth happen. */
+  boundUntil: number;
+  sealed: boolean;
+  revived: boolean;
 };
 
 export type View = Omit<GameState, "units"> & { units: UnitView[]; me: Side };
@@ -435,10 +574,22 @@ export function viewFor(state: GameState, side: Side): View {
     me: side,
     units: state.units.map((u) => {
       const hidden = u.side !== side && !u.revealed;
-      const fake = hasAbility(def(u), "fake-level");
+      const fake = ability(u, "fake-level");
       const shownLevel = hidden && fake ? fake.shown + (u.level - def(u).level) : u.level;
       const evolved = u.level - def(u).level;
-      return { id: u.id, side: u.side, cell: u.cell, level: shownLevel, evolved, monster: hidden ? null : u.monster, revealed: u.revealed, abilityUsed: u.abilityUsed };
+      return {
+        id: u.id,
+        side: u.side,
+        cell: u.cell,
+        level: shownLevel,
+        evolved,
+        monster: hidden ? null : u.monster,
+        revealed: u.revealed,
+        abilityUsed: u.abilityUsed,
+        boundUntil: u.boundUntil ?? 0,
+        sealed: !!u.sealed,
+        revived: !!u.revived,
+      };
     }),
   };
 }
