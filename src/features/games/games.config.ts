@@ -23,6 +23,14 @@ export type GameEntry = {
 
 export const GAMES: GameEntry[] = [
   {
+    slug: "nonogram",
+    href: ROUTES.GAME_DETAIL("nonogram"),
+    titleKey: "games.nonogramTitle",
+    descriptionKey: "games.nonogramDescription",
+    category: "puzzle-logic",
+    controlKeys: ["games.tagMouse", "games.tagKeyboard", "games.tagTouch"],
+  },
+  {
     slug: "red-cliffs",
     href: ROUTES.GAME_DETAIL("red-cliffs"),
     titleKey: "games.redCliffsTitle",
