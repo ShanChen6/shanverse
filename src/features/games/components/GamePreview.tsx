@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import { BachLinhKyPreview } from "./BachLinhKyPreview";
 import { Game2048Preview } from "./Game2048Preview";
 import { GoPreview } from "./GoPreview";
 import { MemoryPreview } from "./MemoryPreview";
@@ -20,6 +21,7 @@ const PREVIEWS: Record<string, React.ComponentType> = {
   go: GoPreview,
   "word-guess": WordGuessPreview,
   "red-cliffs": RedCliffsPreview,
+  "bach-linh-ky": BachLinhKyPreview,
 };
 
 /** The static board shown on a game's card, on /games and on the home page. */

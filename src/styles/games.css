@@ -585,3 +585,152 @@
   .rc-flame, .rc-smoke, .rc-cell[data-hint="true"], .rc-cell [data-hit="true"], .rc-chain { animation: none; }
   .rc-shot, .rc-shot-in, .rc-burst { display: none; }
 }
+
+/* ---------------------------------------------------------------------------
+   Bách Linh Kỳ: an 8×8 folk-print board (paper, ink mountains, indigo rivers)
+   with round lacquer pieces that slide between cells.
+   --------------------------------------------------------------------------- */
+.blk-board {
+  --blk-cell: min(3.6rem, calc((100vw - 2rem) / 8));
+  position: relative;
+  width: calc(var(--blk-cell) * 8);
+  height: calc(var(--blk-cell) * 8);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: #e8d9b5;
+  box-shadow: 0 0 0 3px #5b3a1e, 0 10px 30px -12px rgb(0 0 0 / 0.5);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.blk-grid {
+  display: grid;
+  grid-template-columns: repeat(8, var(--blk-cell));
+  grid-template-rows: repeat(8, var(--blk-cell));
+}
+.blk-cell {
+  position: relative;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: #e8d9b5;
+  box-shadow: inset 0 0 0 0.5px rgb(91 58 30 / 0.28);
+}
+.blk-cell:nth-child(16n + 2), .blk-cell:nth-child(16n + 4), .blk-cell:nth-child(16n + 6), .blk-cell:nth-child(16n + 8),
+.blk-cell:nth-child(16n + 9), .blk-cell:nth-child(16n + 11), .blk-cell:nth-child(16n + 13), .blk-cell:nth-child(16n + 15) {
+  background-color: #e1cfa6;
+}
+.blk-cell:focus-visible { outline: 3px solid var(--color-primary); outline-offset: -3px; z-index: 3; }
+.blk-cell[data-terrain="mountain"], .blk-swatch[data-terrain="mountain"], .blk-swatch-mini[data-terrain="mountain"] {
+  background:
+    linear-gradient(135deg, transparent 48%, rgb(255 255 255 / 0.25) 49%, transparent 56%),
+    conic-gradient(from 135deg at 50% 22%, #5d4a32 0 90deg, transparent 90deg) 0 0 / 100% 100% no-repeat,
+    #a8916a;
+}
+.blk-cell[data-terrain="river"], .blk-swatch[data-terrain="river"], .blk-swatch-mini[data-terrain="river"] {
+  background:
+    radial-gradient(circle at 50% 120%, transparent 38%, rgb(255 255 255 / 0.35) 40%, transparent 46%) 0 0 / 50% 40%,
+    linear-gradient(180deg, #4f7ea0, #3d6889);
+}
+.blk-cell[data-terrain="shrine"], .blk-swatch[data-terrain="shrine"], .blk-swatch-mini[data-terrain="shrine"] {
+  background:
+    linear-gradient(#9b2c22, #9b2c22) 50% 30% / 46% 8% no-repeat,
+    linear-gradient(#9b2c22, #9b2c22) 32% 62% / 7% 40% no-repeat,
+    linear-gradient(#9b2c22, #9b2c22) 68% 62% / 7% 40% no-repeat,
+    #e8d9b5;
+}
+.blk-cell[data-terrain="temple"], .blk-swatch[data-terrain="temple"], .blk-swatch-mini[data-terrain="temple"] {
+  background: radial-gradient(circle, #f6d77a 0 30%, #d9a53a 31% 42%, rgb(217 165 58 / 0.25) 43% 70%, transparent 71%), #e8d9b5;
+}
+.blk-cell[data-terrain="temple"][data-owner="1"] {
+  background: radial-gradient(circle, #e7b3a8 0 30%, #9b2c22 31% 42%, rgb(155 44 34 / 0.2) 43% 70%, transparent 71%), #e8d9b5;
+}
+.blk-swatch { display: inline-block; width: 1rem; height: 1rem; border-radius: 0.25rem; box-shadow: inset 0 0 0 1px rgb(91 58 30 / 0.35); }
+.blk-swatch-mini { display: block; background: #e8d9b5; }
+
+/* Where the selected piece can go. */
+.blk-cell[data-mark]::after { content: ""; position: absolute; inset: 0; margin: auto; pointer-events: none; z-index: 2; }
+.blk-cell[data-mark="move"]::after { width: 26%; height: 26%; border-radius: 9999px; background: rgb(30 58 138 / 0.55); }
+.blk-cell[data-mark="home"]::after { inset: 8%; border-radius: 0.5rem; background: rgb(226 184 74 / 0.35); box-shadow: inset 0 0 0 2px #c99a3b; }
+.blk-cell[data-mark="attack"]::after { inset: 6%; border-radius: 9999px; box-shadow: inset 0 0 0 3px #dc2626, 0 0 12px rgb(220 38 38 / 0.6); }
+.blk-cell[data-mark="shoot"]::after {
+  inset: 10%;
+  border-radius: 9999px;
+  box-shadow: inset 0 0 0 2px #ea580c;
+  background: linear-gradient(#ea580c, #ea580c) 50% 0 / 2px 100% no-repeat, linear-gradient(#ea580c, #ea580c) 0 50% / 100% 2px no-repeat;
+  opacity: 0.85;
+}
+.blk-cell[data-mark="ability"]::after { inset: 8%; border-radius: 0.6rem; box-shadow: inset 0 0 0 3px #7c3aed, 0 0 12px rgb(124 58 237 / 0.5); }
+.blk-cell[data-mark="picked"]::after { inset: 8%; border-radius: 0.6rem; background: rgb(124 58 237 / 0.45); box-shadow: inset 0 0 0 3px #7c3aed; }
+.blk-cell[data-selected]::before { content: ""; position: absolute; inset: 3%; border-radius: 9999px; box-shadow: 0 0 0 3px #fff, 0 0 16px 4px #e2b84a; z-index: 1; pointer-events: none; }
+
+/* What just happened. */
+.blk-flash { position: absolute; inset: 0; pointer-events: none; z-index: 1; animation: blk-flash 1.4s ease-out forwards; }
+.blk-flash[data-kind="from"] { background: rgb(226 184 74 / 0.35); }
+.blk-flash[data-kind="to"] { background: rgb(226 184 74 / 0.55); }
+.blk-flash[data-kind="effect"] { background: rgb(124 58 237 / 0.4); }
+.blk-flash[data-kind="battle"] { background: radial-gradient(circle, rgb(255 237 160 / 0.95), rgb(220 38 38 / 0.6) 45%, transparent 70%); animation: blk-clash 0.9s ease-out forwards; }
+
+.blk-pieces { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.blk-piece {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--blk-cell);
+  height: var(--blk-cell);
+  padding: calc(var(--blk-cell) * 0.07);
+  transform: translate(calc(var(--x) * var(--blk-cell)), calc(var(--y) * var(--blk-cell)));
+  transition: transform 0.32s cubic-bezier(0.3, 0.7, 0.3, 1);
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.35));
+}
+.blk-token { display: block; width: 100%; height: 100%; }
+.blk-token[data-reveal] { animation: blk-reveal 0.5s ease-out; }
+.blk-piece[data-bound] .blk-token { filter: saturate(0.4) brightness(0.85); }
+.blk-veil { position: absolute; right: 4%; top: 4%; width: 26%; height: 26%; border-radius: 9999px; background: #1a1a22; box-shadow: 0 0 0 1.5px #e2b84a; }
+.blk-veil::after { content: ""; position: absolute; inset: 30%; border-radius: 9999px; background: #e2b84a; opacity: 0.8; }
+.blk-badge {
+  position: absolute;
+  left: 2%;
+  top: 2%;
+  display: grid;
+  place-items: center;
+  width: 34%;
+  height: 34%;
+  border-radius: 9999px;
+  font-size: calc(var(--blk-cell) * 0.2);
+  line-height: 1;
+  color: #fff;
+  background: #7c3aed;
+  box-shadow: 0 0 0 1.5px #fff;
+}
+.blk-badge[data-kind="seal"] { background: #9b2c22; }
+.blk-result { z-index: 5; background: rgb(0 0 0 / 0.25); animation: blk-fade 0.4s ease-out; }
+.blk-summon { animation: blk-summon 0.9s cubic-bezier(0.2, 0.8, 0.2, 1.2); }
+
+@keyframes blk-flash {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes blk-clash {
+  0% { transform: scale(0.3); opacity: 1; }
+  60% { opacity: 1; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+@keyframes blk-reveal {
+  0% { transform: rotateY(90deg); }
+  100% { transform: rotateY(0); }
+}
+@keyframes blk-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes blk-summon {
+  0% { transform: scale(0.4) rotate(-12deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blk-piece { transition: none; }
+  .blk-flash, .blk-token[data-reveal], .blk-result, .blk-summon { animation: none; }
+  .blk-flash { opacity: 0.6; }
+}

@@ -5,7 +5,7 @@ import { getProjectData } from "@/features/projects/project-data";
 import { buildAbsoluteUrl } from "@/config/seo.config";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticPaths = ["", "/projects", "/games", "/games/2048", "/games/minesweeper", "/games/typing", "/games/memory", "/games/snake", "/games/sokoban", "/games/go", "/games/word-guess", "/games/red-cliffs", "/about", "/contact"];
+  const staticPaths = ["", "/projects", "/games", "/games/2048", "/games/minesweeper", "/games/typing", "/games/memory", "/games/snake", "/games/sokoban", "/games/go", "/games/word-guess", "/games/red-cliffs", "/games/bach-linh-ky", "/about", "/contact"];
   const entries: MetadataRoute.Sitemap = staticPaths.flatMap((path) =>
     (["vi", "en"] as const).map((locale) => ({
       url: buildAbsoluteUrl(`/${locale}${path}`),
