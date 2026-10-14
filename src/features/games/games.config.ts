@@ -65,6 +65,14 @@ export const GAMES: GameEntry[] = [
     controlKeys: ["games.tagMouse", "games.tagTouch"],
   },
   {
+    slug: "bach-linh-ky",
+    href: ROUTES.GAME_DETAIL("bach-linh-ky"),
+    titleKey: "games.bachLinhKyTitle",
+    descriptionKey: "games.bachLinhKyDescription",
+    category: "strategy-board",
+    controlKeys: ["games.tagMouse", "games.tagTouch"],
+  },
+  {
     slug: "go",
     href: ROUTES.GAME_DETAIL("go"),
     titleKey: "games.goTitle",
