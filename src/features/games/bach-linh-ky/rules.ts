@@ -14,7 +14,7 @@
 // is always shown (a Fox Spirit shows a false one). viewFor() gives what one
 // side can see, and that is all Tianwu is allowed to look at.
 
-import { MAP_BY_ID, SIZE, buildBoard, type Terrain } from "./maps";
+import { ELEMENT_TERRAIN, MAP_BY_ID, SIZE, buildBoard, type Terrain } from "./maps";
 import { FEEDS, LEVELS, OVERCOMES, activeAbility, areRivals, arePartners, hasAbility, monster, type Ability, type Monster } from "./monsters";
 
 export type Side = 0 | 1;
@@ -103,7 +103,8 @@ export function teamProblems(monsters: readonly string[]): string[] {
   return problems;
 }
 
-export const canPlaceOn = (terrain: Terrain) => terrain === "plain" || terrain === "shrine";
+/** Ground a monster may be placed on at the start (and put back on by a rebirth or a recall). */
+export const canPlaceOn = (terrain: Terrain) => terrain === "plain" || terrain === "shrine" || terrain === "ore" || terrain === "forest" || terrain === "mound";
 
 export function placementProblems(side: Side, placement: Placement, terrain: readonly Terrain[]): string[] {
   const problems = teamProblems(placement.map((p) => p.monster));
@@ -168,10 +169,21 @@ export const usableAbility = (u: Unit) => (u.sealed || u.abilityUsed ? undefined
 export const isBound = (state: GameState, u: Unit) => (u.boundUntil ?? 0) > state.turn;
 const adjacentAllies = (state: GameState, u: Unit) => state.units.filter((a) => a.side === u.side && a.id !== u.id && reach(a.cell, u.cell) === 1);
 
-/** The level a monster fights at here: its level, plus a river bonus if it has one and stands on a river. */
+/**
+ * The level a monster fights at here: its level, plus a river bonus if it has
+ * one and stands on a river, plus one on its own element's sacred ground (linh địa).
+ */
 export function fightingLevel(state: GameState, u: Unit, cell = u.cell): number {
   const bonus = state.terrain[cell] === "river" ? (ability(u, "river-bonus")?.levels ?? 0) : 0;
-  return u.level + bonus;
+  const home = state.terrain[cell] === ELEMENT_TERRAIN[def(u).element] ? 1 : 0;
+  return u.level + bonus + home;
+}
+
+/** Whether a monster can stand on this ground: mountains need a climber, lava a Fire monster. */
+export function canStand(u: Unit, terrain: Terrain): boolean {
+  if (terrain === "mountain") return !!ability(u, "walk-mountain");
+  if (terrain === "lava") return def(u).element === "hoa";
+  return true;
 }
 
 /** +1 when this monster's element overcomes (khắc) the foe's. */
@@ -209,7 +221,7 @@ export function battleLevels(state: GameState, attacker: Unit, defender: Unit, m
 /** True if ranged attacks cannot touch this monster where it stands. */
 export function shielded(state: GameState, u: Unit): boolean {
   if (ability(u, "immune-ranged")) return true;
-  if (state.terrain[u.cell] === "shrine") return true;
+  if (state.terrain[u.cell] === "shrine" || state.terrain[u.cell] === "forest") return true;
   return adjacentAllies(state, u).some((ally) => ability(ally, "guard-ranged"));
 }
 
@@ -219,8 +231,9 @@ export type Destination = { cell: number; attack: boolean };
 
 /**
  * Every cell a monster can move to this turn, and whether moving there is
- * an attack. Land walkers move in 4 directions, cannot cross mountains (the
- * Mountain God can) and stop on entering a river. Water walkers move in 4
+ * an attack. Land walkers move in 4 directions, cannot cross mountains
+ * (climbers can) or lava (Fire monsters can), and stop on entering a river
+ * or a marsh. Water walkers move in 4
  * directions and treat rivers as plain. Flyers move in 8 directions over
  * mountains and other monsters, but cannot land on a mountain. Nobody passes
  * through a monster on foot; moving onto an enemy is a melee attack.
@@ -228,7 +241,6 @@ export type Destination = { cell: number; attack: boolean };
 export function destinations(state: GameState, u: Unit): Destination[] {
   const m = def(u);
   const flies = m.path === "air";
-  const climbs = !!ability(u, "walk-mountain");
   const directions = flies ? ALL_DIRECTIONS : ORTHOGONAL;
   const best = new Map<number, number>([[u.cell, m.steps]]); // steps left on arrival
   const out = new Map<number, boolean>();
@@ -240,17 +252,19 @@ export function destinations(state: GameState, u: Unit): Destination[] {
       const to = cellAt(xOf(from) + dx, yOf(from) + dy);
       if (to === -1) continue;
       const terrain = state.terrain[to];
-      if (terrain === "mountain" && !flies && !climbs) continue;
+      const stands = canStand(u, terrain);
+      // Walkers and swimmers cannot cross ground they cannot stand on; flyers pass over it.
+      if (!stands && !flies) continue;
       const occupant = unitAt(state, to);
-      const canStop = terrain !== "mountain" || climbs;
+      const canStop = stands;
       if (occupant) {
         if (occupant.side !== u.side && canStop) out.set(to, true);
         if (!flies) continue; // walkers and swimmers cannot pass through anyone
       } else if (canStop && to !== u.cell) {
         out.set(to, false);
       }
-      // Land walkers stop when they step into a river.
-      const nextLeft = terrain === "river" && m.path === "land" ? 0 : left - 1;
+      // Land walkers stop when they step into a river or a marsh.
+      const nextLeft = (terrain === "river" || terrain === "marsh") && m.path === "land" ? 0 : left - 1;
       if ((best.get(to) ?? -1) >= nextLeft) continue;
       best.set(to, nextLeft);
       queue.push([to, nextLeft]);
@@ -259,11 +273,14 @@ export function destinations(state: GameState, u: Unit): Destination[] {
   return [...out].map(([cell, attack]) => ({ cell, attack }));
 }
 
+/** How far this monster shoots from where it stands: one cell further from ore. */
+export const shotRange = (state: GameState, u: Unit) => (def(u).ranged?.range ?? 0) + (state.terrain[u.cell] === "ore" ? 1 : 0);
+
 /** Enemies this monster can shoot: within its range, any distance from 1. */
 export function shootTargets(state: GameState, u: Unit): number[] {
-  const ranged = def(u).ranged;
-  if (!ranged) return [];
-  return state.units.filter((e) => e.side !== u.side && reach(u.cell, e.cell) <= ranged.range).map((e) => e.cell);
+  if (!def(u).ranged) return [];
+  const range = shotRange(state, u);
+  return state.units.filter((e) => e.side !== u.side && reach(u.cell, e.cell) <= range).map((e) => e.cell);
 }
 
 /** Cells an active ability can be aimed at (before choosing how many). */
@@ -275,22 +292,25 @@ export function abilityCells(state: GameState, u: Unit): number[] {
     case "strike":
       return enemiesWithin(active.range).map((e) => e.cell);
     case "bind":
-      return enemiesWithin(active.range).filter((e) => !isBound(state, e)).map((e) => e.cell);
+      // A monster on a mound is rooted in the earth: it cannot be bound.
+      return enemiesWithin(active.range).filter((e) => !isBound(state, e) && state.terrain[e.cell] !== "mound").map((e) => e.cell);
     case "seal":
       return enemiesWithin(active.range).filter((e) => !e.sealed).map((e) => e.cell);
     case "swap":
-      // Nobody can be swapped onto a mountain it cannot stand on, so a monster on a mountain stays put.
-      return state.units.filter((o) => o.id !== u.id && reach(u.cell, o.cell) <= active.range && state.terrain[o.cell] !== "mountain").map((o) => o.cell);
+      // Both must be able to stand where the other was, and nobody on a mound can be moved.
+      return state.units
+        .filter((o) => o.id !== u.id && reach(u.cell, o.cell) <= active.range)
+        .filter((o) => state.terrain[o.cell] !== "mound" && canStand(u, state.terrain[o.cell]) && canStand(o, state.terrain[u.cell]))
+        .map((o) => o.cell);
     case "rise":
       return u.level < MAX_LEVEL ? [u.cell] : [];
     case "recall":
       return recallable(state, u.side, active.maxLevel) ? freeHomeCells(state, u.side) : [];
     case "leap": {
-      const climbs = !!ability(u, "walk-mountain");
       const out: number[] = [];
       for (let cell = 0; cell < CELLS; cell++) {
         if (cell === u.cell || reach(cell, u.cell) > active.range) continue;
-        if (state.terrain[cell] === "mountain" && !climbs) continue;
+        if (!canStand(u, state.terrain[cell])) continue;
         const occupant = unitAt(state, cell);
         if (occupant && occupant.side === u.side) continue;
         out.push(cell);

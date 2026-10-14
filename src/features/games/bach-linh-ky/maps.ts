@@ -3,20 +3,33 @@
 // both sides always get the same ground and the board is fair.
 //
 //   .  plain      ^  mountain      ~  river      m  shrine (miếu)
+//   Linh địa, one per element (a monster of that element fights +1 on it):
+//   o  ore (Kim)      f  forest (Mộc)     w  marsh (Thủy)
+//   l  lava (Hỏa)     d  mound (Thổ)
 //   a  sacred temple for the player (side 0). It sits on Tianwu's half and
 //      mirrors to Tianwu's own temple on the player's half.
 //
 // maps.test (in rules.test.ts) checks every map: 8×8, mirrored, room to
 // place five pieces on each back two rows, and every open cell reachable.
 
-import type { Text } from "./monsters";
+import type { Element, Text } from "./monsters";
 
-export type Terrain = "plain" | "mountain" | "river" | "shrine" | "temple";
+export type Terrain = "plain" | "mountain" | "river" | "shrine" | "temple" | "ore" | "forest" | "marsh" | "lava" | "mound";
+
+/**
+ * Linh địa: the ground of each element. A monster of that element fights one
+ * level higher while standing on it, and each also has a rule of its own
+ * (see rules.ts): ore lengthens shots, forest hides from shots, marsh stops
+ * walkers, lava bars all but Fire, a mound cannot be swapped or bound.
+ */
+export const ELEMENT_TERRAIN: Record<Element, Terrain> = { kim: "ore", moc: "forest", thuy: "marsh", hoa: "lava", tho: "mound" };
 
 export type MapDef = {
   id: string;
   name: Text;
   blurb: Text;
+  /** The element whose ground dominates this map, if any. */
+  element?: Element;
   /** Top half, rows 0-3, Tianwu's side. */
   top: [string, string, string, string];
 };
@@ -88,11 +101,128 @@ export const MAPS: MapDef[] = [
       "...^^...",
     ],
   },
+  // --- One battlefield for each element ---
+  {
+    id: "dong-son",
+    element: "kim",
+    name: { vi: "Lò đúc Đông Sơn", en: "Đông Sơn Foundry" },
+    blurb: { vi: "Mỏ đồng khắp nơi: quân Kim đứng trên mỏ thêm sức, và ai đứng trên mỏ cũng bắn xa thêm một ô.", en: "Copper seams everywhere: Metal fights harder on them, and anyone on ore shoots one cell further." },
+    top: [
+      "........",
+      "..o..o..",
+      ".^o..o^a",
+      "...oo...",
+    ],
+  },
+  {
+    id: "thuong-ngan",
+    element: "moc",
+    name: { vi: "Rừng Thượng Ngàn", en: "The Upland Forest" },
+    blurb: { vi: "Rừng rậm che kín: đứng trong rừng không bị bắn trúng, quân Mộc như về nhà.", en: "Thick woods: nothing can be shot inside them, and Wood is at home." },
+    top: [
+      "........",
+      ".f....f.",
+      "ff.a.ff.",
+      "..ff..f.",
+    ],
+  },
+  {
+    id: "lac-viet",
+    element: "thuy",
+    name: { vi: "Đầm Lạc Việt", en: "Lạc Việt Marshes" },
+    blurb: { vi: "Đầm lầy và sông ngòi: quân đi bộ sa chân là dừng, quân Thủy bơi lội tự do.", en: "Marsh and streams: walkers bog down on entering, Water swims free." },
+    top: [
+      "........",
+      "..w..w..",
+      "~w..a.w~",
+      "~~w..w~~",
+    ],
+  },
+  {
+    id: "lang-chay",
+    element: "hoa",
+    name: { vi: "Làng Cháy", en: "The Burnt Village" },
+    blurb: { vi: "Nơi ngựa sắt Thánh Gióng phun lửa: dung nham chỉ quân Hỏa đặt chân được, quân bay chỉ lướt qua.", en: "Where Gióng's iron horse breathed fire: only Fire can stand on the lava; flyers can only pass over." },
+    top: [
+      "........",
+      ".l....l.",
+      "..l.a.l.",
+      "ll..ll..",
+    ],
+  },
+  {
+    id: "dong-da",
+    element: "tho",
+    name: { vi: "Gò Đống Đa", en: "The Mounds of Đống Đa" },
+    blurb: { vi: "Gò đất nhấp nhô: quân đứng trên gò không bị trói, không bị dời chỗ, quân Thổ vững như núi.", en: "Rolling mounds: no one on a mound can be bound or swapped, and Earth stands like a mountain." },
+    top: [
+      "........",
+      "..d..d..",
+      ".d.^^.da",
+      "d..dd..d",
+    ],
+  },
+  // --- New layouts ---
+  {
+    id: "ngu-hanh-tran",
+    name: { vi: "Trận Ngũ Hành", en: "The Five Elements Array" },
+    blurb: { vi: "Đủ năm loại linh địa: mỗi hành có một chỗ đứng của mình.", en: "All five kinds of sacred ground: every element has a place to stand." },
+    top: [
+      "........",
+      ".o.f.l..",
+      "w..a..d.",
+      "..^..^..",
+    ],
+  },
+  {
+    id: "dao-hoang",
+    name: { vi: "Đảo hoang", en: "The Desert Island" },
+    blurb: { vi: "Hòn đảo nơi Mai An Tiêm trồng dưa: biển bao quanh hai bờ, lối giữa đảo rộng mở.", en: "Mai An Tiêm's island: sea along both shores, an open path through the middle." },
+    top: [
+      "........",
+      "~~~..~~~",
+      "~.a..m.~",
+      "~......~",
+    ],
+  },
+  {
+    id: "thang-long",
+    name: { vi: "Thành Thăng Long", en: "Thăng Long Citadel" },
+    blurb: { vi: "Hai lớp tường thành chắn giữa trận, chỉ có hai cổng để qua.", en: "A double wall across the field, with only two gates." },
+    top: [
+      "........",
+      ".^^..^^.",
+      "...a....",
+      "^^.^^.^^",
+    ],
+  },
+  {
+    id: "bach-dang",
+    name: { vi: "Sông Bạch Đằng", en: "Bạch Đằng River" },
+    blurb: { vi: "Lòng sông cắm đầy cọc gỗ: chỉ quân bay và quân thủy luồn qua dễ dàng.", en: "A river full of hidden stakes: only flyers and swimmers slip through easily." },
+    top: [
+      "........",
+      "........",
+      "~^~a~^~~",
+      "~~~^~~^~",
+    ],
+  },
 ];
 
 export const SIZE = 8;
 
-const CODE: Record<string, Terrain> = { ".": "plain", "^": "mountain", "~": "river", m: "shrine", a: "temple" };
+const CODE: Record<string, Terrain> = {
+  ".": "plain",
+  "^": "mountain",
+  "~": "river",
+  m: "shrine",
+  a: "temple",
+  o: "ore",
+  f: "forest",
+  w: "marsh",
+  l: "lava",
+  d: "mound",
+};
 
 export type Board = {
   terrain: Terrain[];
