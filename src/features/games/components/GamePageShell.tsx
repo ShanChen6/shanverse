@@ -16,11 +16,13 @@ type GamePageShellProps = {
   genre: string;
   steps: string[];
   savedNote: string;
+  /** Extra content at the end of the "how to play" box, e.g. a list of piece states. */
+  rulesExtra?: React.ReactNode;
   children: React.ReactNode;
 };
 
 /** Shared layout for a game page: breadcrumb, title, the game, then how to play. */
-export async function GamePageShell({ path, title, intro, description, genre, steps, savedNote, children }: GamePageShellProps) {
+export async function GamePageShell({ path, title, intro, description, genre, steps, savedNote, rulesExtra, children }: GamePageShellProps) {
   const { locale, t } = await getTranslator();
 
   return (
@@ -73,6 +75,7 @@ export async function GamePageShell({ path, title, intro, description, genre, st
               </li>
             ))}
           </ol>
+          {rulesExtra}
         </div>
         <p className="flex h-fit gap-2 rounded-2xl border border-border bg-surface p-4 text-xs leading-relaxed text-muted">
           <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
