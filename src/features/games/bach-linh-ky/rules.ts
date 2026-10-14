@@ -15,7 +15,7 @@ import { MAP_BY_ID, SIZE, buildBoard, type Terrain } from "./maps";
 import { LEVELS, activeAbility, hasAbility, monster, type Monster } from "./monsters";
 
 export type Side = 0 | 1;
-export const MAX_TURNS = 60;
+export const MAX_TURNS = 80;
 export const MAX_LEVEL = 6;
 export const CELLS = SIZE * SIZE;
 
