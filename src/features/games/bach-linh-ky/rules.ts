@@ -393,6 +393,8 @@ export type UnitView = {
   cell: number;
   /** The level this side sees: the real one, except a face-down enemy Fox Spirit shows a false one. */
   level: number;
+  /** Temple evolutions so far. Public: everyone sees a monster step onto a temple. */
+  evolved: number;
   /** null for a face-down enemy. */
   monster: string | null;
   revealed: boolean;
@@ -414,7 +416,8 @@ export function viewFor(state: GameState, side: Side): View {
       const hidden = u.side !== side && !u.revealed;
       const fake = hasAbility(def(u), "fake-level");
       const shownLevel = hidden && fake ? fake.shown + (u.level - def(u).level) : u.level;
-      return { id: u.id, side: u.side, cell: u.cell, level: shownLevel, monster: hidden ? null : u.monster, revealed: u.revealed, abilityUsed: u.abilityUsed };
+      const evolved = u.level - def(u).level;
+      return { id: u.id, side: u.side, cell: u.cell, level: shownLevel, evolved, monster: hidden ? null : u.monster, revealed: u.revealed, abilityUsed: u.abilityUsed };
     }),
   };
 }
