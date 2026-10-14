@@ -586,6 +586,86 @@
   .rc-shot, .rc-shot-in, .rc-burst { display: none; }
 }
 
+/* Nonogram ------------------------------------------------------------------ */
+/* Clue numbers sit in the same grid as the cells, in slots 0.62 of a cell
+   wide, so the whole board scales from one --ng-cell. */
+.ng-board {
+  --ng-slot: 0.62;
+  --ng-cell: min(
+    var(--ng-max, 2.6rem),
+    calc((min(100vw, 48rem) - 2.5rem) / (var(--ng-cols) + var(--ng-row-slots) * var(--ng-slot)))
+  );
+  --ng-fill: var(--foreground);
+  --ng-line: color-mix(in srgb, var(--foreground) 14%, transparent);
+  --ng-line-strong: color-mix(in srgb, var(--foreground) 45%, transparent);
+  display: grid;
+  grid-template-columns: repeat(var(--ng-row-slots), calc(var(--ng-cell) * var(--ng-slot))) repeat(var(--ng-cols), var(--ng-cell));
+  grid-template-rows: repeat(var(--ng-col-slots), calc(var(--ng-cell) * var(--ng-slot))) repeat(var(--ng-rows), var(--ng-cell));
+  width: max-content;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ng-clue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--ng-cell) * 0.42);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+  transition: opacity 150ms ease-out, color 150ms ease-out;
+}
+.ng-clue[data-state="done"] { opacity: 0.32; }
+.ng-clue[data-state="over"] { color: #f43f5e; }
+.ng-clue[data-hint="true"] { background: color-mix(in srgb, #f0c27b 30%, transparent); border-radius: 0.25rem; }
+
+.ng-cell {
+  position: relative;
+  background: var(--surface);
+  box-shadow: inset -1px -1px 0 var(--ng-line);
+  cursor: pointer;
+}
+.ng-cell[data-x0="true"] { box-shadow: inset -1px -1px 0 var(--ng-line), inset 1px 0 0 var(--ng-line-strong); }
+.ng-cell[data-y0="true"] { box-shadow: inset -1px -1px 0 var(--ng-line), inset 0 1px 0 var(--ng-line-strong); }
+.ng-cell[data-x0="true"][data-y0="true"] { box-shadow: inset -1px -1px 0 var(--ng-line), inset 1px 1px 0 var(--ng-line-strong); }
+.ng-cell[data-x5="true"] { border-right: 2px solid var(--ng-line-strong); }
+.ng-cell[data-y5="true"] { border-bottom: 2px solid var(--ng-line-strong); }
+.ng-cell[data-mark="1"] { background: var(--ng-fill); }
+.ng-cell[data-mark="2"]::before,
+.ng-cell[data-mark="2"]::after {
+  content: "";
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: color-mix(in srgb, var(--foreground) 45%, transparent);
+  transform: rotate(45deg);
+}
+.ng-cell[data-mark="2"]::after { transform: rotate(-45deg); }
+.ng-cell[data-hint="true"] { background-color: color-mix(in srgb, #f0c27b 22%, var(--surface)); }
+.ng-cell[data-hint="true"][data-mark="1"] { background: var(--ng-fill); }
+.ng-cell[data-cursor="true"] { outline: 2px solid var(--primary); outline-offset: -2px; z-index: 1; }
+
+/* The finished picture: crosses go, filled cells turn gold one after another. */
+.ng-board[data-solved="true"] .ng-cell { cursor: default; }
+.ng-board[data-solved="true"] .ng-cell[data-mark="2"]::before,
+.ng-board[data-solved="true"] .ng-cell[data-mark="2"]::after { display: none; }
+.ng-board[data-solved="true"] .ng-cell[data-mark="1"] { animation: ng-reveal 420ms ease-out both; animation-delay: var(--ng-delay, 0ms); }
+
+@keyframes ng-reveal {
+  from { background: var(--ng-fill); }
+  to { background: #d9af62; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ng-clue { transition: none; }
+  .ng-board[data-solved="true"] .ng-cell[data-mark="1"] { animation: none; background: #d9af62; }
+}
+
 /* ---------------------------------------------------------------------------
    Bách Linh Kỳ: an 8×8 folk-print board (paper, ink mountains, indigo rivers)
    with round lacquer pieces that slide between cells.
@@ -762,82 +842,4 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .blk-ceremony, .blk-summon-card, .blk-summon-token, .blk-urn { animation: none; }
-/* Nonogram ------------------------------------------------------------------ */
-/* Clue numbers sit in the same grid as the cells, in slots 0.62 of a cell
-   wide, so the whole board scales from one --ng-cell. */
-.ng-board {
-  --ng-slot: 0.62;
-  --ng-cell: min(
-    var(--ng-max, 2.6rem),
-    calc((min(100vw, 48rem) - 2.5rem) / (var(--ng-cols) + var(--ng-row-slots) * var(--ng-slot)))
-  );
-  --ng-fill: var(--foreground);
-  --ng-line: color-mix(in srgb, var(--foreground) 14%, transparent);
-  --ng-line-strong: color-mix(in srgb, var(--foreground) 45%, transparent);
-  display: grid;
-  grid-template-columns: repeat(var(--ng-row-slots), calc(var(--ng-cell) * var(--ng-slot))) repeat(var(--ng-cols), var(--ng-cell));
-  grid-template-rows: repeat(var(--ng-col-slots), calc(var(--ng-cell) * var(--ng-slot))) repeat(var(--ng-rows), var(--ng-cell));
-  width: max-content;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.ng-clue {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(var(--ng-cell) * 0.42);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--foreground);
-  transition: opacity 150ms ease-out, color 150ms ease-out;
-}
-.ng-clue[data-state="done"] { opacity: 0.32; }
-.ng-clue[data-state="over"] { color: #f43f5e; }
-.ng-clue[data-hint="true"] { background: color-mix(in srgb, #f0c27b 30%, transparent); border-radius: 0.25rem; }
-
-.ng-cell {
-  position: relative;
-  background: var(--surface);
-  box-shadow: inset -1px -1px 0 var(--ng-line);
-  cursor: pointer;
-}
-.ng-cell[data-x0="true"] { box-shadow: inset -1px -1px 0 var(--ng-line), inset 1px 0 0 var(--ng-line-strong); }
-.ng-cell[data-y0="true"] { box-shadow: inset -1px -1px 0 var(--ng-line), inset 0 1px 0 var(--ng-line-strong); }
-.ng-cell[data-x0="true"][data-y0="true"] { box-shadow: inset -1px -1px 0 var(--ng-line), inset 1px 1px 0 var(--ng-line-strong); }
-.ng-cell[data-x5="true"] { border-right: 2px solid var(--ng-line-strong); }
-.ng-cell[data-y5="true"] { border-bottom: 2px solid var(--ng-line-strong); }
-.ng-cell[data-mark="1"] { background: var(--ng-fill); }
-.ng-cell[data-mark="2"]::before,
-.ng-cell[data-mark="2"]::after {
-  content: "";
-  position: absolute;
-  left: 22%;
-  right: 22%;
-  top: 50%;
-  height: 2px;
-  margin-top: -1px;
-  background: color-mix(in srgb, var(--foreground) 45%, transparent);
-  transform: rotate(45deg);
-}
-.ng-cell[data-mark="2"]::after { transform: rotate(-45deg); }
-.ng-cell[data-hint="true"] { background-color: color-mix(in srgb, #f0c27b 22%, var(--surface)); }
-.ng-cell[data-hint="true"][data-mark="1"] { background: var(--ng-fill); }
-.ng-cell[data-cursor="true"] { outline: 2px solid var(--primary); outline-offset: -2px; z-index: 1; }
-
-/* The finished picture: crosses go, filled cells turn gold one after another. */
-.ng-board[data-solved="true"] .ng-cell { cursor: default; }
-.ng-board[data-solved="true"] .ng-cell[data-mark="2"]::before,
-.ng-board[data-solved="true"] .ng-cell[data-mark="2"]::after { display: none; }
-.ng-board[data-solved="true"] .ng-cell[data-mark="1"] { animation: ng-reveal 420ms ease-out both; animation-delay: var(--ng-delay, 0ms); }
-
-@keyframes ng-reveal {
-  from { background: var(--ng-fill); }
-  to { background: #d9af62; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ng-clue { transition: none; }
-  .ng-board[data-solved="true"] .ng-cell[data-mark="1"] { animation: none; background: #d9af62; }
 }
