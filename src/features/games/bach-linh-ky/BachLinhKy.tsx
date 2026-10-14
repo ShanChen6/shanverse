@@ -9,10 +9,12 @@ import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import { tianwuTeam, type Difficulty } from "./ai";
 import { Token } from "./art";
-import { afterGame, canField, LOSSES_PER_SUMMON, type Collection } from "./collection";
+import { afterGame, canField, LOSSES_PER_SUMMON, type Collection as CollectionData } from "./collection";
 import { describe, highlights, type Highlight, type LogLine } from "./describe";
 import { MAPS, MAP_BY_ID, SIZE, buildBoard, type Terrain } from "./maps";
+import { CollectionGrid } from "./CollectionGrid";
 import { MonsterInfo } from "./MonsterInfo";
+import { SummonCeremony } from "./SummonCeremony";
 import { LEVELS, MONSTERS, activeAbility, monster } from "./monsters";
 import {
   MAX_TURNS,
@@ -61,7 +63,7 @@ export function BachLinhKy() {
   const think = useBachLinhKyEngine();
 
   const [phase, setPhase] = React.useState<Phase>("loading");
-  const [collection, setCollection] = React.useState<Collection | null>(null);
+  const [collection, setCollection] = React.useState<CollectionData | null>(null);
   const [prefs, setPrefs] = React.useState<Prefs>({ difficulty: "medium", map: "random", team: null });
   const [team, setTeam] = React.useState<(string | null)[]>([null, null, null, null, null]);
   const [mapId, setMapId] = React.useState<string>(MAPS[0].id);
@@ -77,6 +79,8 @@ export function BachLinhKy() {
   const [log, setLog] = React.useState<LogLine[]>([]);
   const [marks, setMarks] = React.useState<{ key: number; cells: Highlight[] }>({ key: 0, cells: [] });
   const [resignArmed, setResignArmed] = React.useState(false);
+  const [tab, setTab] = React.useState<"team" | "collection">("team");
+  const [ceremony, setCeremony] = React.useState<string | null>(null);
   const logKey = React.useRef(0);
   const thinkingFor = React.useRef<GameState | null>(null);
 
@@ -301,9 +305,41 @@ export function BachLinhKy() {
   }
 
   if (phase === "setup") {
+    const tabs = (
+      <div role="tablist" aria-label={t("games.blkTeam")} className="flex gap-1 border-b border-border">
+        {(["team", "collection"] as const).map((id) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            id={`blk-tab-${id}`}
+            aria-selected={tab === id}
+            aria-controls={`blk-panel-${id}`}
+            onClick={() => setTab(id)}
+            className={cn(
+              "-mb-px border-b-2 px-3 py-2 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary",
+              tab === id ? "border-primary text-foreground" : "border-transparent text-muted hover:text-foreground",
+            )}
+          >
+            {id === "team" ? t("games.blkTabTeam") : t("games.blkTabCollection", { n: owned.length, total: MONSTERS.length })}
+          </button>
+        ))}
+      </div>
+    );
+    if (tab === "collection") {
+      return (
+        <div className="space-y-5">
+          {tabs}
+          <div role="tabpanel" id="blk-panel-collection" aria-labelledby="blk-tab-collection">
+            <CollectionGrid collection={collection} />
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="space-y-6">
-        <section aria-labelledby="blk-team" className="space-y-3">
+        {tabs}
+        <section id="blk-panel-team" role="tabpanel" aria-labelledby="blk-tab-team" className="space-y-3">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <h2 id="blk-team" className="text-xl font-bold">{t("games.blkTeam")}</h2>
@@ -507,9 +543,21 @@ export function BachLinhKy() {
               complete={collection.owned.length === MONSTERS.length}
               onNew={() => newSetup(false)}
               onRematch={() => newSetup(true)}
+              onSummon={() => setCeremony(game.summoned ?? null)}
             />
           ) : null}
         </div>
+        {ceremony ? (
+          <SummonCeremony
+            monsterId={ceremony}
+            onClose={() => {
+              const seen: SavedGame = { ...game, summonSeen: true };
+              saveGame(seen);
+              setGame(seen);
+              setCeremony(null);
+            }}
+          />
+        ) : null}
 
         {!over ? (
           <div className="flex flex-wrap items-center justify-center gap-2">
@@ -676,7 +724,9 @@ function MiniMap({ terrain }: { terrain: Terrain[] }) {
   );
 }
 
-function Result({ game, you, them, lossesToSummon, complete, onNew, onRematch }: { game: SavedGame; you: number; them: number; lossesToSummon: number; complete: boolean; onNew: () => void; onRematch: () => void }) {
+type ResultProps = { game: SavedGame; you: number; them: number; lossesToSummon: number; complete: boolean; onNew: () => void; onRematch: () => void; onSummon: () => void };
+
+function Result({ game, you, them, lossesToSummon, complete, onNew, onRematch, onSummon }: ResultProps) {
   const { t, locale } = useI18n();
   const lang = locale === "en" ? "en" : "vi";
   const winner = game.state.winner;
@@ -691,7 +741,12 @@ function Result({ game, you, them, lossesToSummon, complete, onNew, onRematch }:
       <div className="w-full max-w-xs space-y-3 rounded-2xl border border-border bg-surface/95 p-5 text-center shadow-xl backdrop-blur">
         <p className={cn("text-2xl font-extrabold", winner === 0 ? "text-primary" : winner === 1 ? "text-red-500" : "text-foreground")}>{title}</p>
         <p className="text-sm text-foreground-secondary">{reason}</p>
-        {game.summoned ? (
+        {game.summoned && !game.summonSeen ? (
+          <button type="button" onClick={onSummon} className="blk-urn-button mx-auto flex flex-col items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-3 font-semibold text-primary focus-visible:ring-2 focus-visible:ring-primary">
+            <span aria-hidden="true" className="blk-urn" />
+            {t("games.blkSummonOpen")}
+          </button>
+        ) : game.summoned ? (
           <div className="blk-summon flex flex-col items-center gap-1.5 rounded-xl bg-primary/10 p-3">
             <Sparkles aria-hidden="true" className="size-5 text-primary" />
             <Token monsterId={game.summoned} level={monster(game.summoned).level} side={0} className="size-16" />

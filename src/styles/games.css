@@ -734,3 +734,32 @@
   .blk-flash, .blk-token[data-reveal], .blk-result, .blk-summon { animation: none; }
   .blk-flash { opacity: 0.6; }
 }
+
+/* Bách Linh Kỳ: the summoning (Thỉnh quân). */
+.blk-ceremony {
+  background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--blk-glow) 22%, #140a06) 0%, #0b0604 70%);
+  animation: blk-fade 0.35s ease-out;
+}
+.blk-summon-card { animation: blk-summon 0.7s cubic-bezier(0.2, 0.8, 0.2, 1.2); }
+.blk-summon-token { display: inline-block; border-radius: 9999px; box-shadow: 0 0 0 6px color-mix(in srgb, var(--blk-glow) 35%, transparent), 0 0 48px 10px color-mix(in srgb, var(--blk-glow) 55%, transparent); animation: blk-halo 2.4s ease-in-out infinite; }
+.blk-urn {
+  display: block;
+  width: 2.6rem;
+  height: 3rem;
+  border-radius: 48% 48% 44% 44% / 56% 56% 44% 44%;
+  background:
+    linear-gradient(#d9a53a, #d9a53a) 50% 50% / 100% 10% no-repeat,
+    radial-gradient(circle at 36% 30%, #c9473d, #7e1b14 70%);
+  box-shadow: inset 0 0 0 2px #d9a53a, 0 0 18px 2px rgb(226 184 74 / 0.6);
+  animation: blk-urn 1.1s ease-in-out infinite;
+}
+@keyframes blk-urn {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg) translateY(-2px); }
+}
+@keyframes blk-halo {
+  50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--blk-glow) 20%, transparent), 0 0 64px 18px color-mix(in srgb, var(--blk-glow) 45%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blk-ceremony, .blk-summon-card, .blk-summon-token, .blk-urn { animation: none; }
+}
