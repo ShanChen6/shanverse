@@ -1,14 +1,11 @@
 // Pictures for the three themes, as plain SVG: a target at each strength,
 // the thing that flies, the burst when a target goes, and a small ammo icon.
-// Shapes are bold and flat so the four states read at phone size; the dots
-// under each target (Pips) carry the state as well, in every theme.
+// Shapes are bold and flat so the four states read at phone size; the game's
+// rules list the states with these same pictures (StateLegend).
 
 import { cn } from "@/lib/cn";
 
 import type { ThemeId } from "./themes";
-
-/** Colour per strength, shared by the dots and the hint ring: cool when safe, red when one hit away. */
-export const STRENGTH_COLORS = ["", "#f43f5e", "#fb923c", "#facc15", "#7dd3fc"] as const;
 
 type PieceProps = { theme: ThemeId; strength: number };
 
@@ -38,18 +35,6 @@ export function Piece({ theme, strength }: PieceProps) {
   if (theme === "lantern") return <Lantern strength={strength} />;
   if (theme === "space") return <Asteroid strength={strength} />;
   return <Junk strength={strength} />;
-}
-
-/** Four dots: how many more hits until this target goes. */
-export function Pips({ strength }: { strength: number }) {
-  if (strength <= 0) return null;
-  return (
-    <span aria-hidden="true" className="rc-pips">
-      {[1, 2, 3, 4].map((n) => (
-        <span key={n} style={n <= strength ? { background: STRENGTH_COLORS[strength], color: STRENGTH_COLORS[strength] } : undefined} data-on={n <= strength ? "true" : undefined} />
-      ))}
-    </span>
-  );
 }
 
 function EmptyCell({ theme }: { theme: ThemeId }) {

@@ -9,13 +9,12 @@ import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import { randomSeed } from "./generator";
 import { CELLS, SIZE, TORCHES, fire, isCleared, shipsLeft, type Frame } from "./logic";
-import { AmmoIcon, Burst, Pips, Piece, Projectile } from "./pieces";
+import { AmmoIcon, Burst, Piece, Projectile } from "./pieces";
 import { EXACT_LIMIT } from "./solver";
-import { DEFAULT_THEME, THEMES, THEME_IDS, fill, isThemeId, stateText, type ThemeId } from "./themes";
+import { DEFAULT_THEME, PREFS_KEY, THEMES, THEME_EVENT, THEME_IDS, fill, isThemeId, stateText, type ThemeId } from "./themes";
 import { useRedCliffsEngine } from "./use-engine";
 
 const STORAGE_KEY = "shanverse:red-cliffs:progress";
-const PREFS_KEY = "shanverse:red-cliffs:prefs";
 
 /** One tick of flight, in milliseconds, per speed. */
 const SPEEDS = { slow: 460, normal: 300, fast: 170 } as const;
@@ -143,6 +142,7 @@ export function RedCliffs() {
     const next = { ...prefs, ...change };
     writeJson(PREFS_KEY, next);
     setPrefs(next);
+    if (change.theme) window.dispatchEvent(new CustomEvent(THEME_EVENT, { detail: change.theme }));
   };
 
   const deal = React.useCallback(
@@ -428,7 +428,6 @@ export function RedCliffs() {
                   <span key={flash ? `hit-${anim?.step}` : "still"} className="block size-full" data-hit={flash ? "true" : undefined}>
                     <Piece theme={prefs.theme} strength={strength} />
                   </span>
-                  <Pips strength={strength} />
                 </button>
               );
             })}

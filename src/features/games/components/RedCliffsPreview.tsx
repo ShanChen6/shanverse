@@ -1,6 +1,4 @@
-import type * as React from "react";
-
-import { Piece, Pips } from "@/features/games/red-cliffs/pieces";
+import { Piece } from "@/features/games/red-cliffs/pieces";
 
 // A static, decorative board for the game card: river lanterns, some lit.
 const BOARD = [
@@ -15,9 +13,8 @@ export function RedCliffsPreview() {
     <div aria-hidden="true" className="rc-board pointer-events-none mx-auto max-w-64 p-1.5" data-theme="lantern" style={{ width: "100%", height: "auto" }}>
       <div className="grid grid-cols-6">
         {BOARD.map((strength, i) => (
-          <span key={i} className="relative aspect-square p-0.5 pb-1.5" style={{ "--rc-cell": "2.4rem" } as React.CSSProperties}>
+          <span key={i} className="aspect-square p-0.5">
             <Piece theme="lantern" strength={strength} />
-            <Pips strength={strength} />
           </span>
         ))}
       </div>

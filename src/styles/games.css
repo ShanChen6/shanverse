@@ -452,12 +452,22 @@
   user-select: none;
   -webkit-user-select: none;
 }
-.rc-board[data-theme="lantern"] {
+
+/* A target's picture on its theme's background, for the state list in the rules. */
+.rc-swatch {
+  display: block;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0.15rem;
+  border-radius: 0.6rem;
+}
+.rc-board[data-theme="lantern"], .rc-swatch[data-theme="lantern"] {
   background:
     radial-gradient(ellipse at 50% 0%, rgb(251 191 36 / 0.12), transparent 55%),
     linear-gradient(170deg, #1b2350, #0b1028);
 }
-.rc-board[data-theme="space"] {
+.rc-board[data-theme="space"], .rc-swatch[data-theme="space"] {
   background:
     radial-gradient(1px 1px at 12% 18%, #e0e7ff, transparent),
     radial-gradient(1px 1px at 72% 34%, #e0e7ff, transparent),
@@ -465,7 +475,7 @@
     radial-gradient(1px 1px at 88% 72%, #e0e7ff, transparent),
     radial-gradient(circle at 30% 20%, #1e1b4b, #050816 70%);
 }
-.rc-board[data-theme="fleet"] {
+.rc-board[data-theme="fleet"], .rc-swatch[data-theme="fleet"] {
   background:
     radial-gradient(circle at 20% 15%, rgb(255 255 255 / 0.07), transparent 40%),
     linear-gradient(160deg, #16506b, #0f3b52);
@@ -479,7 +489,7 @@
 
 .rc-cell {
   position: relative;
-  padding: calc(var(--rc-cell) * 0.04) calc(var(--rc-cell) * 0.04) calc(var(--rc-cell) * 0.14);
+  padding: calc(var(--rc-cell) * 0.04);
   border-radius: 0.6rem;
   transition: transform 120ms ease-out;
 }
@@ -487,25 +497,6 @@
 .rc-cell:focus-visible { outline: 2px solid #f0c27b; outline-offset: -2px; }
 .rc-cell[data-hint="true"] { box-shadow: inset 0 0 0 3px #f0c27b; animation: rc-hint 0.9s ease-in-out infinite; }
 .rc-cell [data-hit="true"] { animation: rc-hit 260ms ease-out; }
-
-/* How many hits are left, as four dots under each target. */
-.rc-pips {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: calc(var(--rc-cell, 3.5rem) * 0.03);
-  display: flex;
-  justify-content: center;
-  gap: calc(var(--rc-cell, 3.5rem) * 0.05);
-  pointer-events: none;
-}
-.rc-pips span {
-  width: calc(var(--rc-cell, 3.5rem) * 0.1);
-  height: calc(var(--rc-cell, 3.5rem) * 0.1);
-  border-radius: 9999px;
-  background: rgb(255 255 255 / 0.18);
-}
-.rc-pips span[data-on] { box-shadow: 0 0 4px currentColor; }
 
 .rc-flame { transform-origin: 50% 90%; animation: rc-flicker 0.9s ease-in-out infinite alternate; }
 .rc-smoke { animation: rc-drift 2.4s ease-in-out infinite alternate; }

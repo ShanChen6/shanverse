@@ -58,8 +58,8 @@ export const THEMES: Record<ThemeId, Theme> = {
     dealing: { vi: "Đang thả đèn xuống sông…", en: "Setting lanterns on the river…" },
     boardLabel: { vi: "Dòng sông 6×6. Chạm vào một chiếc đèn để châm lửa.", en: "A 6×6 river. Tap a lantern to light it." },
     tip: {
-      vi: "Chạm vào một chiếc đèn để châm lửa. Đèn còn 1 chấm được châm thêm sẽ bung pháo hoa ra bốn phía.",
-      en: "Tap a lantern to light it. A lantern with 1 dot left bursts into fireworks four ways when lit again.",
+      vi: "Chạm vào một chiếc đèn để châm lửa. Đèn rực rỡ được châm thêm sẽ bung pháo hoa ra bốn phía.",
+      en: "Tap a lantern to light it. A blazing lantern lit again bursts into fireworks four ways.",
     },
     winTitle: { vi: "Cả dòng sông rực sáng!", en: "The whole river is aglow!" },
     winText: { vi: "Thắp hết đèn với {used} mồi lửa, còn dư {left}.", en: "Every lantern lit with {used} sparks, {left} to spare." },
@@ -92,8 +92,8 @@ export const THEMES: Record<ThemeId, Theme> = {
     dealing: { vi: "Đang dò vành đai thiên thạch…", en: "Scanning the asteroid belt…" },
     boardLabel: { vi: "Vành đai thiên thạch 6×6. Chạm vào một thiên thạch để bắn tên lửa.", en: "A 6×6 asteroid belt. Tap an asteroid to fire a rocket." },
     tip: {
-      vi: "Chạm vào một thiên thạch để bắn tên lửa. Thiên thạch còn 1 chấm trúng thêm sẽ vỡ tung, bắn mảnh ra bốn phía.",
-      en: "Tap an asteroid to fire a rocket. One with 1 dot left shatters when hit again and throws shards four ways.",
+      vi: "Chạm vào một thiên thạch để bắn tên lửa. Thiên thạch sắp vỡ trúng thêm sẽ vỡ tung, bắn mảnh ra bốn phía.",
+      en: "Tap an asteroid to fire a rocket. A crumbling asteroid hit again shatters and throws shards four ways.",
     },
     winTitle: { vi: "Vành đai đã sạch bóng!", en: "The belt is clear!" },
     winText: { vi: "Phá hết thiên thạch với {used} tên lửa, còn dư {left}.", en: "Every asteroid gone with {used} rockets, {left} to spare." },
@@ -126,8 +126,8 @@ export const THEMES: Record<ThemeId, Theme> = {
     dealing: { vi: "Đang dàn trận…", en: "Lining up the fleet…" },
     boardLabel: { vi: "Đội thuyền 6×6. Chạm vào một thuyền để ném đuốc.", en: "A 6×6 fleet. Tap a ship to throw a torch." },
     tip: {
-      vi: "Chạm vào một thuyền để ném đuốc. Thuyền còn 1 chấm trúng thêm sẽ nổ và phóng lửa ra bốn phía.",
-      en: "Tap a ship to throw a torch. A ship with 1 dot left explodes when hit again and sends fire four ways.",
+      vi: "Chạm vào một thuyền để ném đuốc. Thuyền thiêu trụi trúng thêm sẽ nổ và phóng lửa ra bốn phía.",
+      en: "Tap a ship to throw a torch. A burnt-out ship hit again explodes and sends fire four ways.",
     },
     winTitle: { vi: "Đại thắng!", en: "Victory!" },
     winText: { vi: "Đốt sạch đội thuyền với {used} ngọn đuốc, còn dư {left}.", en: "The whole fleet burned with {used} torches, {left} to spare." },
@@ -150,3 +150,18 @@ export function fill(text: Text, lang: "vi" | "en", values: Record<string, strin
 
 /** A theme's name for a target at this strength (1 to 4), or for an empty cell (0). */
 export const stateText = (theme: Theme, strength: number): Text => (strength <= 0 ? theme.empty : theme.states[strength - 1]);
+
+/** Where the game keeps the chosen theme and speed (per browser). */
+export const PREFS_KEY = "shanverse:red-cliffs:prefs";
+/** Fired on window when the player picks a theme, so the rules' state list can follow. */
+export const THEME_EVENT = "red-cliffs:theme";
+
+/** The saved theme, or the default when nothing (valid) is saved or storage is unavailable. */
+export function readStoredTheme(): ThemeId {
+  try {
+    const value = JSON.parse(window.localStorage.getItem(PREFS_KEY) ?? "null") as { theme?: unknown } | null;
+    return isThemeId(value?.theme) ? value.theme : DEFAULT_THEME;
+  } catch {
+    return DEFAULT_THEME;
+  }
+}

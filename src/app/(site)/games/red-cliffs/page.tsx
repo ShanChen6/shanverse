@@ -5,6 +5,7 @@ import { buildPageMetadata } from "@/config/seo.config";
 import { ROUTES } from "@/constants/routes";
 import { GamePageShell } from "@/features/games/components/GamePageShell";
 import { RedCliffs } from "@/features/games/red-cliffs/RedCliffs";
+import { StateLegend } from "@/features/games/red-cliffs/StateLegend";
 import { getTranslator } from "@/i18n/server";
 
 const PATH = ROUTES.GAME_DETAIL("red-cliffs");
@@ -31,6 +32,7 @@ export default async function RedCliffsPage() {
       genre="Puzzle"
       steps={[t("games.rcHowHit"), t("games.rcHowChain"), t("games.rcHowOrder"), t("games.rcHowWin")]}
       savedNote={t("games.rcSavedNote")}
+      rulesExtra={<StateLegend />}
     >
       <RedCliffs />
     </GamePageShell>
