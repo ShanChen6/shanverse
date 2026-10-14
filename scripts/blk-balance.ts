@@ -5,6 +5,7 @@
 //   pnpm blk:balance                       # 120 games, medium vs medium
 //   pnpm blk:balance --games 20 --a hard --b medium
 //   pnpm blk:balance --worlds 2 --seed 7   # faster, less accurate AI
+//   pnpm blk:balance --aggr-a 0 --aggr-b 1 # cautious vs aggressive Tianwu
 //
 // Teams are random (from the whole roster), maps rotate, and the first move
 // alternates, so a monster's win rate is the share of games its team won.
@@ -21,6 +22,7 @@ const games = Number(args.get("games") ?? 120);
 const aLevel = (args.get("a") ?? "medium") as Difficulty;
 const bLevel = (args.get("b") ?? "medium") as Difficulty;
 const worlds = args.has("worlds") ? Number(args.get("worlds")) : undefined;
+const aggression = [args.get("aggr-a"), args.get("aggr-b")].map((v) => (v === undefined ? undefined : Number(v)));
 let seed = Number(args.get("seed") ?? 1);
 const random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
 
@@ -44,8 +46,9 @@ for (let g = 0; g < games; g++) {
   let end: Extract<GameEvent, { type: "end" }> | undefined;
   while (state.winner === null) {
     const side = state.toMove;
-    const level = side === aSide ? aLevel : bLevel;
-    const { action } = chooseAction(viewFor(state, side), level, random, worlds ? { worlds } : {});
+    const ai = side === aSide ? 0 : 1;
+    const overrides = { ...(worlds ? { worlds } : {}), ...(aggression[ai] !== undefined ? { aggression: aggression[ai] } : {}) };
+    const { action } = chooseAction(viewFor(state, side), ai === 0 ? aLevel : bLevel, random, overrides);
     const result = apply(state, action);
     state = result.state;
     end = result.events.find((e): e is Extract<GameEvent, { type: "end" }> => e.type === "end") ?? end;
@@ -80,7 +83,8 @@ const pct = (n: number, d: number) => (d ? `${((n / d) * 100).toFixed(0)}%` : "�
 /** Wins count 1, draws ½. */
 const score = (t: Tally) => (t.games ? (t.wins + t.draws / 2) / t.games : 0);
 
-console.log(`\nBách Linh Kỳ balance: ${games} games, ${aLevel} vs ${bLevel}${worlds ? `, ${worlds} worlds` : ""}, ${Math.round((Date.now() - started) / 1000)} s\n`);
+const aggrNote = aggression.some((a) => a !== undefined) ? `, aggression ${aggression[0] ?? "preset"} vs ${aggression[1] ?? "preset"}` : "";
+console.log(`\nBách Linh Kỳ balance: ${games} games, ${aLevel} vs ${bLevel}${worlds ? `, ${worlds} worlds` : ""}${aggrNote}, ${Math.round((Date.now() - started) / 1000)} s\n`);
 console.log(`${aLevel} (a) won ${levelStats.a}, ${bLevel} (b) won ${levelStats.b}, ${levelStats.draws} draws`);
 console.log(`First mover scored ${pct(firstMove.wins + firstMove.draws / 2, firstMove.games)} (50% means no first-move advantage)\n`);
 console.log("Map            games  avg turns  ended by elimination  draws");

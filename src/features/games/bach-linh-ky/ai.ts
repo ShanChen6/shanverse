@@ -32,12 +32,18 @@ export type AiOptions = {
   timeMs?: number;
   /** Chance of playing a random reasonable move instead (Easy). */
   looseness?: number;
+  /**
+   * How much Tianwu goes for the kill, 0 (cautious) to 1: it values taking
+   * enemy pieces above keeping its own, closes in on enemies, and counts
+   * every enemy still standing against itself.
+   */
+  aggression?: number;
 };
 
 export const PRESETS: Record<Difficulty, Required<AiOptions>> = {
-  easy: { worlds: 1, depth: 1, width: 99, timeMs: 400, looseness: 0.3 },
-  medium: { worlds: 4, depth: 2, width: 16, timeMs: 1200, looseness: 0 },
-  hard: { worlds: 6, depth: 3, width: 8, timeMs: 1400, looseness: 0 },
+  easy: { worlds: 1, depth: 1, width: 99, timeMs: 400, looseness: 0.3, aggression: 1 },
+  medium: { worlds: 4, depth: 2, width: 16, timeMs: 1200, looseness: 0, aggression: 1 },
+  hard: { worlds: 6, depth: 3, width: 8, timeMs: 1400, looseness: 0, aggression: 1 },
 };
 
 // --- 1. Guessing hidden monsters --------------------------------------------------
@@ -131,13 +137,23 @@ function unitValue(u: Unit): number {
  * own unused temple and toward the enemy, so quiet positions still have a
  * direction. Wins and losses dominate everything.
  */
-export function evaluate(state: GameState, side: Side): number {
+export function evaluate(state: GameState, side: Side, aggression = 0): number {
   if (state.winner !== null) return state.winner === "draw" ? 0 : state.winner === side ? WIN - state.turn : -WIN + state.turn;
   let score = 0;
   const temples = state.terrain.map((t, cell) => (t === "temple" ? cell : -1)).filter((cell) => cell >= 0);
+  const enemies = state.units.filter((u) => u.side !== side);
   for (const u of state.units) {
-    const sign = u.side === side ? 1 : -1;
-    score += sign * unitValue(u);
+    const mine = u.side === side;
+    const sign = mine ? 1 : -1;
+    // An aggressive Tianwu counts enemy pieces for more than its own (trades look good)
+    // and every enemy still on the board as a debt.
+    score += sign * unitValue(u) * (mine ? 1 : 1 + 0.35 * aggression);
+    if (!mine) score -= 6 * aggression;
+    // ...and closes in: each of its monsters wants to be near an enemy.
+    if (mine && aggression > 0 && enemies.length) {
+      const nearest = Math.min(...enemies.map((e) => reach(u.cell, e.cell)));
+      score += aggression * Math.max(0, 7 - nearest) * 0.5;
+    }
     const temple = temples.find((cell) => state.templeOwner[cell] === u.side);
     if (temple !== undefined && u.level < MAX_LEVEL) score += sign * Math.max(0, 6 - reach(u.cell, temple)) * 0.6;
   }
@@ -178,11 +194,11 @@ function orderKey(state: GameState, action: Action): number {
   return -1;
 }
 
-type SearchContext = { root: Side; width: number; deadline: number; nodes: number };
+type SearchContext = { root: Side; width: number; deadline: number; nodes: number; aggression: number };
 
 function search(state: GameState, depth: number, alpha: number, beta: number, ctx: SearchContext): number {
   ctx.nodes++;
-  if (depth === 0 || state.winner !== null) return evaluate(state, ctx.root);
+  if (depth === 0 || state.winner !== null) return evaluate(state, ctx.root, ctx.aggression);
   const maximizing = state.toMove === ctx.root;
   let actions = candidateActions(state);
   // Last ply: score every child once and take the best, no need to prune first.
@@ -190,14 +206,14 @@ function search(state: GameState, depth: number, alpha: number, beta: number, ct
     let best = maximizing ? -Infinity : Infinity;
     for (const action of actions) {
       ctx.nodes++;
-      const value = evaluate(apply(state, action).state, ctx.root);
+      const value = evaluate(apply(state, action).state, ctx.root, ctx.aggression);
       best = maximizing ? Math.max(best, value) : Math.min(best, value);
     }
     return best;
   }
   // Keep the most promising moves by a one-step score.
   if (actions.length > ctx.width) {
-    const scored = actions.map((action) => ({ action, score: evaluate(apply(state, action).state, ctx.root) }));
+    const scored = actions.map((action) => ({ action, score: evaluate(apply(state, action).state, ctx.root, ctx.aggression) }));
     scored.sort((a, b) => (maximizing ? b.score - a.score : a.score - b.score));
     actions = scored.slice(0, ctx.width).map((s) => s.action);
   } else {
@@ -241,7 +257,7 @@ export function chooseAction(view: View, difficulty: Difficulty, random: () => n
   for (let w = 0; w < options.worlds; w++) {
     if (w > 0 && now() > deadline) break;
     const world = w === 0 ? firstWorld : worldFrom(view, guessHidden(view, random) ?? new Map());
-    const ctx: SearchContext = { root: view.me, width: options.width, deadline, nodes: 0 };
+    const ctx: SearchContext = { root: view.me, width: options.width, deadline, nodes: 0, aggression: options.aggression };
     rootActions.forEach((action, i) => {
       const value = search(apply(world, action).state, options.depth - 1, -Infinity, Infinity, ctx);
       totals.set(i, (totals.get(i) ?? 0) + value);

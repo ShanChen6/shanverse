@@ -7,8 +7,9 @@
 //
 // A turn is one action by one monster: move (moving onto an enemy is a melee
 // attack), shoot (ranged attack), use its once-per-game ability, or pass.
-// Battles compare levels, adjusted by terrain and the five elements (khắc
-// +1, sinh +1 for a defender; see monsters.ts).
+// Battles compare levels, adjusted by terrain, the five elements (khắc +1,
+// sinh +1 for a defender; see monsters.ts) and đánh úp (+1 for attacking a
+// face-down monster).
 // Monsters are face down until they fight or use their ability; their level
 // is always shown (a Fox Spirit shows a false one). viewFor() gives what one
 // side can see, and that is all Tianwu is allowed to look at.
@@ -159,10 +160,13 @@ export const counterBonus = (u: Unit, foe: Unit) => (OVERCOMES[def(u).element] =
 export const feedBonus = (state: GameState, u: Unit) =>
   state.units.some((ally) => ally.side === u.side && ally.id !== u.id && reach(ally.cell, u.cell) === 1 && FEEDS[def(ally).element] === def(u).element) ? 1 : 0;
 
-/** The levels both sides fight at in one battle, with terrain, khắc and sinh. */
+/** +1 for attacking a monster that is still face down (đánh úp). */
+export const ambushBonus = (defender: Unit) => (defender.revealed ? 0 : 1);
+
+/** The levels both sides fight at in one battle, with terrain, khắc, sinh and đánh úp. Call it before the battle reveals anyone. */
 export function battleLevels(state: GameState, attacker: Unit, defender: Unit, melee: boolean): { attacker: number; defender: number } {
   return {
-    attacker: fightingLevel(state, attacker, melee ? defender.cell : attacker.cell) + counterBonus(attacker, defender),
+    attacker: fightingLevel(state, attacker, melee ? defender.cell : attacker.cell) + counterBonus(attacker, defender) + ambushBonus(defender),
     defender: fightingLevel(state, defender) + counterBonus(defender, attacker) + feedBonus(state, defender),
   };
 }
@@ -300,17 +304,17 @@ function visitTemple(state: GameState, u: Unit, events: GameEvent[]) {
 }
 
 /** Ranged attack: the target falls only if the shooter wins. A losing shot does nothing. */
-function rangedHit(state: GameState, attacker: Unit, target: Unit, power: number): BattleResult {
+function rangedHit(state: GameState, attacker: Unit, target: Unit, power: number, levels: { attacker: number; defender: number }): BattleResult {
   if (shielded(state, target)) return "blocked";
-  const { attacker: a, defender: d } = battleLevels(state, attacker, target, false);
+  const { attacker: a, defender: d } = levels;
   if (a > d) return "attacker";
   if (a < d) return "none";
   return power > (def(target).ranged?.power ?? 0) ? "attacker" : "none";
 }
 
 /** Melee: the higher level wins; at equal level the stronger fighter wins; a tie takes both. */
-function meleeResult(state: GameState, attacker: Unit, defender: Unit): BattleResult {
-  const { attacker: a, defender: d } = battleLevels(state, attacker, defender, true);
+function meleeResult(attacker: Unit, defender: Unit, levels: { attacker: number; defender: number }): BattleResult {
+  const { attacker: a, defender: d } = levels;
   if (a !== d) return a > d ? "attacker" : "defender";
   const am = def(attacker).melee;
   const dm = def(defender).melee;
@@ -352,10 +356,10 @@ export function apply(state: GameState, action: Action): { state: GameState; eve
         u.cell = action.to;
         visitTemple(next, u, events);
       } else {
+        const levels = battleLevels(next, u, enemy, true);
         reveal(u, events);
         reveal(enemy, events);
-        const levels = battleLevels(next, u, enemy, true);
-        const result = meleeResult(next, u, enemy);
+        const result = meleeResult(u, enemy, levels);
         events.push({ type: "battle", kind: "melee", attacker: u.id, defender: enemy.id, result, levels });
         if (result === "attacker" || result === "both") remove(enemy.id);
         if (result === "defender" || result === "both") remove(u.id);
@@ -370,10 +374,10 @@ export function apply(state: GameState, action: Action): { state: GameState; eve
       const target = unitAt(next, targetCell) as Unit;
       const power = action.kind === "shoot" ? (def(u).ranged?.power ?? 0) : (activeAbility(def(u)) as { power: number }).power;
       if (action.kind === "ability") u.abilityUsed = true;
+      const levels = battleLevels(next, u, target, false);
       reveal(u, events);
       reveal(target, events);
-      const levels = battleLevels(next, u, target, false);
-      const result = rangedHit(next, u, target, power);
+      const result = rangedHit(next, u, target, power, levels);
       events.push({ type: "battle", kind: "ranged", attacker: u.id, defender: target.id, result, levels });
       if (result === "attacker") remove(target.id);
     } else {
