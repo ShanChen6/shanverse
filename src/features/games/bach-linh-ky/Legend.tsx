@@ -32,6 +32,15 @@ export function Legend() {
             </li>
           ))}
         </ul>
+        <h3 className="pt-1 font-semibold">{t("games.blkLegendLinhDia")}</h3>
+        <ul className="space-y-1 text-foreground-secondary">
+          {(["Ore", "Forest", "Marsh", "Lava", "Mound"] as const).map((k) => (
+            <li key={k} className="flex gap-2">
+              <span aria-hidden="true" className="blk-swatch mt-0.5 shrink-0" data-terrain={k.toLowerCase()} />
+              <span>{t(`games.blkLegend${k}`)}</span>
+            </li>
+          ))}
+        </ul>
       </section>
       <section className="space-y-1.5">
         <h3 className="font-semibold">{t("games.blkLegendBonuses")}</h3>
