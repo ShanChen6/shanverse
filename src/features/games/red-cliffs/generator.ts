@@ -1,16 +1,16 @@
-// Random boards that are known to be winnable with the 8 torches, and known
-// not to be too easy:
-// - the beam search found a solution of 4 to 8 clicks (so 8 torches are
-//   enough: the solution is in hand), and
+// Random boards that are known to be winnable, and known not to be too easy:
+// - the beam search found a solution of 4 to 8 clicks (so the player's 10
+//   torches are more than enough: the solution is in hand), and
 // - the exhaustive search proved no 1-, 2- or 3-click solution exists.
 // Everything is seeded and deterministic (no time limits), so a seed always
 // rebuilds the same board.
 
-import { CELLS, MAX_STRENGTH, TORCHES, createRng, type Board } from "./logic";
+import { CELLS, MAX_STRENGTH, createRng, type Board } from "./logic";
 import { canClear, findSolution } from "./solver";
 
 export const MIN_CLICKS = 4;
-export const MAX_CLICKS = TORCHES;
+/** Boards need a known win in at most this many clicks; the player gets TORCHES (more). */
+export const MAX_CLICKS = 8;
 
 /**
  * Relative odds of each cell value: open water, then strengths 1 to 4.

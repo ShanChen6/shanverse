@@ -10,7 +10,6 @@ import { cn } from "@/lib/cn";
 import { randomSeed } from "./generator";
 import { CELLS, SIZE, TORCHES, fire, isCleared, shipsLeft, type Frame } from "./logic";
 import { AmmoIcon, Burst, Piece, Projectile } from "./pieces";
-import { EXACT_LIMIT } from "./solver";
 import { DEFAULT_THEME, PREFS_KEY, THEMES, THEME_EVENT, THEME_IDS, fill, isThemeId, stateText, type ThemeId } from "./themes";
 import { useRedCliffsEngine } from "./use-engine";
 
@@ -24,7 +23,8 @@ const SPEED_IDS = Object.keys(SPEEDS) as Speed[];
 const DX = [0, 0, -1, 1];
 const DY = [-1, 1, 0, 0];
 
-type Status = "playing" | "won" | "lost" | "stuck";
+/** The game only ends when the board is cleared (won) or every torch is used (lost). */
+type Status = "playing" | "won" | "lost";
 
 type Game = {
   seed: number;
@@ -83,7 +83,8 @@ function readSaved(): Saved {
     g.torches <= TORCHES &&
     typeof g.hintUsed === "boolean" &&
     ["playing", "won", "lost", "stuck"].includes(g.status)
-      ? g
+      ? // Older saves could end early as "stuck"; that now counts as a loss.
+        { ...g, status: (g.status as string) === "stuck" ? "lost" : g.status }
       : undefined;
   return { game, stats };
 }
@@ -114,7 +115,7 @@ function record(stats: Stats, game: Game): Stats {
  */
 type Anim = { frames: Frame[]; step: number; before: number[]; cell: number; after: Game };
 
-type HintNote = null | "shown" | "none";
+type HintNote = null | "shown" | "none" | "lost";
 
 export function RedCliffs() {
   const { t, locale } = useI18n();
@@ -122,7 +123,7 @@ export function RedCliffs() {
   const call = useRedCliffsEngine();
   const [saved, setSaved] = React.useState<Saved | null>(null);
   const [prefs, setPrefs] = React.useState<Prefs>({ theme: DEFAULT_THEME, speed: "normal" });
-  const [busy, setBusy] = React.useState<"dealing" | "hint" | "check" | null>(null);
+  const [busy, setBusy] = React.useState<"dealing" | "hint" | null>(null);
   const [error, setError] = React.useState(false);
   const [hintCell, setHintCell] = React.useState<number | null>(null);
   const [note, setNote] = React.useState<HintNote>(null);
@@ -173,9 +174,13 @@ export function RedCliffs() {
 
   const game = saved?.game;
 
-  /** After a click has fully played out: win, loss, or check whether a win is still possible. */
+  /**
+   * After a click has fully played out. The game is won once the board is
+   * clear, and lost only when every torch is used; a board that can no longer
+   * be won is still played to the end.
+   */
   const settle = React.useCallback(
-    async (current: Saved, after: Game) => {
+    (current: Saved, after: Game) => {
       if (isCleared(after.board)) {
         const done: Game = { ...after, status: "won" };
         commit({ game: done, stats: record(current.stats, done) });
@@ -187,17 +192,8 @@ export function RedCliffs() {
         return;
       }
       commit({ ...current, game: after });
-      if (after.torches <= EXACT_LIMIT) {
-        setBusy("check");
-        const response = await call({ kind: "check", board: after.board, torches: after.torches });
-        setBusy(null);
-        if (response.kind === "check" && !response.winnable) {
-          const done: Game = { ...after, status: "stuck" };
-          commit({ game: done, stats: record(current.stats, done) });
-        }
-      }
     },
-    [call, commit],
+    [commit],
   );
 
   // How long each step stays on screen: a tick, plus a pause when something burst.
@@ -217,7 +213,7 @@ export function RedCliffs() {
     const timer = window.setTimeout(() => {
       if (anim.step >= anim.frames.length) {
         setAnim(null);
-        void settle(saved, anim.after);
+        settle(saved, anim.after);
       } else {
         setAnim({ ...anim, step: anim.step + 1 });
       }
@@ -232,7 +228,7 @@ export function RedCliffs() {
     const result = fire(game.board, cell, !reducedMotion.current);
     const after: Game = { ...game, board: result.board, torches: game.torches - 1 };
     if (reducedMotion.current || !result.frames.length) {
-      void settle(saved, after);
+      settle(saved, after);
       return;
     }
     setAnim({ frames: result.frames, step: 0, before: game.board, cell, after });
@@ -242,7 +238,7 @@ export function RedCliffs() {
     if (!anim || !saved) return;
     const after = anim.after;
     setAnim(null);
-    void settle(saved, after);
+    settle(saved, after);
   };
 
   const onHint = async () => {
@@ -256,9 +252,10 @@ export function RedCliffs() {
       setHintCell(response.cell);
       setNote("shown");
     } else if (response.kind === "hint" && response.exact) {
-      // Proven: no way to win with what is left.
-      const done: Game = { ...used, status: "stuck" };
-      commit({ game: done, stats: record(saved.stats, done) });
+      // Proven: no way to win with what is left. Say so, but let the player
+      // keep going; the result comes when the torches run out.
+      commit({ ...saved, game: used });
+      setNote("lost");
     } else {
       commit({ ...saved, game: used });
       setNote("none");
@@ -486,10 +483,10 @@ export function RedCliffs() {
             replayLabel={t("games.rcReplay")}
             newLabel={t("games.rcNew")}
           />
-        ) : game.status === "stuck" ? (
+        ) : note === "lost" ? (
           <EndPanel
             title={t("games.rcStuckTitle", { name: MASCOT_NAME })}
-            text={fill(theme.stuckText, lang, { n: game.torches })}
+            text={`${fill(theme.stuckText, lang, { n: game.torches })} ${t("games.rcKeepGoing")}`}
             onReplay={onReplay}
             onNew={onNew}
             replayLabel={t("games.rcReplay")}

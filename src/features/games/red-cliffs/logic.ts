@@ -16,7 +16,8 @@
 
 export const SIZE = 6;
 export const CELLS = SIZE * SIZE;
-export const TORCHES = 8;
+/** Torches per game. Boards are made to be winnable in 4 to 8 (generator.ts), so 10 leaves room for mistakes. */
+export const TORCHES = 10;
 export const MAX_STRENGTH = 4;
 
 /** Ship strengths, one per cell, row by row. 0 is open water. */
