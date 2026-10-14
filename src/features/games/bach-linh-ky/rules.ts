@@ -7,15 +7,18 @@
 //
 // A turn is one action by one monster: move (moving onto an enemy is a melee
 // attack), shoot (ranged attack), use its once-per-game ability, or pass.
+// Battles compare levels, adjusted by terrain, the five elements (khắc +1,
+// sinh +1 for a defender; see monsters.ts) and đánh úp (+1 for attacking a
+// face-down monster).
 // Monsters are face down until they fight or use their ability; their level
 // is always shown (a Fox Spirit shows a false one). viewFor() gives what one
 // side can see, and that is all Tianwu is allowed to look at.
 
 import { MAP_BY_ID, SIZE, buildBoard, type Terrain } from "./maps";
-import { LEVELS, activeAbility, hasAbility, monster, type Monster } from "./monsters";
+import { FEEDS, LEVELS, OVERCOMES, activeAbility, hasAbility, monster, type Monster } from "./monsters";
 
 export type Side = 0 | 1;
-export const MAX_TURNS = 60;
+export const MAX_TURNS = 80;
 export const MAX_LEVEL = 6;
 export const CELLS = SIZE * SIZE;
 
@@ -52,7 +55,7 @@ export type BattleResult = "attacker" | "defender" | "both" | "none" | "blocked"
 
 export type GameEvent =
   | { type: "move"; unit: number; from: number; to: number }
-  | { type: "battle"; kind: "melee" | "ranged"; attacker: number; defender: number; result: BattleResult }
+  | { type: "battle"; kind: "melee" | "ranged"; attacker: number; defender: number; result: BattleResult; levels: { attacker: number; defender: number } }
   | { type: "reveal"; unit: number }
   | { type: "evolve"; unit: number; level: number }
   | { type: "terraform"; unit: number; cells: number[]; to: "river" | "mountain" }
@@ -148,6 +151,24 @@ const def = (u: Unit): Monster => monster(u.monster);
 export function fightingLevel(state: GameState, u: Unit, cell = u.cell): number {
   const bonus = state.terrain[cell] === "river" ? (hasAbility(def(u), "river-bonus")?.levels ?? 0) : 0;
   return u.level + bonus;
+}
+
+/** +1 when this monster's element overcomes (khắc) the foe's. */
+export const counterBonus = (u: Unit, foe: Unit) => (OVERCOMES[def(u).element] === def(foe).element ? 1 : 0);
+
+/** +1 for a defender standing next to an ally whose element feeds (sinh) its own. Does not stack. */
+export const feedBonus = (state: GameState, u: Unit) =>
+  state.units.some((ally) => ally.side === u.side && ally.id !== u.id && reach(ally.cell, u.cell) === 1 && FEEDS[def(ally).element] === def(u).element) ? 1 : 0;
+
+/** +1 for attacking a monster that is still face down (đánh úp). */
+export const ambushBonus = (defender: Unit) => (defender.revealed ? 0 : 1);
+
+/** The levels both sides fight at in one battle, with terrain, khắc, sinh and đánh úp. Call it before the battle reveals anyone. */
+export function battleLevels(state: GameState, attacker: Unit, defender: Unit, melee: boolean): { attacker: number; defender: number } {
+  return {
+    attacker: fightingLevel(state, attacker, melee ? defender.cell : attacker.cell) + counterBonus(attacker, defender) + ambushBonus(defender),
+    defender: fightingLevel(state, defender) + counterBonus(defender, attacker) + feedBonus(state, defender),
+  };
 }
 
 /** True if ranged attacks cannot touch this monster where it stands. */
@@ -283,19 +304,17 @@ function visitTemple(state: GameState, u: Unit, events: GameEvent[]) {
 }
 
 /** Ranged attack: the target falls only if the shooter wins. A losing shot does nothing. */
-function rangedHit(state: GameState, attacker: Unit, target: Unit, power: number): BattleResult {
+function rangedHit(state: GameState, attacker: Unit, target: Unit, power: number, levels: { attacker: number; defender: number }): BattleResult {
   if (shielded(state, target)) return "blocked";
-  const a = fightingLevel(state, attacker);
-  const d = fightingLevel(state, target);
+  const { attacker: a, defender: d } = levels;
   if (a > d) return "attacker";
   if (a < d) return "none";
   return power > (def(target).ranged?.power ?? 0) ? "attacker" : "none";
 }
 
 /** Melee: the higher level wins; at equal level the stronger fighter wins; a tie takes both. */
-function meleeResult(state: GameState, attacker: Unit, defender: Unit): BattleResult {
-  const a = fightingLevel(state, attacker, defender.cell);
-  const d = fightingLevel(state, defender);
+function meleeResult(attacker: Unit, defender: Unit, levels: { attacker: number; defender: number }): BattleResult {
+  const { attacker: a, defender: d } = levels;
   if (a !== d) return a > d ? "attacker" : "defender";
   const am = def(attacker).melee;
   const dm = def(defender).melee;
@@ -337,10 +356,11 @@ export function apply(state: GameState, action: Action): { state: GameState; eve
         u.cell = action.to;
         visitTemple(next, u, events);
       } else {
+        const levels = battleLevels(next, u, enemy, true);
         reveal(u, events);
         reveal(enemy, events);
-        const result = meleeResult(next, u, enemy);
-        events.push({ type: "battle", kind: "melee", attacker: u.id, defender: enemy.id, result });
+        const result = meleeResult(u, enemy, levels);
+        events.push({ type: "battle", kind: "melee", attacker: u.id, defender: enemy.id, result, levels });
         if (result === "attacker" || result === "both") remove(enemy.id);
         if (result === "defender" || result === "both") remove(u.id);
         if (result === "attacker") {
@@ -354,10 +374,11 @@ export function apply(state: GameState, action: Action): { state: GameState; eve
       const target = unitAt(next, targetCell) as Unit;
       const power = action.kind === "shoot" ? (def(u).ranged?.power ?? 0) : (activeAbility(def(u)) as { power: number }).power;
       if (action.kind === "ability") u.abilityUsed = true;
+      const levels = battleLevels(next, u, target, false);
       reveal(u, events);
       reveal(target, events);
-      const result = rangedHit(next, u, target, power);
-      events.push({ type: "battle", kind: "ranged", attacker: u.id, defender: target.id, result });
+      const result = rangedHit(next, u, target, power, levels);
+      events.push({ type: "battle", kind: "ranged", attacker: u.id, defender: target.id, result, levels });
       if (result === "attacker") remove(target.id);
     } else {
       const ability = activeAbility(def(u)) as Extract<ReturnType<typeof activeAbility>, { kind: "terraform" }>;
@@ -393,6 +414,8 @@ export type UnitView = {
   cell: number;
   /** The level this side sees: the real one, except a face-down enemy Fox Spirit shows a false one. */
   level: number;
+  /** Temple evolutions so far. Public: everyone sees a monster step onto a temple. */
+  evolved: number;
   /** null for a face-down enemy. */
   monster: string | null;
   revealed: boolean;
@@ -414,7 +437,8 @@ export function viewFor(state: GameState, side: Side): View {
       const hidden = u.side !== side && !u.revealed;
       const fake = hasAbility(def(u), "fake-level");
       const shownLevel = hidden && fake ? fake.shown + (u.level - def(u).level) : u.level;
-      return { id: u.id, side: u.side, cell: u.cell, level: shownLevel, monster: hidden ? null : u.monster, revealed: u.revealed, abilityUsed: u.abilityUsed };
+      const evolved = u.level - def(u).level;
+      return { id: u.id, side: u.side, cell: u.cell, level: shownLevel, evolved, monster: hidden ? null : u.monster, revealed: u.revealed, abilityUsed: u.abilityUsed };
     }),
   };
 }
