@@ -101,10 +101,21 @@ export function guessHidden(view: View, random: () => number): Map<number, strin
 export function worldFrom(view: View, guess: Map<number, string>): GameState {
   const units: Unit[] = view.units.map((u) => {
     const id = u.monster ?? guess.get(u.id) ?? fallbackFor(u.level - u.evolved);
-    return { id: u.id, side: u.side, monster: id, level: Math.min(MAX_LEVEL, monster(id).level + u.evolved), cell: u.cell, revealed: u.revealed, abilityUsed: u.abilityUsed };
+    return {
+      id: u.id,
+      side: u.side,
+      monster: id,
+      level: Math.min(MAX_LEVEL, monster(id).level + u.evolved),
+      cell: u.cell,
+      revealed: u.revealed,
+      abilityUsed: u.abilityUsed,
+      boundUntil: u.boundUntil,
+      sealed: u.sealed,
+      revived: u.revived,
+    };
   });
   const { me: _me, units: _units, ...rest } = view;
-  return { ...rest, terrain: view.terrain.slice(), templeOwner: view.templeOwner.slice(), units };
+  return { ...rest, terrain: view.terrain.slice(), templeOwner: view.templeOwner.slice(), fallen: view.fallen?.slice(), units };
 }
 
 const fallbackFor = (level: number) => (MONSTERS.find((m) => m.level === Math.max(1, Math.min(5, level))) as Monster).id;
@@ -127,7 +138,11 @@ function unitValue(u: Unit): number {
   const m = monster(u.monster);
   let value = LEVEL_VALUE[Math.min(u.level, MAX_LEVEL)] + m.melee * 0.8;
   if (m.ranged) value += 2 + m.ranged.range;
-  if (activeAbility(m) && !u.abilityUsed) value += 3;
+  if (!u.sealed) {
+    if (activeAbility(m) && !u.abilityUsed) value += 3;
+    if (m.abilities.some((a) => a.kind === "aura" || a.kind === "guard-ranged")) value += 2;
+    if (m.abilities.some((a) => a.kind === "revive") && !u.revived) value += LEVEL_VALUE[Math.min(u.level, MAX_LEVEL)] / 2;
+  }
   if (!u.revealed) value += 1.5; // being unknown to the opponent is worth something
   return value;
 }

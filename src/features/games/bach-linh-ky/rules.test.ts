@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { MAPS, SIZE, buildBoard, type Terrain } from "./maps";
-import { ELEMENTS, LEVELS, MONSTERS, STARTERS, activeAbility, monster } from "./monsters";
+import { ACTIVE_KINDS, ELEMENTS, LEVELS, MONSTERS, PARTNERS, RIVALS, STARTERS, activeAbility, hasAbility, monster } from "./monsters";
 import {
   MAX_TURNS,
   apply,
@@ -22,6 +22,7 @@ import {
   type GameState,
   type Side,
   type Unit,
+  shielded,
 } from "./rules";
 
 // --- Helpers ----------------------------------------------------------------------
@@ -62,14 +63,16 @@ const random = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
 
 // --- Data -------------------------------------------------------------------------
 
-test("the roster: 15 monsters, three per level, unique ids, one starter per level", () => {
-  assert.equal(MONSTERS.length, 15);
+test("the roster: 50 monsters, two for every element and level, unique ids, one starter per level", () => {
+  assert.equal(MONSTERS.length, 50);
   assert.equal(new Set(MONSTERS.map((m) => m.id)).size, MONSTERS.length);
-  for (const level of LEVELS) assert.equal(MONSTERS.filter((m) => m.level === level).length, 3, `level ${level}`);
+  for (const level of LEVELS) {
+    for (const element of ELEMENTS) assert.equal(MONSTERS.filter((m) => m.level === level && m.element === element).length, 2, `${element} level ${level}`);
+  }
   assert.deepEqual(STARTERS.map((id) => monster(id).level).sort(), [...LEVELS]);
   for (const m of MONSTERS) {
     assert.equal(m.abilityText.length, m.abilities.length, `${m.id}: one text per ability`);
-    assert.ok(m.abilities.filter((a) => a.kind === "terraform" || a.kind === "strike").length <= 1, `${m.id}: at most one active ability`);
+    assert.ok(m.abilities.filter((a) => (ACTIVE_KINDS as readonly string[]).includes(a.kind)).length <= 1, `${m.id}: at most one active ability`);
     assert.ok(m.steps >= 1 && m.steps <= 3, `${m.id}: steps`);
     assert.ok(m.name.vi && m.name.en && m.lore.vi && m.lore.en, `${m.id}: texts`);
   }
@@ -113,7 +116,7 @@ test("every map is mirrored, fair and open", () => {
 
 test("a team is five monsters, one of each level", () => {
   assert.deepEqual(teamProblems(STARTERS), []);
-  assert.ok(teamProblems(["rua-con", "coc-tia", "lan", "son-tinh", "thanh-giong"]).length, "two level 1s, no level 2");
+  assert.ok(teamProblems(["rua-con", "coc-tia", "lan", "son-tinh", "phu-dong"]).length, "two level 1s, no level 3");
   assert.ok(teamProblems(STARTERS.slice(0, 4)).length);
 });
 
@@ -201,55 +204,56 @@ test("melee: attacking a stronger monster loses the attacker", () => {
 });
 
 test("melee at equal level: stronger melee wins, a tie takes both", () => {
-  const strong = faceUp(position([[0, "chan-tinh", "3,4"], [1, "lan", "3,3"]]));
-  assert.deepEqual(play(strong, { kind: "move", unit: 0, to: at(3, 3) }).state.units.map((u) => u.monster), ["chan-tinh"]);
-  const weak = faceUp(position([[0, "lan", "3,4"], [1, "chan-tinh", "3,3"]]));
-  assert.deepEqual(play(weak, { kind: "move", unit: 0, to: at(3, 3) }).state.units.map((u) => u.monster), ["chan-tinh"]);
+  // Elephant (Thổ 3, melee 5) and Từ Đạo Hạnh (Thổ 3, melee 2): same element, no bonus.
+  const strong = faceUp(position([[0, "voi-chin-nga", "3,4"], [1, "tu-dao-hanh", "3,3"]]));
+  assert.deepEqual(play(strong, { kind: "move", unit: 0, to: at(3, 3) }).state.units.map((u) => u.monster), ["voi-chin-nga"]);
+  const weak = faceUp(position([[0, "tu-dao-hanh", "3,4"], [1, "voi-chin-nga", "3,3"]]));
+  assert.deepEqual(play(weak, { kind: "move", unit: 0, to: at(3, 3) }).state.units.map((u) => u.monster), ["voi-chin-nga"]);
   const tie = faceUp(position([[0, "lan", "3,4"], [1, "lan", "3,3"], [1, "rua-con", "0,0"]]));
   assert.deepEqual(play(tie, { kind: "move", unit: 0, to: at(3, 3) }).state.units.map((u) => u.monster), ["rua-con"]);
 });
 
 test("Ma Da fights a level higher on a river", () => {
   const rows = ["........", "........", "........", "...~....", "........", "........", "........", "........"];
-  // Ma Da (level 1, melee 3) on a river fights as level 2, beating a level-2 Tree Spirit (melee 1).
-  const state = faceUp(position([[0, "ma-da", "3,3"], [1, "moc-tinh", "3,2"]], rows, 1));
+  // Ma Da (level 1, melee 3) on a river fights as level 2, beating Cuội (Mộc 2, melee 2).
+  const state = faceUp(position([[0, "ma-da", "3,3"], [1, "chu-cuoi", "3,2"]], rows, 1));
   const { state: after } = play(state, { kind: "move", unit: 1, to: at(3, 3) });
   assert.deepEqual(after.units.map((u) => u.monster), ["ma-da"]);
   // On plain ground it is just level 1.
-  const dry = faceUp(position([[0, "ma-da", "3,3"], [1, "moc-tinh", "3,2"]], undefined, 1));
-  assert.deepEqual(play(dry, { kind: "move", unit: 1, to: at(3, 3) }).state.units.map((u) => u.monster), ["moc-tinh"]);
+  const dry = faceUp(position([[0, "ma-da", "3,3"], [1, "chu-cuoi", "3,2"]], undefined, 1));
+  assert.deepEqual(play(dry, { kind: "move", unit: 1, to: at(3, 3) }).state.units.map((u) => u.monster), ["chu-cuoi"]);
 });
 
 test("ranged: in reach only; a lower level falls, a higher one shrugs it off", () => {
-  // Wood Spirit (Mộc 2) against a toad (Hỏa 1) and an ogre (Mộc 3): no element bonus either way.
-  const state = faceUp(position([[0, "moc-tinh", "3,5"], [1, "rua-con", "0,0"], [1, "coc-tia", "3,3"], [1, "chan-tinh", "5,4"]]));
+  // Mai An Tiêm (Thủy 2, ranged 2) against a toad (Hỏa 1) and a Roof Guardian (Kim 3).
+  const state = faceUp(position([[0, "mai-an-tiem", "3,5"], [1, "rua-con", "0,0"], [1, "coc-tia", "3,3"], [1, "con-kim", "5,4"]]));
   const targets = legalActions(state).filter((a) => a.kind === "shoot").map((a) => (a as { target: number }).target);
   assert.deepEqual(new Set(targets), new Set([at(3, 3), at(5, 4)]), "range 2, diagonals count as one");
-  assert.deepEqual(play(state, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.map((u) => u.monster).sort(), ["chan-tinh", "moc-tinh", "rua-con"]);
+  assert.deepEqual(play(state, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.map((u) => u.monster).sort(), ["con-kim", "mai-an-tiem", "rua-con"]);
   const { state: after, events } = play(state, { kind: "shoot", unit: 0, target: at(5, 4) });
   assert.equal(after.units.length, 4, "a lower-level shooter neither kills nor dies");
   assert.ok(events.some((e) => e.type === "battle" && e.result === "none"));
 });
 
 test("ranged at equal level compares ranged strength; the loser of a shot is unharmed", () => {
-  // Dragon (Mộc, ranged 3) vs a Water God evolved to level 5 (Thủy, ranged 2); neither element overcomes the other.
+  // Dragon Lord (Thủy, ranged 3) vs a Water God evolved to level 5 (Thủy, ranged 2): same element.
   const evolved = (s: GameState) => (s.units.find((u) => u.monster === "thuy-tinh")!.level = 5, s);
-  const state = evolved(faceUp(position([[0, "rong", "3,5"], [1, "thuy-tinh", "3,3"]])));
+  const state = evolved(faceUp(position([[0, "lac-long-quan", "3,5"], [1, "thuy-tinh", "3,3"]])));
   assert.equal(play(state, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.length, 1);
-  const back = evolved(faceUp(position([[0, "thuy-tinh", "3,5"], [1, "rong", "3,3"]])));
+  const back = evolved(faceUp(position([[0, "thuy-tinh", "3,5"], [1, "lac-long-quan", "3,3"]])));
   assert.equal(play(back, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.length, 2);
 });
 
 test("shells, shrines and a Lân next door block ranged attacks, and give the target away", () => {
-  const shell = position([[0, "moc-tinh", "3,5"], [1, "rua-con", "3,3"]]);
+  const shell = position([[0, "mai-an-tiem", "3,5"], [1, "rua-con", "3,3"]]);
   const { state: a, events } = play(shell, { kind: "shoot", unit: 0, target: at(3, 3) });
   assert.equal(a.units.length, 2);
   assert.ok(events.some((e) => e.type === "battle" && e.result === "blocked"));
   assert.equal(a.units.find((u) => u.side === 1)?.revealed, true, "the shell shows what it is");
   const rows = ["........", "........", "........", "...m....", "........", "........", "........", "........"];
-  const shrine = position([[0, "moc-tinh", "3,5"], [1, "coc-tia", "3,3"]], rows);
+  const shrine = position([[0, "mai-an-tiem", "3,5"], [1, "coc-tia", "3,3"]], rows);
   assert.equal(play(shrine, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.length, 2);
-  const guarded = position([[0, "moc-tinh", "3,5"], [1, "coc-tia", "3,3"], [1, "lan", "4,2"]]);
+  const guarded = position([[0, "mai-an-tiem", "3,5"], [1, "coc-tia", "3,3"], [1, "lan", "4,2"]]);
   assert.equal(play(guarded, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.length, 3);
 });
 
@@ -271,7 +275,7 @@ test("a monster on its own side's temple gains a level and uses the temple up", 
 
 test("evolution stops at level 6", () => {
   const rows = ["........", "........", "...a....", "........", "........", "........", "........", "........"];
-  const state = position([[0, "thanh-giong", "3,3"], [1, "rua-con", "0,7"]], rows);
+  const state = position([[0, "phu-dong", "3,3"], [1, "rua-con", "0,7"]], rows);
   state.units[0].level = 6;
   assert.equal(play(state, { kind: "move", unit: 0, to: at(3, 2) }).state.units[0].level, 6);
 });
@@ -303,18 +307,20 @@ test("the Water God floods up to three cells around it, even under monsters", ()
   assert.deepEqual([at(2, 2), at(4, 3), at(4, 4)].map((c) => after.terrain[c]), ["river", "river", "river"]);
 });
 
-test("Saint Gióng's bamboo sweep is a once-only strength-5 shot up to 3 cells", () => {
-  const state = position([[0, "thanh-giong", "3,6"], [1, "phuong-hoang", "3,3"], [1, "rua-con", "0,0"]]);
+test("the Thunder God's bolt is a once-only strength-4 shot up to 4 cells", () => {
+  const state = faceUp(position([[0, "than-set", "3,7"], [1, "nghe", "3,3"], [1, "rua-con", "0,0"]]));
+  assert.equal(isLegal(state, { kind: "ability", unit: 0, cells: [at(0, 0)] }), false, "7 away");
   const { state: after } = play(state, { kind: "ability", unit: 0, cells: [at(3, 3)] });
-  assert.deepEqual(after.units.map((u) => u.monster).sort(), ["rua-con", "thanh-giong"]);
-  assert.equal(after.units.find((u) => u.monster === "thanh-giong")?.abilityUsed, true);
-  assert.equal(activeAbility(monster("thanh-giong"))?.kind, "strike");
+  // Level 4 against level 4: the bolt's strength 4 beats the Nghê's 0.
+  assert.deepEqual(after.units.map((u) => u.monster).sort(), ["rua-con", "than-set"]);
+  assert.equal(after.units.find((u) => u.monster === "than-set")?.abilityUsed, true);
+  assert.equal(activeAbility(monster("than-set"))?.kind, "strike");
 });
 
 // --- Hidden information -------------------------------------------------------------
 
 test("each side sees its own monsters, and only levels of face-down enemies", () => {
-  const state = position([[0, "lan", "3,6"], [1, "chan-tinh", "3,1"], [1, "ho-tinh", "5,1"]]);
+  const state = position([[0, "lan", "3,6"], [1, "voi-chin-nga", "3,1"], [1, "ho-tinh", "5,1"]]);
   const mine = viewFor(state, 0);
   assert.equal(mine.units.find((u) => u.id === 0)?.monster, "lan");
   assert.equal(mine.units.find((u) => u.id === 1)?.monster, null);
@@ -322,14 +328,14 @@ test("each side sees its own monsters, and only levels of face-down enemies", ()
   assert.equal(mine.units.find((u) => u.id === 2)?.level, 3, "the Fox Spirit shows a false level 3");
   assert.equal(viewFor(state, 1).units.find((u) => u.id === 2)?.level, 2, "its owner sees the truth");
   // Nothing in the view leaks a hidden identity.
-  assert.ok(!JSON.stringify(mine).includes("chan-tinh"));
+  assert.ok(!JSON.stringify(mine).includes("voi-chin-nga"));
   assert.ok(!JSON.stringify(mine).includes("ho-tinh"));
 });
 
 test("a revealed enemy shows its name and true level", () => {
-  const state = position([[0, "moc-tinh", "3,5"], [1, "ho-tinh", "3,3"]]);
+  const state = position([[0, "mai-an-tiem", "3,5"], [1, "ho-tinh", "3,3"]]);
   const after = play(state, { kind: "shoot", unit: 0, target: at(3, 3) }).state;
-  // Equal level 2, but the Fox Spirit has no ranged strength: it falls.
+  // Water puts out Fire and the fox was face down: 4 against its true level 2.
   assert.equal(after.units.length, 1);
   const tie = position([[0, "lan", "3,5"], [1, "ho-tinh", "3,4"]]);
   const won = play(tie, { kind: "move", unit: 0, to: at(3, 4) }).state;
@@ -352,7 +358,7 @@ test("after the last turn, the larger total level wins", () => {
   const { state: after, events } = play(state, { kind: "pass" });
   assert.equal(after.winner, 0);
   assert.ok(events.some((e) => e.type === "end" && e.reason === "turns"));
-  const even = position([[0, "lan", "0,7"], [1, "chan-tinh", "7,0"]]);
+  const even = position([[0, "lan", "0,7"], [1, "ho-tinh", "7,0"]]);
   even.turn = MAX_TURNS - 1;
   assert.equal(play(even, { kind: "pass" }).state.winner, "draw");
 });
@@ -386,7 +392,7 @@ test("random games on every map keep every rule and always end", () => {
         assert.equal(new Set(cells).size, cells.length, `${map.id}: two monsters on one cell`);
         for (const u of state.units) {
           assert.ok(u.level >= monster(u.monster).level && u.level <= 6, `${map.id}: level ${u.level}`);
-          if (state.terrain[u.cell] === "mountain") assert.equal(u.monster, "son-tinh", `${map.id}: only the Mountain God stands on a mountain`);
+          if (state.terrain[u.cell] === "mountain") assert.ok(hasAbility(monster(u.monster), "walk-mountain"), `${map.id}: only climbers stand on a mountain`);
         }
         assert.ok(state.turn <= MAX_TURNS);
       }
@@ -395,20 +401,23 @@ test("random games on every map keep every rule and always end", () => {
 });
 
 test("khắc: an element that overcomes its foe fights one level higher", () => {
-  // Fox Spirit (Hỏa 2, melee 3) attacks Iron Horse (Kim 3, melee 2): Hỏa nung Kim makes it 3 vs 3, and melee 3 beats 2.
-  const state = faceUp(position([[0, "ho-tinh", "3,5"], [1, "ngua-sat", "3,4"], [1, "rua-con", "0,0"]]));
+  // Fox Spirit (Hỏa 2, melee 3) attacks Cao Biền (Kim 3, melee 2): Hỏa nung Kim makes it 3 vs 3, and melee 3 beats 2.
+  const state = faceUp(position([[0, "ho-tinh", "3,5"], [1, "cao-bien", "3,4"], [1, "rua-con", "0,0"]]));
   const { state: after, events } = play(state, { kind: "move", unit: 0, to: at(3, 4) });
   assert.deepEqual(after.units.map((u) => u.monster).sort(), ["ho-tinh", "rua-con"]);
   const battle = events.find((e) => e.type === "battle");
   assert.deepEqual(battle?.type === "battle" && battle.levels, { attacker: 3, defender: 3 });
-  // Without the counter (Wood Spirit, Mộc 2) the higher level simply wins.
-  const plain = faceUp(position([[0, "moc-tinh", "3,5"], [1, "ngua-sat", "3,4"], [1, "rua-con", "0,0"]]));
-  assert.deepEqual(play(plain, { kind: "move", unit: 0, to: at(3, 4) }).state.units.map((u) => u.monster).sort(), ["ngua-sat", "rua-con"]);
+  // The other way round, Metal overcomes Wood: Cuội (Mộc 2) against Cao Biền is 2 vs 4.
+  const plain = faceUp(position([[0, "chu-cuoi", "3,5"], [1, "cao-bien", "3,4"], [1, "rua-con", "0,0"]]));
+  const lost = play(plain, { kind: "move", unit: 0, to: at(3, 4) });
+  assert.deepEqual(lost.state.units.map((u) => u.monster).sort(), ["cao-bien", "rua-con"]);
+  const fight = lost.events.find((e) => e.type === "battle");
+  assert.deepEqual(fight?.type === "battle" && fight.levels, { attacker: 2, defender: 4 });
 });
 
 test("khắc works on defence and on ranged attacks too", () => {
-  // Water God (Thủy 4) shoots a Phoenix (Hỏa 4): Thủy dập Hỏa, 5 vs 4.
-  const shot = faceUp(position([[0, "thuy-tinh", "3,5"], [1, "phuong-hoang", "3,3"]]));
+  // Water God (Thủy 4) shoots the Thunder God (Hỏa 4): Thủy dập Hỏa, 5 vs 4.
+  const shot = faceUp(position([[0, "thuy-tinh", "3,5"], [1, "than-set", "3,3"]]));
   assert.equal(play(shot, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.length, 1);
   // Phoenix shoots the Water God: 4 vs 5, nothing happens.
   const back = faceUp(position([[0, "phuong-hoang", "3,5"], [1, "thuy-tinh", "3,3"]]));
@@ -416,10 +425,10 @@ test("khắc works on defence and on ranged attacks too", () => {
 });
 
 test("sinh: a defender next to an ally that feeds its element defends one level higher", () => {
-  // Fox Spirit attacks the Iron Horse again, but a Lân (Thổ sinh Kim) stands beside the horse: 3 vs 4.
-  const state = faceUp(position([[0, "ho-tinh", "3,5"], [1, "ngua-sat", "3,4"], [1, "lan", "4,3"]]));
+  // Fox Spirit attacks Cao Biền again, but a Lân (Thổ sinh Kim) stands beside him: 3 vs 4.
+  const state = faceUp(position([[0, "ho-tinh", "3,5"], [1, "cao-bien", "3,4"], [1, "lan", "4,3"]]));
   const { state: after, events } = play(state, { kind: "move", unit: 0, to: at(3, 4) });
-  assert.deepEqual(after.units.map((u) => u.monster).sort(), ["lan", "ngua-sat"]);
+  assert.deepEqual(after.units.map((u) => u.monster).sort(), ["cao-bien", "lan"]);
   const battle = events.find((e) => e.type === "battle");
   assert.deepEqual(battle?.type === "battle" && battle.levels, { attacker: 3, defender: 4 });
   // Only on defence, and two feeders do not stack.
@@ -434,21 +443,17 @@ test("a face-down monster's element is hidden", () => {
   assert.ok(enemy && !("element" in enemy));
 });
 
-test("the five elements: three monsters each, spread over the levels", () => {
-  for (const element of ELEMENTS) {
-    const members = MONSTERS.filter((m) => m.element === element);
-    assert.equal(members.length, 3, element);
-    assert.equal(new Set(members.map((m) => m.level)).size, 3, `${element}: three different levels`);
-  }
+test("partners and rivals name real monsters at different levels", () => {
+  for (const [a, b] of [...PARTNERS, ...RIVALS]) assert.notEqual(monster(a).level, monster(b).level, `${a} + ${b} can share a team`);
 });
 
 test("đánh úp: attacking a face-down monster gives +1", () => {
-  // Wood Spirit (Mộc 2) attacks a face-down ogre (Mộc 3, melee 5): 3 vs 3, and melee 1 < 5, so the spirit falls.
-  const hidden = position([[0, "moc-tinh", "3,5"], [1, "chan-tinh", "3,4"], [1, "rua-con", "0,0"]]);
+  // Sand Crab (Thủy 2, melee 3) attacks a face-down Buffalo Spirit (Thủy 3, melee 5): 3 vs 3, and 3 < 5, so the crab falls.
+  const hidden = position([[0, "da-trang", "3,5"], [1, "nguu-tinh", "3,4"], [1, "rua-con", "0,0"]]);
   const { state: after, events } = play(hidden, { kind: "move", unit: 0, to: at(3, 4) });
   const battle = events.find((e) => e.type === "battle");
   assert.deepEqual(battle?.type === "battle" && battle.levels, { attacker: 3, defender: 3 });
-  assert.ok(!after.units.some((u) => u.monster === "moc-tinh"));
+  assert.ok(!after.units.some((u) => u.monster === "da-trang"));
   // Ambush a face-down toad (Hỏa 1) with a level-1 Ma Da (Thủy khắc Hỏa): 3 vs 1. Face up it would be 2 vs 1.
   const toad = position([[0, "ma-da", "3,5"], [1, "coc-tia", "3,4"], [1, "rua-con", "0,0"]]);
   const ambush = play(toad, { kind: "move", unit: 0, to: at(3, 4) }).events.find((e) => e.type === "battle");
@@ -458,8 +463,111 @@ test("đánh úp: attacking a face-down monster gives +1", () => {
 });
 
 test("đánh úp counts for shots: a face-down target is easier to hit", () => {
-  // Wood Spirit (level 2) shoots a face-down ogre (level 3): 3 vs 3, shot power 3 beats the ogre's 0.
-  const state = position([[0, "moc-tinh", "3,5"], [1, "chan-tinh", "3,3"], [1, "rua-con", "0,0"]]);
-  assert.ok(!play(state, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.some((u) => u.monster === "chan-tinh"));
-  assert.ok(play(faceUp(state), { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.some((u) => u.monster === "chan-tinh"));
+  // Mai An Tiêm (Thủy 2) shoots a face-down Buffalo Spirit (Thủy 3): 3 vs 3, shot power 2 beats the buffalo's 0.
+  const state = position([[0, "mai-an-tiem", "3,5"], [1, "nguu-tinh", "3,3"], [1, "rua-con", "0,0"]]);
+  assert.ok(!play(state, { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.some((u) => u.monster === "nguu-tinh"));
+  assert.ok(play(faceUp(state), { kind: "shoot", unit: 0, target: at(3, 3) }).state.units.some((u) => u.monster === "nguu-tinh"));
+});
+
+// --- Abilities of the 50 ---------------------------------------------------------------
+
+test("leap: the White Tiger jumps over anything up to 3 cells, and onto an enemy it attacks", () => {
+  const rows = ["........", "........", "........", "..^^^...", "........", "........", "........", "........"];
+  const state = faceUp(position([[0, "bach-ho", "3,5"], [1, "lan", "3,2"], [1, "rua-con", "0,0"]], rows));
+  assert.equal(isLegal(state, { kind: "ability", unit: 0, cells: [at(3, 3)] }), false, "not onto a mountain");
+  assert.equal(isLegal(state, { kind: "ability", unit: 0, cells: [at(0, 0)] }), false, "5 away");
+  const jumped = play(state, { kind: "ability", unit: 0, cells: [at(5, 2)] }).state;
+  assert.equal(jumped.units[0].cell, at(5, 2));
+  const { state: after, events } = play(state, { kind: "ability", unit: 0, cells: [at(3, 2)] });
+  assert.ok(events.some((e) => e.type === "battle" && e.kind === "melee" && e.result === "attacker"));
+  assert.equal(after.units.find((u) => u.monster === "bach-ho")?.cell, at(3, 2));
+});
+
+test("bind: a bound enemy cannot act for its next turns, then is free", () => {
+  const state = position([[0, "mau-thuong-ngan", "3,5"], [1, "lan", "3,2"], [1, "rua-con", "0,0"]]);
+  const bound = play(state, { kind: "ability", unit: 0, cells: [at(3, 2)] }).state;
+  // Tianwu's two turns: the Lân cannot act on either.
+  assert.ok(!legalActions(bound).some((a) => a.kind !== "pass" && a.unit === 1));
+  let s = play(bound, { kind: "pass" }).state;
+  s = play(s, { kind: "pass" }).state;
+  assert.ok(!legalActions(s).some((a) => a.kind !== "pass" && a.unit === 1), "second turn still bound");
+  s = play(play(s, { kind: "pass" }).state, { kind: "pass" }).state;
+  assert.ok(legalActions(s).some((a) => a.kind === "move" && a.unit === 1), "free again");
+  assert.equal(viewFor(bound, 0).units.find((u) => u.id === 1)?.boundUntil, bound.units[1].boundUntil, "binding is public");
+});
+
+test("seal: Cao Biền strips a monster of its abilities and its disguise", () => {
+  const state = position([[0, "cao-bien", "3,5"], [1, "ho-tinh", "3,2"], [1, "rua-con", "4,3"]]);
+  assert.equal(viewFor(state, 0).units.find((u) => u.id === 1)?.level, 3, "disguised");
+  const sealed = play(state, { kind: "ability", unit: 0, cells: [at(3, 2)] }).state;
+  const fox = viewFor(sealed, 0).units.find((u) => u.id === 1);
+  assert.equal(fox?.monster, "ho-tinh");
+  assert.equal(fox?.level, 2, "true level");
+  // A sealed turtle loses its shell.
+  const turtle = play(state, { kind: "ability", unit: 0, cells: [at(4, 3)] }).state;
+  assert.equal(shielded(turtle, turtle.units.find((u) => u.monster === "rua-con") as Unit), false);
+});
+
+test("swap: Từ Đạo Hạnh trades places with friend or foe, but not one on a mountain", () => {
+  const rows = ["........", "........", "...^....", "........", "........", "........", "........", "........"];
+  const state = position([[0, "tu-dao-hanh", "3,5"], [1, "lan", "5,3"], [1, "son-tinh", "3,2"]], rows);
+  assert.equal(isLegal(state, { kind: "ability", unit: 0, cells: [at(3, 2)] }), false, "the Mountain God stays on his mountain");
+  const after = play(state, { kind: "ability", unit: 0, cells: [at(5, 3)] }).state;
+  assert.equal(after.units[0].cell, at(5, 3));
+  assert.equal(after.units[1].cell, at(3, 5));
+});
+
+test("rise: Saint Gióng stands tall to level 6 for good", () => {
+  const state = position([[0, "phu-dong", "3,5"], [1, "rua-con", "0,0"]]);
+  const after = play(state, { kind: "ability", unit: 0, cells: [at(3, 5)] }).state;
+  assert.equal(after.units[0].level, 6);
+  assert.equal(viewFor(after, 1).units[0].evolved, 1, "public, like a temple");
+});
+
+test("revive: the Phoenix comes back once on its home rows", () => {
+  const state = faceUp(position([[0, "son-tinh", "3,4"], [1, "phuong-hoang", "3,3"], [1, "rua-con", "0,0"]]));
+  const { state: after, events } = play(state, { kind: "move", unit: 0, to: at(3, 3) });
+  const phoenix = after.units.find((u) => u.monster === "phuong-hoang");
+  assert.ok(phoenix && phoenix.revived && [0, 1].includes(Math.floor(phoenix.cell / SIZE)), "back on Tianwu's home rows");
+  assert.ok(events.some((e) => e.type === "revive"));
+  assert.equal(after.units.find((u) => u.monster === "son-tinh")?.cell, at(3, 3), "the winner still moves in");
+  // The second time it falls for good.
+  const again = faceUp({ ...after, toMove: 0, units: after.units.map((u) => (u.monster === "phuong-hoang" ? { ...u, cell: at(3, 2) } : u)) });
+  const twice = play(again, { kind: "move", unit: 0, to: at(3, 2) }).state;
+  assert.ok(!twice.units.some((u) => u.monster === "phuong-hoang"));
+});
+
+test("recall: Cuội brings back the last fallen ally of level 3 or less", () => {
+  const state = faceUp(position([[0, "chu-cuoi", "3,5"], [0, "rua-con", "3,4"], [1, "lan", "3,3"]]));
+  // The turtle attacks the Lân and falls.
+  const lost = play(state, { kind: "move", unit: 1, to: at(3, 3) }).state;
+  assert.ok(!lost.units.some((u) => u.monster === "rua-con"));
+  const back = play({ ...lost, toMove: 0 }, { kind: "ability", unit: 0, cells: [at(0, 7)] }).state;
+  const turtle = back.units.find((u) => u.monster === "rua-con");
+  assert.equal(turtle?.cell, at(0, 7));
+  assert.equal(back.fallen?.length, 0);
+  // Nothing to bring back: the ability is not offered.
+  assert.ok(!legalActions(state).some((a) => a.kind === "ability"));
+});
+
+test("auras: Trần Hưng Đạo lifts attackers next to him, Nghê lifts defenders", () => {
+  // A Lân (Thổ 2) attacks a level-2 Earth God (Thổ): 2 vs 2 normally; Trần Hưng Đạo beside the Lân makes it 3.
+  const attack = faceUp(position([[0, "lan", "3,4"], [0, "tran-hung-dao", "2,4"], [1, "ong-dia", "3,3"]]));
+  const fight = play(attack, { kind: "move", unit: 0, to: at(3, 3) }).events.find((e) => e.type === "battle");
+  assert.deepEqual(fight?.type === "battle" && fight.levels, { attacker: 3, defender: 2 });
+  // A Nghê beside the Earth God lifts its defence instead.
+  const defend = faceUp(position([[0, "lan", "3,4"], [1, "ong-dia", "3,3"], [1, "nghe", "2,3"]]));
+  const held = play(defend, { kind: "move", unit: 0, to: at(3, 3) }).events.find((e) => e.type === "battle");
+  assert.deepEqual(held?.type === "battle" && held.levels, { attacker: 2, defender: 3 });
+});
+
+test("partners attack together; Sơn Tinh and Thủy Tinh strike each other harder", () => {
+  // Saint Gióng (Hỏa 5) next to his Iron Horse attacks a level-5 Dragon Lord (Thủy, overcomes Fire).
+  const pair = faceUp(position([[0, "phu-dong", "3,4"], [0, "ngua-sat", "4,4"], [1, "lac-long-quan", "3,3"]]));
+  const fight = play(pair, { kind: "move", unit: 0, to: at(3, 3) }).events.find((e) => e.type === "battle");
+  assert.deepEqual(fight?.type === "battle" && fight.levels, { attacker: 6, defender: 6 });
+  const rivals = faceUp(position([[0, "thuy-tinh", "3,4"], [1, "son-tinh", "3,3"]]));
+  const feud = play(rivals, { kind: "move", unit: 0, to: at(3, 3) }).events.find((e) => e.type === "battle");
+  // Thủy Tinh 4 +1 (feud) against Sơn Tinh 5 +1 (Earth stems Water).
+  assert.deepEqual(feud?.type === "battle" && feud.levels, { attacker: 5, defender: 6 });
 });

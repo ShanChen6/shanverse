@@ -27,15 +27,16 @@ function position(units: [Side, string, string, boolean?][], toMove: Side = 1): 
 }
 
 test("candidates match the shown level, and a shown 3 may be a Fox Spirit in disguise", () => {
-  assert.deepEqual(new Set(candidatesFor(1)), new Set(["rua-con", "coc-tia", "ma-da"]));
+  assert.deepEqual(new Set(candidatesFor(1)), new Set(MONSTERS.filter((m) => m.level === 1 && m.id !== "ma-tranh").map((m) => m.id)));
   assert.ok(candidatesFor(3).includes("ho-tinh"));
   assert.ok(!candidatesFor(2).includes("ho-tinh"), "a Fox Spirit never shows its true level while hidden");
+  assert.ok(candidatesFor(2).includes("ma-tranh") && candidatesFor(4).includes("lieu-hanh"), "other disguises");
 });
 
 test("guesses respect one monster per level and never repeat a known one", () => {
   const state = position([
     [1, "lan", "3,1", true],
-    [0, "chan-tinh", "3,6"], // shows 3
+    [0, "voi-chin-nga", "3,6"], // shows 3
     [0, "ho-tinh", "4,6"], // also shows 3
     [0, "rua-con", "5,6"],
   ]);
@@ -61,7 +62,7 @@ test("Tianwu cannot tell hidden monsters apart: same view, same move", () => {
       [0, "rua-con", "0,6"],
     ]);
   for (const difficulty of ["easy", "medium"] as Difficulty[]) {
-    const a = chooseAction(viewFor(make("chan-tinh"), 1), difficulty, rng(7), { timeMs: 10_000 });
+    const a = chooseAction(viewFor(make("voi-chin-nga"), 1), difficulty, rng(7), { timeMs: 10_000 });
     const b = chooseAction(viewFor(make("ngua-sat"), 1), difficulty, rng(7), { timeMs: 10_000 });
     assert.deepEqual(a.action, b.action, difficulty);
   }
@@ -100,7 +101,7 @@ test("Medium and Hard run from a known stronger enemy", () => {
 });
 
 test("Tianwu wins a won position quickly and sees the end", () => {
-  const state = position([[1, "thanh-giong", "3,3", true], [0, "coc-tia", "3,5", true]]);
+  const state = position([[1, "phu-dong", "3,3", true], [0, "coc-tia", "3,5", true]]);
   const { action } = chooseAction(viewFor(state, 1), "medium", rng(1), { timeMs: 10_000 });
   const after = apply(state, action).state;
   // Either it captures now, or it is still winning.
@@ -108,7 +109,7 @@ test("Tianwu wins a won position quickly and sees the end", () => {
 });
 
 test("worldFrom keeps everything Tianwu knows and fills only the hidden", () => {
-  const state = position([[1, "lan", "3,1"], [0, "chan-tinh", "3,6"], [0, "kim-quy", "0,7", true]]);
+  const state = position([[1, "lan", "3,1"], [0, "voi-chin-nga", "3,6"], [0, "kim-quy", "0,7", true]]);
   const view = viewFor(state, 1);
   const world = worldFrom(view, guessHidden(view, rng(2)) as Map<number, string>);
   assert.equal(world.units.find((u) => u.id === 0)?.monster, "lan");
@@ -140,7 +141,7 @@ test("Medium beats Easy more often than not", () => {
   const random = rng(21);
   let mediumWins = 0;
   let easyWins = 0;
-  const games = 8;
+  const games = 48; // Medium wins about two in three; fewer games is too noisy to show it.
   for (let g = 0; g < games; g++) {
     const map = MAPS[g % MAPS.length];
     const { terrain } = buildBoard(map);
