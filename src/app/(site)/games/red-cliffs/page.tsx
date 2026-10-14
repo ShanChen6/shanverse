@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
     path: PATH,
     title: t("metadata.redCliffsTitle"),
     description: t("metadata.redCliffsDescription"),
-    keywords: ["hỏa thiêu xích bích", "xích bích", "red cliffs", "puzzle", "Shanverse"],
+    keywords: ["red cliffs", "phản ứng dây chuyền", "chain reaction", "hoa đăng", "thiên thạch", "xích bích", "puzzle", "Shanverse"],
   });
 }
 

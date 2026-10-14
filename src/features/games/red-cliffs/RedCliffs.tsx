@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Lightbulb, RefreshCw, SkipForward } from "lucide-react";
+import { FastForward, Lightbulb, RefreshCw, SkipForward } from "lucide-react";
 
 import { MASCOT_NAME, TianwuBadge } from "@/components/mascot/Tianwu";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,21 @@ import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import { randomSeed } from "./generator";
 import { CELLS, SIZE, TORCHES, fire, isCleared, shipsLeft, type Frame } from "./logic";
+import { AmmoIcon, Burst, Pips, Piece, Projectile } from "./pieces";
 import { EXACT_LIMIT } from "./solver";
-import { Blast, FlyingTorch, Ship, TorchIcon } from "./sprites";
+import { DEFAULT_THEME, THEMES, THEME_IDS, fill, isThemeId, stateText, type ThemeId } from "./themes";
 import { useRedCliffsEngine } from "./use-engine";
 
 const STORAGE_KEY = "shanverse:red-cliffs:progress";
-/** One tick of torch flight, in milliseconds. */
-const TICK_MS = 130;
+const PREFS_KEY = "shanverse:red-cliffs:prefs";
+
+/** One tick of flight, in milliseconds, per speed. */
+const SPEEDS = { slow: 460, normal: 300, fast: 170 } as const;
+type Speed = keyof typeof SPEEDS;
+const SPEED_IDS = Object.keys(SPEEDS) as Speed[];
+
+const DX = [0, 0, -1, 1];
+const DY = [-1, 1, 0, 0];
 
 type Status = "playing" | "won" | "lost" | "stuck";
 
@@ -30,51 +38,63 @@ type Game = {
 };
 
 type Stats = { wins: number; losses: number; streak: number; best: number | null };
-
 type Saved = { game?: Game; stats: Stats };
+type Prefs = { theme: ThemeId; speed: Speed };
 
 const emptyStats: Stats = { wins: 0, losses: 0, streak: 0, best: null };
 
 const isBoard = (value: unknown): value is number[] =>
   Array.isArray(value) && value.length === CELLS && value.every((n) => Number.isInteger(n) && n >= 0 && n <= 4);
 
-function readSaved(): Saved {
+function readJson(key: string): unknown {
   try {
-    const value = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null") as Partial<Saved> | null;
-    if (!value || typeof value !== "object") return { stats: emptyStats };
-    const raw = (value.stats ?? {}) as Partial<Stats>;
-    const count = (n: unknown) => (typeof n === "number" && Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0);
-    const stats: Stats = {
-      wins: count(raw.wins),
-      losses: count(raw.losses),
-      streak: count(raw.streak),
-      best: typeof raw.best === "number" && raw.best >= 1 && raw.best <= TORCHES ? Math.floor(raw.best) : null,
-    };
-    const g = value.game;
-    const game =
-      g &&
-      typeof g.seed === "number" &&
-      isBoard(g.start) &&
-      isBoard(g.board) &&
-      Number.isInteger(g.torches) &&
-      g.torches >= 0 &&
-      g.torches <= TORCHES &&
-      typeof g.hintUsed === "boolean" &&
-      ["playing", "won", "lost", "stuck"].includes(g.status)
-        ? g
-        : undefined;
-    return { game, stats };
+    return JSON.parse(window.localStorage.getItem(key) ?? "null");
   } catch {
-    return { stats: emptyStats };
+    return null;
   }
 }
 
-function writeSaved(saved: Saved) {
+function writeJson(key: string, value: unknown) {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+    window.localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // Progress is not saved; the game still works.
+    // Not saved; the game still works.
   }
+}
+
+function readSaved(): Saved {
+  const value = readJson(STORAGE_KEY) as Partial<Saved> | null;
+  if (!value || typeof value !== "object") return { stats: emptyStats };
+  const raw = (value.stats ?? {}) as Partial<Stats>;
+  const count = (n: unknown) => (typeof n === "number" && Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0);
+  const stats: Stats = {
+    wins: count(raw.wins),
+    losses: count(raw.losses),
+    streak: count(raw.streak),
+    best: typeof raw.best === "number" && raw.best >= 1 && raw.best <= TORCHES ? Math.floor(raw.best) : null,
+  };
+  const g = value.game;
+  const game =
+    g &&
+    typeof g.seed === "number" &&
+    isBoard(g.start) &&
+    isBoard(g.board) &&
+    Number.isInteger(g.torches) &&
+    g.torches >= 0 &&
+    g.torches <= TORCHES &&
+    typeof g.hintUsed === "boolean" &&
+    ["playing", "won", "lost", "stuck"].includes(g.status)
+      ? g
+      : undefined;
+  return { game, stats };
+}
+
+function readPrefs(): Prefs {
+  const value = readJson(PREFS_KEY) as Partial<Prefs> | null;
+  return {
+    theme: isThemeId(value?.theme) ? value.theme : DEFAULT_THEME,
+    speed: value?.speed && value.speed in SPEEDS ? value.speed : "normal",
+  };
 }
 
 const newGame = (seed: number, board: number[]): Game => ({ seed, start: board, board, torches: TORCHES, hintUsed: false, status: "playing" });
@@ -83,29 +103,47 @@ const newGame = (seed: number, board: number[]): Game => ({ seed, start: board, 
 function record(stats: Stats, game: Game): Stats {
   if (game.status === "won") {
     const used = TORCHES - game.torches;
-    const streak = stats.streak + 1;
-    return { wins: stats.wins + 1, losses: stats.losses, streak, best: stats.best === null ? used : Math.min(stats.best, used) };
+    return { wins: stats.wins + 1, losses: stats.losses, streak: stats.streak + 1, best: stats.best === null ? used : Math.min(stats.best, used) };
   }
   return { ...stats, losses: stats.losses + 1, streak: 0 };
 }
 
+/**
+ * A click playing out. Step 0 shows the player's shot landing; step k ≥ 1
+ * shows the result of frame k-1 (hits, bursts) while frame k's projectiles
+ * fly in, so a target changes only once something has reached it.
+ */
+type Anim = { frames: Frame[]; step: number; before: number[]; cell: number; after: Game };
+
 type HintNote = null | "shown" | "none";
 
 export function RedCliffs() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const lang = locale === "en" ? "en" : "vi";
   const call = useRedCliffsEngine();
   const [saved, setSaved] = React.useState<Saved | null>(null);
+  const [prefs, setPrefs] = React.useState<Prefs>({ theme: DEFAULT_THEME, speed: "normal" });
   const [busy, setBusy] = React.useState<"dealing" | "hint" | "check" | null>(null);
   const [error, setError] = React.useState(false);
   const [hintCell, setHintCell] = React.useState<number | null>(null);
   const [note, setNote] = React.useState<HintNote>(null);
-  const [anim, setAnim] = React.useState<{ frames: Frame[]; index: number; after: Game } | null>(null);
+  const [anim, setAnim] = React.useState<Anim | null>(null);
   const reducedMotion = React.useRef(false);
 
+  const theme = THEMES[prefs.theme];
+  const tick = SPEEDS[prefs.speed];
+  const pause = Math.round(tick * 0.9);
+
   const commit = React.useCallback((next: Saved) => {
-    writeSaved(next);
+    writeJson(STORAGE_KEY, next);
     setSaved(next);
   }, []);
+
+  const updatePrefs = (change: Partial<Prefs>) => {
+    const next = { ...prefs, ...change };
+    writeJson(PREFS_KEY, next);
+    setPrefs(next);
+  };
 
   const deal = React.useCallback(
     async (stats: Stats, seed = randomSeed()) => {
@@ -127,6 +165,7 @@ export function RedCliffs() {
 
   React.useEffect(() => {
     reducedMotion.current = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    setPrefs(readPrefs());
     const loaded = readSaved();
     if (loaded.game) setSaved(loaded);
     else void deal(loaded.stats);
@@ -161,23 +200,30 @@ export function RedCliffs() {
     [call, commit],
   );
 
-  // Play the animation one tick at a time, then settle the result.
+  // How long each step stays on screen: a tick, plus a pause when something burst.
+  const stepDuration = React.useCallback(
+    (a: Anim) => {
+      if (a.step === 0) return tick;
+      const landed = a.frames[a.step - 1];
+      const burst = landed.sunk.length > 0;
+      if (a.step >= a.frames.length) return burst ? tick + pause : Math.round(tick * 0.8);
+      return tick + (burst ? pause : 0);
+    },
+    [tick, pause],
+  );
+
   React.useEffect(() => {
     if (!anim || !saved) return;
-    const last = anim.index >= anim.frames.length - 1;
-    const timer = window.setTimeout(
-      () => {
-        if (last) {
-          setAnim(null);
-          void settle(saved, anim.after);
-        } else {
-          setAnim({ ...anim, index: anim.index + 1 });
-        }
-      },
-      last ? TICK_MS * 2 : TICK_MS,
-    );
+    const timer = window.setTimeout(() => {
+      if (anim.step >= anim.frames.length) {
+        setAnim(null);
+        void settle(saved, anim.after);
+      } else {
+        setAnim({ ...anim, step: anim.step + 1 });
+      }
+    }, stepDuration(anim));
     return () => window.clearTimeout(timer);
-  }, [anim, saved, settle]);
+  }, [anim, saved, settle, stepDuration]);
 
   const onCell = (cell: number) => {
     if (!saved || !game || game.status !== "playing" || anim || busy || game.board[cell] === 0) return;
@@ -189,7 +235,14 @@ export function RedCliffs() {
       void settle(saved, after);
       return;
     }
-    setAnim({ frames: result.frames, index: 0, after });
+    setAnim({ frames: result.frames, step: 0, before: game.board, cell, after });
+  };
+
+  const onSkip = () => {
+    if (!anim || !saved) return;
+    const after = anim.after;
+    setAnim(null);
+    void settle(saved, after);
   };
 
   const onHint = async () => {
@@ -203,7 +256,7 @@ export function RedCliffs() {
       setHintCell(response.cell);
       setNote("shown");
     } else if (response.kind === "hint" && response.exact) {
-      // Proven: no way to win with the torches left.
+      // Proven: no way to win with what is left.
       const done: Game = { ...used, status: "stuck" };
       commit({ game: done, stats: record(saved.stats, done) });
     } else {
@@ -224,11 +277,54 @@ export function RedCliffs() {
     void deal(saved.stats);
   };
 
+  const picker = (
+    <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+      <div role="radiogroup" aria-label={t("games.rcTheme")} className="flex gap-1.5">
+        {THEME_IDS.map((id) => (
+          <button
+            key={id}
+            type="button"
+            role="radio"
+            aria-checked={prefs.theme === id}
+            onClick={() => updatePrefs({ theme: id })}
+            className={cn(
+              "min-h-9 rounded-full border px-3.5 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary",
+              prefs.theme === id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface text-foreground-secondary hover:border-primary/50",
+            )}
+          >
+            {THEMES[id].chip[lang]}
+          </button>
+        ))}
+      </div>
+      <div role="radiogroup" aria-label={t("games.rcSpeed")} className="flex items-center gap-1 rounded-full border border-border bg-surface p-1">
+        <span className="px-2 text-[11px] font-semibold uppercase tracking-wider text-muted">{t("games.rcSpeed")}</span>
+        {SPEED_IDS.map((id) => (
+          <button
+            key={id}
+            type="button"
+            role="radio"
+            aria-checked={prefs.speed === id}
+            onClick={() => updatePrefs({ speed: id })}
+            className={cn(
+              "min-h-7 rounded-full px-2.5 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary",
+              prefs.speed === id ? "bg-primary text-primary-foreground" : "text-foreground-secondary hover:text-foreground",
+            )}
+          >
+            {t(`games.rcSpeed${id[0].toUpperCase()}${id.slice(1)}` as "games.rcSpeedSlow")}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   if (!saved || (!game && busy === "dealing")) {
     return (
-      <div className="mx-auto flex max-w-xl flex-col items-center gap-3 py-10 text-center" aria-live="polite">
-        <div aria-hidden="true" className="rc-board animate-pulse opacity-60" />
-        <p className="text-sm text-muted">{t("games.rcDealing")}</p>
+      <div className="space-y-5">
+        {picker}
+        <div className="mx-auto flex max-w-xl flex-col items-center gap-3 text-center" aria-live="polite">
+          <div aria-hidden="true" className="rc-board animate-pulse opacity-60" data-theme={prefs.theme} />
+          <p className="text-sm text-muted">{fill(theme.dealing, lang)}</p>
+        </div>
       </div>
     );
   }
@@ -236,7 +332,7 @@ export function RedCliffs() {
   if (!game) {
     return (
       <div className="mx-auto max-w-md space-y-3 rounded-2xl border border-border bg-surface p-6 text-center">
-        <p className="text-foreground-secondary">{error ? t("games.rcError") : t("games.rcDealing")}</p>
+        <p className="text-foreground-secondary">{error ? t("games.rcError") : fill(theme.dealing, lang)}</p>
         <Button type="button" onClick={onNew} disabled={busy !== null}>
           {t("games.rcNew")}
         </Button>
@@ -244,29 +340,37 @@ export function RedCliffs() {
     );
   }
 
-  const frame = anim ? anim.frames[anim.index] : null;
-  const shown = frame ? frame.board : game.board;
-  const hits = new Set(frame?.hits ?? []);
-  const blasts = anim ? anim.frames.slice(Math.max(0, anim.index - 2), anim.index + 1).flatMap((f) => f.sunk.map((cell) => ({ cell, tick: f.tick }))) : [];
+  // What the board shows right now.
+  const landed = anim && anim.step > 0 ? anim.frames[anim.step - 1] : null;
+  const flying = anim && anim.step > 0 && anim.step < anim.frames.length ? anim.frames[anim.step] : null;
+  const shown = anim ? (landed ? landed.board : anim.before) : game.board;
+  const flashes = new Set(landed?.hits ?? []);
+  const flightDelay = landed && landed.sunk.length ? pause : 0;
+  const chain = anim ? anim.frames.slice(0, anim.step).reduce((n, frame) => n + frame.sunk.length, 0) : 0;
   const torchesLeft = anim ? anim.after.torches : game.torches;
   const playing = game.status === "playing";
   const locked = !playing || anim !== null || busy !== null;
-  const stateName = (strength: number) =>
-    strength === 0 ? t("games.rcWater") : t(`games.rcState${strength}` as "games.rcState1");
-  const position = (x: number, y: number): React.CSSProperties => ({ transform: `translate(${x * 100}%, ${y * 100}%)` });
+  const cellVars = (x: number, y: number, fx = x, fy = y) => ({ "--fx": fx, "--fy": fy, "--tx": x, "--ty": y }) as React.CSSProperties;
 
   return (
     <div className="space-y-5">
+      {picker}
+
+      <div className="text-center">
+        <h2 className="text-2xl font-bold tracking-tight">{theme.name[lang]}</h2>
+        <p className="mx-auto mt-1 max-w-lg text-sm text-foreground-secondary">{theme.intro[lang]}</p>
+      </div>
+
       <div className="flex flex-wrap items-stretch justify-center gap-2 sm:gap-3">
         <div className="flex min-w-[9rem] items-center gap-2 rounded-xl border border-primary/40 bg-surface px-3 py-1.5">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">{t("games.rcTorches")}</span>
-          <span aria-label={t("games.rcTorchesLeft", { n: torchesLeft })} className="flex gap-0.5">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">{theme.ammo[lang]}</span>
+          <span aria-label={fill(theme.ammoLeft, lang, { n: torchesLeft })} className="flex gap-0.5">
             {Array.from({ length: TORCHES }, (_, i) => (
-              <TorchIcon key={i} lit={i < torchesLeft} />
+              <AmmoIcon key={i} theme={prefs.theme} lit={i < torchesLeft} />
             ))}
           </span>
         </div>
-        <Stat label={t("games.rcShips")} value={String(shipsLeft(shown))} highlight />
+        <Stat label={theme.targetsLeft[lang]} value={String(shipsLeft(shown))} highlight />
         <Stat label={t("games.rcWins")} value={String(saved.stats.wins)} />
         <Stat label={t("games.rcStreak")} value={String(saved.stats.streak)} />
         <Stat label={t("games.rcBest")} value={saved.stats.best === null ? "–" : String(saved.stats.best)} />
@@ -285,12 +389,32 @@ export function RedCliffs() {
       </div>
 
       <div className="mx-auto w-fit max-w-full">
-        <p className="mb-2 text-center text-xs text-muted">{t("games.rcBoardNumber", { seed: game.seed.toString(36).toUpperCase() })}</p>
-        <div className="rc-board" role="group" aria-label={t("games.rcBoardLabel")} aria-busy={anim !== null || busy !== null} style={{ "--rc-tick": `${TICK_MS}ms` } as React.CSSProperties}>
+        <div className="mb-2 flex min-h-7 items-center justify-between gap-3">
+          <p className="text-xs text-muted">{t("games.rcBoardNumber", { seed: game.seed.toString(36).toUpperCase() })}</p>
+          {chain >= 2 ? (
+            <span key={chain} className="rc-chain rounded-full bg-[#f97316] px-2.5 py-0.5 text-xs font-extrabold text-white shadow">
+              {t("games.rcChain", { n: chain })}
+            </span>
+          ) : null}
+          {anim ? (
+            <button type="button" onClick={onSkip} className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-0.5 text-xs font-semibold text-foreground-secondary hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary">
+              <FastForward aria-hidden="true" className="size-3.5" /> {t("games.rcSkip")}
+            </button>
+          ) : null}
+        </div>
+        <div
+          className="rc-board"
+          data-theme={prefs.theme}
+          role="group"
+          aria-label={fill(theme.boardLabel, lang)}
+          aria-busy={anim !== null || busy !== null}
+          style={{ "--rc-tick": `${tick}ms`, "--rc-burst": `${tick + pause}ms` } as React.CSSProperties}
+        >
           <div className="rc-grid">
             {shown.map((strength, cell) => {
               const row = Math.floor(cell / SIZE) + 1;
               const col = (cell % SIZE) + 1;
+              const flash = flashes.has(cell);
               return (
                 <button
                   key={cell}
@@ -299,33 +423,55 @@ export function RedCliffs() {
                   data-hint={hintCell === cell ? "true" : undefined}
                   disabled={locked || strength === 0}
                   onClick={() => onCell(cell)}
-                  aria-label={t("games.rcCell", { row, col, state: stateName(strength) })}
+                  aria-label={t("games.rcCell", { row, col, state: fill(stateText(theme, strength), lang) })}
                 >
-                  <span key={hits.has(cell) ? `hit-${frame?.tick}` : "still"} className="block size-full" data-hit={hits.has(cell) ? "true" : undefined}>
-                    <Ship strength={strength} />
+                  <span key={flash ? `hit-${anim?.step}` : "still"} className="block size-full" data-hit={flash ? "true" : undefined}>
+                    <Piece theme={prefs.theme} strength={strength} />
                   </span>
+                  <Pips strength={strength} />
                 </button>
               );
             })}
           </div>
-          {blasts.map(({ cell, tick }) => (
-            <span key={`blast-${cell}-${tick}`} aria-hidden="true" className="rc-blast" style={position(cell % SIZE, Math.floor(cell / SIZE))}>
-              <Blast />
+
+          {anim && anim.step === 0 ? (
+            <span aria-hidden="true" className="rc-shot-in" style={cellVars(anim.cell % SIZE, Math.floor(anim.cell / SIZE))}>
+              <Projectile theme={prefs.theme} direction={1} />
+            </span>
+          ) : null}
+
+          {landed?.sunk.map((cell) => (
+            <span
+              key={`burst-${cell}-${anim?.step}`}
+              aria-hidden="true"
+              className="rc-burst"
+              style={{ "--bx": `${(cell % SIZE) * 100}%`, "--by": `${Math.floor(cell / SIZE) * 100}%` } as React.CSSProperties}
+            >
+              <Burst theme={prefs.theme} />
             </span>
           ))}
-          {frame?.torches.map((torch) => (
-            <span key={`torch-${torch.origin}-${torch.direction}`} aria-hidden="true" className="rc-torch" style={position(torch.x, torch.y)}>
-              <FlyingTorch direction={torch.direction} />
-            </span>
-          ))}
+
+          {flying
+            ? [...flying.torches.map((shot) => ({ shot, strike: false })), ...flying.strikes.map((shot) => ({ shot, strike: true }))].map(({ shot, strike }) => (
+                <span
+                  key={`shot-${shot.origin}-${shot.direction}-${anim?.step}`}
+                  aria-hidden="true"
+                  className="rc-shot"
+                  data-strike={strike ? "true" : undefined}
+                  style={{ ...cellVars(shot.x, shot.y, shot.x - DX[shot.direction], shot.y - DY[shot.direction]), "--rc-delay": `${flightDelay}ms` } as React.CSSProperties}
+                >
+                  <Projectile theme={prefs.theme} direction={shot.direction} />
+                </span>
+              ))
+            : null}
         </div>
       </div>
 
       <div aria-live="polite" className="mx-auto max-w-xl">
         {game.status === "won" ? (
           <EndPanel
-            title={t("games.rcWinTitle")}
-            text={t("games.rcWinText", { used: TORCHES - game.torches, left: game.torches })}
+            title={fill(theme.winTitle, lang)}
+            text={fill(theme.winText, lang, { used: TORCHES - game.torches, left: game.torches })}
             onReplay={onReplay}
             onNew={onNew}
             replayLabel={t("games.rcReplay")}
@@ -334,8 +480,8 @@ export function RedCliffs() {
           />
         ) : game.status === "lost" ? (
           <EndPanel
-            title={t("games.rcLoseTitle")}
-            text={t("games.rcLoseText", { n: shipsLeft(game.board) })}
+            title={fill(theme.loseTitle, lang)}
+            text={fill(theme.loseText, lang, { n: shipsLeft(game.board) })}
             onReplay={onReplay}
             onNew={onNew}
             replayLabel={t("games.rcReplay")}
@@ -344,7 +490,7 @@ export function RedCliffs() {
         ) : game.status === "stuck" ? (
           <EndPanel
             title={t("games.rcStuckTitle", { name: MASCOT_NAME })}
-            text={t("games.rcStuckText", { n: game.torches })}
+            text={fill(theme.stuckText, lang, { n: game.torches })}
             onReplay={onReplay}
             onNew={onNew}
             replayLabel={t("games.rcReplay")}
@@ -353,18 +499,18 @@ export function RedCliffs() {
         ) : note === "none" ? (
           <EndPanel
             title={t("games.rcHintNoneTitle", { name: MASCOT_NAME })}
-            text={t("games.rcHintNoneText", { n: game.torches })}
+            text={t("games.rcHintNoneText")}
             onReplay={onReplay}
             onNew={onNew}
             replayLabel={t("games.rcReplay")}
             newLabel={t("games.rcNew")}
           />
         ) : note === "shown" ? (
-          <p className="text-center text-sm font-semibold text-primary">{t("games.rcHintShown", { name: MASCOT_NAME })}</p>
+          <p className="text-center text-sm font-semibold text-primary">{fill(theme.hintShown, lang, { name: MASCOT_NAME })}</p>
         ) : busy === "hint" ? (
           <p className="text-center text-sm text-muted">{t("games.rcThinking", { name: MASCOT_NAME })}</p>
         ) : (
-          <p className="text-center text-xs text-muted">{t("games.rcTip")}</p>
+          <p className="text-center text-xs text-muted">{fill(theme.tip, lang)}</p>
         )}
       </div>
     </div>
