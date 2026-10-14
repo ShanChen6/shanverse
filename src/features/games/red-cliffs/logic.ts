@@ -38,6 +38,8 @@ export type Frame = {
   board: number[];
   /** Torches still in flight after this tick, at their new positions. */
   torches: FlyingTorch[];
+  /** Torches that flew into a ship this tick, at the ship's cell. They are spent. */
+  strikes: FlyingTorch[];
   /** Cells hit this tick, in order. */
   hits: number[];
   /** Cells whose ship sank this tick. */
@@ -82,7 +84,7 @@ export function fire(start: Board, cell: number, record = false): FireResult {
     sunk++;
     launch(cell, 0);
   }
-  if (record) frames.push({ tick: 0, board: board.slice(), torches: [], hits: [cell], sunk: firstSunk ? [cell] : [] });
+  if (record) frames.push({ tick: 0, board: board.slice(), torches: [], strikes: [], hits: [cell], sunk: firstSunk ? [cell] : [] });
 
   let flying: Torch[] = [];
   for (let tick = 1; waiting.length || flying.length; tick++) {
@@ -96,6 +98,7 @@ export function fire(start: Board, cell: number, record = false): FireResult {
 
     const still: Torch[] = [];
     const hits: number[] = [];
+    const strikes: FlyingTorch[] = [];
     const sunkNow: number[] = [];
     for (const torch of flying) {
       const x = torch.x + DX[torch.direction];
@@ -104,7 +107,10 @@ export function fire(start: Board, cell: number, record = false): FireResult {
       const at = y * SIZE + x;
       if (board[at] > 0) {
         board[at] -= 1;
-        if (record) hits.push(at);
+        if (record) {
+          hits.push(at);
+          strikes.push({ x, y, direction: torch.direction, origin: torch.origin });
+        }
         if (board[at] === 0) {
           sunk++;
           if (record) sunkNow.push(at);
@@ -120,6 +126,7 @@ export function fire(start: Board, cell: number, record = false): FireResult {
         tick,
         board: board.slice(),
         torches: flying.map(({ x, y, direction, origin }) => ({ x, y, direction, origin })),
+        strikes,
         hits,
         sunk: sunkNow,
       });

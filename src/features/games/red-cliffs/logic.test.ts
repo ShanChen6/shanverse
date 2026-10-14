@@ -125,3 +125,14 @@ test("generated boards are winnable in 4 to 8 clicks, never in 3, and rebuild fr
     assert.deepEqual(generate(game.seed).board, game.board, `seed ${seed}: same seed, same board`);
   }
 });
+
+test("each frame records the torches that struck a ship, at that ship's cell", () => {
+  const start = board({ "0,0": 1, "3,0": 2, "0,4": 1 });
+  const result = fire(start, at(0, 0), true);
+  for (const frame of result.frames.slice(1)) {
+    assert.equal(frame.strikes.length, frame.hits.length, `tick ${frame.tick}`);
+    assert.deepEqual(frame.strikes.map((s) => s.y * 6 + s.x), frame.hits, `tick ${frame.tick}`);
+  }
+  const strike = result.frames.find((frame) => frame.hits.includes(at(3, 0)))?.strikes[0];
+  assert.deepEqual(strike, { x: 3, y: 0, direction: 3, origin: at(0, 0) }, "flying right from the clicked ship");
+});
