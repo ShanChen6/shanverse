@@ -4,6 +4,7 @@ import { Game2048Preview } from "./Game2048Preview";
 import { GoPreview } from "./GoPreview";
 import { MemoryPreview } from "./MemoryPreview";
 import { MinesweeperPreview } from "./MinesweeperPreview";
+import { NonogramPreview } from "./NonogramPreview";
 import { RedCliffsPreview } from "./RedCliffsPreview";
 import { SnakePreview } from "./SnakePreview";
 import { SokobanPreview } from "./SokobanPreview";
@@ -20,6 +21,7 @@ const PREVIEWS: Record<string, React.ComponentType> = {
   go: GoPreview,
   "word-guess": WordGuessPreview,
   "red-cliffs": RedCliffsPreview,
+  nonogram: NonogramPreview,
 };
 
 /** The static board shown on a game's card, on /games and on the home page. */
