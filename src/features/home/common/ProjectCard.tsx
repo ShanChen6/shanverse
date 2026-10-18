@@ -27,7 +27,7 @@ interface ProjectCardProps {
   variant?: "default" | "featured";
 }
 
-const PLACEHOLDER_IMAGE = "/logo/logo_shanverse.png";
+const PLACEHOLDER_IMAGE = "/logo/logo_shanverse_horizontal.png";
 
 function safeExternalUrl(value: string | null) {
   if (!value) return null;
@@ -51,6 +51,7 @@ export function ProjectCard({
     safeImageSource(project.thumbnailImage) ??
     safeImageSource(project.coverImage) ??
     PLACEHOLDER_IMAGE;
+  const isPlaceholder = thumbnailImage === PLACEHOLDER_IMAGE;
   const githubUrl = safeExternalUrl(project.githubUrl);
   const liveUrl = safeExternalUrl(project.liveUrl);
   const technologies = [
@@ -82,7 +83,10 @@ export function ProjectCard({
         <Image
           src={thumbnailImage}
           alt={t("projects.thumbnailAlt", { title: project.title })}
-          className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+          className={cn(
+            "transition-transform duration-500 group-hover:scale-[1.02]",
+            isPlaceholder ? "object-contain p-[12%]" : "object-cover",
+          )}
           fill
           sizes={
             featured
