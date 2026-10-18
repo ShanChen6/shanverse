@@ -45,6 +45,8 @@ interface PostCardProps {
   variant?: "default" | "featured";
 }
 
+const FALLBACK_THUMBNAIL = "/logo/logo_shanverse_horizontal.png";
+
 export function PostCard({ post, variant = "default" }: PostCardProps) {
   const { locale, t } = useI18n();
   const authorName = post.authorName?.trim() || "Shanverse";
@@ -54,7 +56,8 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
   const thumbnailImage =
     imageSource(post.thumbnailImage) ||
     imageSource(post.coverImage) ||
-    "/logo/logo_shanverse.png";
+    FALLBACK_THUMBNAIL;
+  const isFallbackThumbnail = thumbnailImage === FALLBACK_THUMBNAIL;
   const dateValue =
     [post.publishedAt, post.createdAt].find(
       (value) => value && !Number.isNaN(new Date(value).getTime()),
@@ -87,7 +90,10 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
         <Image
           src={thumbnailImage}
           alt={`Thumbnail for ${post.title}`}
-          className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          className={cn(
+            "transition-transform duration-300 group-hover:scale-[1.02]",
+            isFallbackThumbnail ? "object-contain p-[12%]" : "object-cover",
+          )}
           fill
           sizes={
             variant === "featured"

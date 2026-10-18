@@ -30,7 +30,7 @@ export const SEO_CONFIG = {
   author: "Shanverse",
   twitterUsername: undefined,
   logoPath: "/logo/logo_shanverse.png",
-  defaultOpenGraphImage: "/logo/logo_shanverse.png",
+  defaultOpenGraphImage: "/og-image.png",
   socialLinks: getSocialLinks().filter((link) => link.href.startsWith("http")).map((link) => link.href),
 } as const;
 

@@ -23,7 +23,7 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div className="space-y-4">
-            <BrandLogo />
+            <BrandLogo large />
             <p className="max-w-xs text-sm leading-relaxed text-foreground-secondary">
               {t("footer.tagline")}
             </p>
