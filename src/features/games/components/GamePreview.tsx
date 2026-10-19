@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { BachLinhKyPreview } from "./BachLinhKyPreview";
+import { CoLauPreview } from "./CoLauPreview";
 import { Game2048Preview } from "./Game2048Preview";
 import { GoPreview } from "./GoPreview";
 import { MemoryPreview } from "./MemoryPreview";
@@ -23,6 +24,7 @@ const PREVIEWS: Record<string, React.ComponentType> = {
   "word-guess": WordGuessPreview,
   "red-cliffs": RedCliffsPreview,
   "bach-linh-ky": BachLinhKyPreview,
+  "co-lau": CoLauPreview,
   nonogram: NonogramPreview,
 };
 
