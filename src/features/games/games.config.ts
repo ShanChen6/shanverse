@@ -73,6 +73,15 @@ export const GAMES: GameEntry[] = [
     controlKeys: ["games.tagMouse", "games.tagTouch"],
   },
   {
+    slug: "co-lau",
+    href: ROUTES.GAME_DETAIL("co-lau"),
+    titleKey: "games.coLauTitle",
+    descriptionKey: "games.coLauDescription",
+    category: "strategy-board",
+    extraCategories: ["puzzle-logic"],
+    controlKeys: ["games.tagMouse", "games.tagKeyboard", "games.tagTouch"],
+  },
+  {
     slug: "go",
     href: ROUTES.GAME_DETAIL("go"),
     titleKey: "games.goTitle",
