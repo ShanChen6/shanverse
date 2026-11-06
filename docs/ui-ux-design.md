@@ -30,7 +30,7 @@
 | --- | --- | --- |
 | Header (desktop) | Sticky, blurred, logo + 6 links + language + theme. Good. | Keep. Make active link state match the mobile one (gold/navy indicator). |
 | Header (mobile) | Non-sticky top bar with logo, language, theme. | Keep (bottom nav is the main navigation). Consider hiding it inside game pages to give the board more height. |
-| Bottom nav (mobile) | 6 equal tabs at 10–11 px labels. Dense; tap targets are tight at 360 px. | Keep 5 tabs (Home, Blog, Projects, Games, More) where *More* opens a sheet with About + Contact + language/theme. Labels 11 px minimum, 48 px touch height. **Decision needed**, see Q1. |
+| Bottom nav (mobile) | 6 equal tabs at 10–11 px labels. Dense; tap targets are tight at 360 px. | Keep 5 tabs (Home, Blog, Projects, Games, More) where *More* opens a sheet with About + Contact + language/theme. Labels 11 px minimum, 48 px touch height. **Decided and implemented**: notched 5-tab bar (`MobileBottomNavigation`), *More* opens a sheet with About and Contact. |
 | Footer | Brand, explore links, socials. | Add Games and About/Contact to "Explore" (today only Blog and Projects are listed). |
 | Breadcrumb | Present on list/detail pages. | Keep; truncate the last crumb on mobile. |
 | 404 / error / loading | `not-found`, per-route `error` and `loading` exist for blog/projects only. | Add a branded 404 with Tianwu + search + 3 shortcuts; add `error` and `loading` for games routes; reuse `EmptyState`. |
@@ -143,7 +143,7 @@ Each phase = one PR into `develop`, with before/after screenshots at 360 / 768 /
 
 ## 7. Open questions
 
-1. **Mobile nav:** keep 6 tabs, or 5 tabs + "More"?
+1. ~~**Mobile nav**~~ **Decided:** 5 tabs + More, notched style. Implemented.
 2. **Search:** move to a global header search, or keep the section on Home?
 3. **Games hub:** one-click whole cards (drop Play button), and a "Continue playing" row, OK?
 4. **About page:** are you OK cutting 9 sections to 5?
