@@ -1,6 +1,6 @@
 # Shanverse – UI/UX Audit & Design Proposal
 
-> Status: **DRAFT for discussion**. Nothing here is implemented yet.
+> Status: **Decisions agreed (see section 7)**. Only the mobile bottom nav is implemented so far; everything else is planned.
 > Direction (agreed): keep the current identity (navy / gold / cream, Tianwu mascot), refine and unify.
 > Scope (agreed): main pages, Games hub, each game, shared shell & states.
 > Method: based on reading the code (`src/app`, `src/features`, `src/components`). No rendered screenshots were reviewed, so visual claims need a quick look in the browser before we lock them.
@@ -44,7 +44,7 @@
 - Search sits between the hero and content with no clear reason to appear there.
 - Latest posts and featured posts are two similar lists back to back.
 
-**Proposal (top to bottom):**
+**Proposal (top to bottom), decisions applied:**
 1. Hero: headline, one-line value, 2 CTAs (Read the blog / See projects), socials. Tone the scene down on mobile.
 2. Featured post (one big card) + latest posts (3 compact cards) as a single "Writing" section.
 3. Featured projects.
@@ -82,8 +82,8 @@
 
 **Proposal:**
 - Slimmer hero (title + one sentence + count); first game row visible above the fold on mobile.
-- Card: preview, title, one-line description, max 2 chips (category, controls icon set instead of text badges). Whole card clickable; drop the separate Play button (keep a hover/focus "Play" affordance).
-- Add "Continue playing" row for games with saved progress (data already stored locally), and "Featured" row.
+- Card: preview, title, one-line description, max 2 chips (category, controls icon set instead of text badges). Whole card clickable; drop the separate Play button (keep a small arrow/"Play" affordance and a focus ring).
+- Add a "Continue playing" row for games with saved progress (data already stored locally) in the last phase, and a "Featured" row.
 - Add a sort/filter: category (exists), controls (keyboard / mouse / touch), "quick (<2 min)" vs "long".
 
 ### 4.8 Game page shell (all games)
@@ -127,25 +127,35 @@ Acceptance for every game: playable one-handed at 360 px, keyboard operable wher
 
 Loading skeleton · Empty · Error with retry · Offline / failed fetch (Notion, view counts) · Success · Long-text / long-title overflow · RTL not needed · Reduced motion · Both themes · Both languages (vi/en strings can differ in length by ~30%).
 
-## 6. Proposed delivery order
+## 6. Delivery order (agreed)
 
 | Phase | Content | Size |
 | --- | --- | --- |
-| 0 | Alignment on this doc, answer open questions | – |
-| 1 | Tokens, `PageContainer`, `PageHeader`, 404/error/loading, footer links | S |
-| 2 | Game shell: new anatomy + shared components, migrate 2–3 simple games (2048, Memory, Snake) | M |
-| 3 | Games hub redesign + remaining games | L |
-| 4 | Home, Blog list/detail | M |
-| 5 | Projects, About, Contact | M |
-| 6 | Bottom nav / header search, polish, a11y pass (axe + manual) | S |
+| 0 | Mobile bottom nav: notched 5 tabs + More sheet | **Done** |
+| 1 | Foundation: tokens (radius, spacing, type scale), `PageContainer`, `PageHeader`, branded 404 + `error`/`loading` for games routes, footer links (add Games, About, Contact) | S |
+| 2 | Game shell: new anatomy + shared components (`GameToolbar`, `GameStatBar`, `GameResultDialog`, `GameRulesSheet`, `GameDifficultyPicker`); hide site header and bottom nav on game pages at mobile width; migrate 2048, Memory, Snake first | M |
+| 3 | Games hub: slimmer hero, whole-card links, compact chips, then remaining games | L |
+| 4 | Global header search (dialog, `/` shortcut); remove search section from Home; Home restructure; Blog list/detail | M |
+| 5 | Projects, About (9 to 5 sections), Contact | M |
+| 6 | "Continue playing" row on Games hub; a11y pass (axe + manual); polish | S |
 
 Each phase = one PR into `develop`, with before/after screenshots at 360 / 768 / 1280 px in both themes.
 
-## 7. Open questions
+## 7. Decisions
 
-1. ~~**Mobile nav**~~ **Decided:** 5 tabs + More, notched style. Implemented.
-2. **Search:** move to a global header search, or keep the section on Home?
-3. **Games hub:** one-click whole cards (drop Play button), and a "Continue playing" row, OK?
-4. **About page:** are you OK cutting 9 sections to 5?
-5. **Game pages on mobile:** hide the site header/bottom nav while playing to maximise the board?
-6. **Phase order:** start with the Games shell (phase 2) because Games is the largest part of the site, or with Home?
+| # | Topic | Decision | Notes for implementation |
+| --- | --- | --- | --- |
+| 1 | Mobile nav | **5 tabs + More, notched style.** Implemented. | `MobileBottomNavigation` + CSS module; More opens a bottom sheet with About and Contact. |
+| 2 | Search | **Global search button in the header; remove the search section from Home.** | Icon button opens a dialog, `/` shortcut, reuse `home-search` / `blog-search` logic. On mobile the header has logo + language + theme already, so the button goes beside them and must keep a 44 px target. Blog keeps its own list search. Do this when the global dialog is ready, not before, so search is never missing. |
+| 3 | Games hub cards | **Whole card is the link; drop the full-width Play button.** "Continue playing" row is **later** (phase 6). | Keep a small arrow/"Play" affordance inside the card so keyboard and screen-reader users still get a clear link, plus a visible focus ring on the card. Continue row needs one shared way to read each game's saved progress from local storage, so define that first. |
+| 4 | About page | **9 sections cut to 5:** Intro, Skills, Journey, Values + approach (merged), CTA. Tianwu story becomes a short illustrated aside. | Do not delete copy; merge and move it, then review before removing anything. |
+| 5 | Game pages on mobile | **Hide site header and bottom nav while playing** (below `md`), replaced by the compact game top bar. | The top bar must always have a clear back-to-Games button. The layout padding that reserves room for the bottom nav must not apply on game routes. Desktop is unchanged. |
+| 6 | Phase order | **Phase 1 foundation, then game shell, then Home.** | See section 6. |
+
+## 8. Risks and things to watch
+
+- Hiding the nav on game pages means the game top bar is the only way out; test back navigation and the browser back button on touch devices.
+- Whole-card links must not nest interactive elements (no button or link inside the card link).
+- A global search dialog must trap focus, close on Escape and return focus to the trigger.
+- Cutting About sections changes copy in both `vi` and `en`; keep both locales in step.
+- Bottom nav is now 5.25 rem tall (`--mobile-bottom-nav-height`); any new fixed element at the bottom must account for it.
