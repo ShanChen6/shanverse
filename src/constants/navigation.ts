@@ -16,6 +16,10 @@ export const FOOTER_EXPLORE_ITEMS = [
   { href: ROUTES.PROJECTS, labelKey: "home.featuredProjects" },
 ] as const;
 
+/** Mobile bottom bar: first four items are tabs, the rest live behind the "More" tab. */
+export const MOBILE_TAB_ITEMS = NAVIGATION_ITEMS.slice(0, 4);
+export const MOBILE_MORE_ITEMS = NAVIGATION_ITEMS.slice(4);
+
 export type NavigationItem = (typeof NAVIGATION_ITEMS)[number];
 
 export function isActiveRoute(pathname: string, href: string): boolean {
