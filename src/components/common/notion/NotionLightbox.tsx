@@ -126,7 +126,7 @@ export function NotionLightbox({ children, className, labels }: { children: Reac
             <div className="relative flex min-h-0 flex-1">
               <div
                 ref={areaRef}
-                className="flex min-h-0 flex-1 overflow-auto px-3 pb-3 sm:px-16"
+                className={cn("min-h-0 flex-1", zoomed ? "flex overflow-auto px-3 pb-3 sm:px-16" : "relative overflow-hidden")}
                 // While zoomed the same gesture pans the picture, so swiping is only for the fitted view.
                 style={{ touchAction: zoomed ? "auto" : "pan-y" }}
                 onPointerDown={(event) => {
@@ -168,20 +168,16 @@ export function NotionLightbox({ children, className, labels }: { children: Reac
                     go(step);
                     return;
                   }
-                  // Slide the picture off the screen, swap it, then slide the next one in from the other side.
+                  // Slide the track one picture over, then swap the index: the neighbour that slid in is now the centre.
                   busyRef.current = true;
                   setSettling(true);
                   setDragX(-step * width);
                   later(() => {
                     setIndex((current) => (current === null ? current : (current + step + items.length) % items.length));
                     setSettling(false);
-                    setDragX(step * width);
-                    later(() => {
-                      setSettling(true);
-                      setDragX(0);
-                      later(() => { busyRef.current = false; }, 200);
-                    }, 30);
-                  }, 180);
+                    setDragX(0);
+                    busyRef.current = false;
+                  }, 190);
                 }}
                 onPointerCancel={() => {
                   if (dragRef.current?.locked) {
@@ -190,26 +186,56 @@ export function NotionLightbox({ children, className, labels }: { children: Reac
                   }
                   dragRef.current = null;
                 }}
-                onClick={(event) => { if (event.target === event.currentTarget) setIndex(null); }}
+                onClick={(event) => {
+                  // A drag ends with a click on the area itself; it must not close the viewer.
+                  if (swipedRef.current) {
+                    swipedRef.current = false;
+                    return;
+                  }
+                  if (!(event.target as HTMLElement).closest("img")) setIndex(null);
+                }}
               >
-                {current ? (
+                {current && zoomed ? (
                   <img
                     key={current.src}
                     src={current.src}
                     alt={current.alt}
                     draggable={false}
-                    style={{
-                      transform: dragX ? `translateX(${dragX}px)` : undefined,
-                      opacity: dragX ? Math.max(0.35, 1 - Math.abs(dragX) / 500) : undefined,
-                      transition: settling ? "transform 180ms ease-out, opacity 180ms ease-out" : "none",
-                    }}
-                    onClick={() => {
-                      // A swipe also ends with a click on the picture; it must not toggle the zoom.
-                      if (swipedRef.current) { swipedRef.current = false; return; }
-                      setZoomed((value) => !value);
-                    }}
-                    className={cn("m-auto select-none rounded-lg", zoomed ? "max-w-none cursor-zoom-out" : "max-h-full max-w-full cursor-zoom-in object-contain")}
+                    onClick={() => setZoomed(false)}
+                    className="m-auto max-w-none cursor-zoom-out select-none rounded-lg"
                   />
+                ) : null}
+                {current && !zoomed ? (
+                  <div
+                    className="flex h-full"
+                    style={{
+                      // With several images the track holds previous, current and next side by side, current in the middle.
+                      width: many ? "300%" : "100%",
+                      marginLeft: many ? "-100%" : 0,
+                      transform: dragX ? `translateX(${dragX}px)` : undefined,
+                      transition: settling ? "transform 180ms ease-out" : "none",
+                    }}
+                  >
+                    {(many
+                      ? [
+                          { role: "previous", item: items[(index! - 1 + items.length) % items.length] },
+                          { role: "current", item: current },
+                          { role: "next", item: items[(index! + 1) % items.length] },
+                        ]
+                      : [{ role: "current", item: current }]
+                    ).map(({ role, item }) => (
+                      <div key={role} className={cn("flex h-full shrink-0 items-center justify-center px-3 pb-3 sm:px-16", many ? "w-1/3" : "w-full")}>
+                        <img
+                          src={item.src}
+                          alt={role === "current" ? item.alt : ""}
+                          aria-hidden={role === "current" ? undefined : true}
+                          draggable={false}
+                          onClick={role === "current" ? () => setZoomed(true) : undefined}
+                          className={cn("max-h-full max-w-full select-none rounded-lg object-contain", role === "current" && "cursor-zoom-in")}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 ) : null}
               </div>
               {many ? (
