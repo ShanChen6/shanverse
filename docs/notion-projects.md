@@ -47,3 +47,56 @@ Content refreshes about every 5 minutes.
 - **Filters** (status, technology, tags) share one row; on phones it scrolls sideways. With fewer than 6 projects the stats and the filter bar are hidden (they appear again if a filter is already active in the link).
 - **Images**: two or more images placed one after another in a project page are shown as a two-column grid; a single image stays full width. Clicking an image opens it full size.
 - **Links**: the Demo and Source buttons sit right under the description. On phones they are also pinned above the bottom bar once the top of the page has scrolled away.
+
+## Refresh content right away
+
+By default the site re-reads Notion every 5 minutes. To refresh sooner, set `REVALIDATE_SECRET` (a long random value) in the host's environment variables, then call `/api/revalidate`:
+
+```bash
+curl -X POST https://YOUR-SITE/api/revalidate \
+  -H "Authorization: Bearer $REVALIDATE_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"scope":"projects"}'
+```
+
+| `scope` | What is refreshed |
+| --- | --- |
+| `projects` | Project list and project pages |
+| `posts` | Blog posts, categories and tags |
+| `words` | Word Guess words |
+| `all` (default) | Everything above |
+
+- **From Notion:** an automation with a "Send webhook" action (POST, header `Authorization: Bearer <secret>`, body `{"scope":"projects"}`) refreshes when a project changes.
+- **A link or button:** a GET also works, `https://YOUR-SITE/api/revalidate?scope=projects&secret=<secret>`. The secret then appears in the address and in access logs, so prefer POST where you can and rotate the secret if a link leaks.
+- Answers: `200` refreshed, `401` wrong or missing secret, `400` unknown scope, `503` no secret configured on the server.
+- Nothing is refreshed without the secret, and the secret is compared in constant time.
+
+## Projects that do not show up
+
+A published project is hidden when its `Title` or `Slug` is empty. When the cache refreshes (at most every 5 minutes) the server logs one line, `Published projects hidden because a required property is empty`, with the page id, title and the missing property. Unpublished projects are not logged: hiding them is intended.
+
+## Page template
+
+Create one project page with this skeleton and duplicate it for each new project.
+
+Properties: `Title`, `Slug`, `Published` (off until ready), `Featured`, `Status`, `Date`, `Order`, `Summary`, `Description`, `Highlights`, `Tech Stack`, `Tags`, `GitHub`, `Live URL`, `Role`, `Timeline`, `Thumbnail`, `Cover`.
+
+Page body (use **Heading 2** for the section titles):
+
+```
+Short introduction: what it is and who it is for.
+
+## Vấn đề
+What was hard or missing.
+
+## Giải pháp
+What you built and the main decisions.
+
+## Kết quả
+Numbers, outcomes, links. Repeat the key figures in the Highlights property.
+
+## Bài học
+What you would do differently.
+```
+
+Put screenshots one after another to get a two-column gallery.

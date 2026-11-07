@@ -5,6 +5,7 @@ import type { NotionContentBlock } from "@/types/notion";
 import { caseStudyKind, splitCaseStudy } from "./case-study";
 import { parseHighlights } from "./project-highlights";
 import { compareProjects } from "./project-sort";
+import { skippedProjects } from "./skipped-projects";
 import { filterProjects, parseProjectQuery, projectHref, showProjectTools } from "./project-query";
 import type { Project } from "@/types/project";
 
@@ -106,4 +107,17 @@ test("the filter bar is hidden for a short list unless a filter is already activ
   assert.equal(showProjectTools(3, false), false);
   assert.equal(showProjectTools(6, false), true);
   assert.equal(showProjectTools(3, true), true);
+});
+
+test("published projects missing a title or slug are reported; unpublished ones are not", () => {
+  const skipped = skippedProjects([
+    { id: "1", title: "Ok", slug: "ok", published: true },
+    { id: "2", title: "No slug", slug: " ", published: true },
+    { id: "3", title: "", slug: "x", published: true },
+    { id: "4", title: "", slug: "", published: false },
+  ]);
+  assert.deepEqual(skipped, [
+    { id: "2", title: "No slug", missing: ["slug"] },
+    { id: "3", title: "(no title)", missing: ["title"] },
+  ]);
 });
