@@ -200,9 +200,9 @@ export default async function ProjectDetailPage({ params }: Props) {
           <main className="min-w-0 space-y-8">
             {blocks.length ? (
               caseStudy ? (
-                <CaseStudyView study={caseStudy} headingIds={headingIds} title={project.title} />
+                <CaseStudyView study={caseStudy} headingIds={headingIds} title={project.title} locale={locale === "en" ? "en" : "vi"} />
               ) : (
-                <NotionRenderer blocks={blocks} headingIds={headingIds} articleTitle={project.title} galleries />
+                <NotionRenderer blocks={blocks} headingIds={headingIds} articleTitle={project.title} locale={locale === "en" ? "en" : "vi"} galleries />
               )
             ) : (
               <section className="rounded-2xl border border-dashed border-border bg-surface p-6 text-foreground-secondary">

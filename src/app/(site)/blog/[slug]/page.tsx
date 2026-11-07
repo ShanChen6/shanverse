@@ -293,6 +293,7 @@ export default async function BlogDetailPage({ params }: Props) {
                   blocks={blocks}
                   headingIds={headingIds}
                   articleTitle={post.title}
+                  locale={locale === "en" ? "en" : "vi"}
                 />
               ) : (
                 <p className="rounded-2xl border border-border bg-surface p-6 text-foreground-secondary">

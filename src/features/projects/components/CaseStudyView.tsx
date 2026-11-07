@@ -3,6 +3,8 @@ import { BookOpenCheck, CircleAlert, Lightbulb, TrendingUp } from "lucide-react"
 
 import { NotionRenderer } from "@/components/common/notion/renderer";
 import { richTextValue } from "@/components/common/notion/table-of-contents";
+import { NotionLightbox } from "@/components/common/notion/NotionLightbox";
+import { notionMessages, type NotionLocale } from "@/components/common/notion/notion-messages";
 import type { NotionContentBlock } from "@/types/notion";
 import type { CaseStudy, CaseStudyKind } from "../case-study";
 
@@ -14,10 +16,10 @@ const CASE_STUDY_ICONS = {
 } satisfies Record<CaseStudyKind, React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>>;
 
 /** A project page written with Problem / Solution / Result headings, shown as one card per section. */
-export function CaseStudyView({ study, headingIds, title }: { study: CaseStudy; headingIds: Map<string, string>; title: string }) {
-  const render = (blocks: NotionContentBlock[]) => <NotionRenderer blocks={blocks} headingIds={headingIds} articleTitle={title} galleries />;
+export function CaseStudyView({ study, headingIds, title, locale }: { study: CaseStudy; headingIds: Map<string, string>; title: string; locale: NotionLocale }) {
+  const render = (blocks: NotionContentBlock[]) => <NotionRenderer blocks={blocks} headingIds={headingIds} articleTitle={title} locale={locale} galleries lightbox={false} />;
   return (
-    <div className="space-y-8">
+    <NotionLightbox labels={notionMessages[locale]} className="space-y-8">
       {study.intro.length ? render(study.intro) : null}
       {study.sections.map((section) => {
         if (!section.kind) return <React.Fragment key={section.heading.id}>{render([section.heading, ...section.blocks])}</React.Fragment>;
@@ -37,6 +39,6 @@ export function CaseStudyView({ study, headingIds, title }: { study: CaseStudy; 
           </section>
         );
       })}
-    </div>
+    </NotionLightbox>
   );
 }

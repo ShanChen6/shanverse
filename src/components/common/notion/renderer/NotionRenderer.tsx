@@ -2,9 +2,10 @@ import * as React from "react";
 
 import { NotionBlock } from "./NotionBlock";
 import type { NotionContentBlock } from "@/types/notion";
-import type { NotionLocale } from "../notion-messages";
+import { NotionLightbox } from "../NotionLightbox";
+import { notionMessages, type NotionLocale } from "../notion-messages";
 
-export function NotionRenderer({ blocks, headingIds, articleTitle, locale = "en", galleries = false }: { blocks: NotionContentBlock[]; headingIds: Map<string, string>; articleTitle: string; locale?: NotionLocale; /** Show two or more images in a row as a grid instead of one tall column. */ galleries?: boolean }) {
+export function NotionRenderer({ blocks, headingIds, articleTitle, locale = "en", galleries = false, lightbox = true }: { blocks: NotionContentBlock[]; headingIds: Map<string, string>; articleTitle: string; locale?: NotionLocale; /** Show two or more images in a row as a grid instead of one tall column. */ galleries?: boolean; /** Set to false when a parent already wraps the content in a NotionLightbox. */ lightbox?: boolean }) {
   const renderBlocks = (entries: NotionContentBlock[]): React.ReactNode[] => {
     const nodes: React.ReactNode[] = [];
     for (let index = 0; index < entries.length;) {
@@ -40,5 +41,8 @@ export function NotionRenderer({ blocks, headingIds, articleTitle, locale = "en"
     return nodes;
   };
 
-  return <div className="space-y-5 break-words text-base leading-8 text-foreground-secondary [overflow-wrap:anywhere]">{renderBlocks(blocks)}</div>;
+  const className = "space-y-5 break-words text-base leading-8 text-foreground-secondary [overflow-wrap:anywhere]";
+  return lightbox
+    ? <NotionLightbox labels={notionMessages[locale]} className={className}>{renderBlocks(blocks)}</NotionLightbox>
+    : <div className={className}>{renderBlocks(blocks)}</div>;
 }

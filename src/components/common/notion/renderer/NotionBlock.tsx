@@ -58,7 +58,7 @@ export function NotionBlock({ block, headingIds, renderChildren, articleTitle, l
     case "image": {
       const caption = block.caption ?? [];
       const alt = caption.map((item) => item.plainText).join("").trim() || `${articleTitle} illustration`;
-      return <NotionImage url={block.url ?? ""} caption={caption} alt={alt} errorLabel={notionMessages[locale].imageError} />;
+      return <NotionImage url={block.url ?? ""} caption={caption} alt={alt} errorLabel={notionMessages[locale].imageError} enlargeLabel={notionMessages[locale].enlargeImage} />;
     }
     case "divider":
       return <hr className="my-8 border-border" />;
