@@ -45,7 +45,7 @@ Content refreshes about every 5 minutes.
 
 - **Status** (`Status` property, e.g. "Hoàn thành", "Đang làm") shows as a small chip on each card and as a filter.
 - **Filters** (status, technology, tags) share one row; on phones it scrolls sideways. With fewer than 6 projects the stats and the filter bar are hidden (they appear again if a filter is already active in the link).
-- **Images**: two or more images placed one after another in a project page are shown as a two-column grid; a single image stays full width. Clicking an image opens a viewer: arrow keys or the side buttons step through every image of the page, the magnifier zooms to full size, and the link icon opens the original file. Escape closes it.
+- **Images**: two or more images placed one after another in a project page are shown as a two-column grid; a single image stays full width. Clicking an image opens a viewer: swiping left or right (phone), the arrow keys or the side buttons step through every image of the page, the magnifier zooms to full size, and the link icon opens the original file. Escape closes it.
 - **Links**: the Demo and Source buttons sit right under the description. On phones they are also pinned above the bottom bar once the top of the page has scrolled away.
 
 ## Refresh content right away

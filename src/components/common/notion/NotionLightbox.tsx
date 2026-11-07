@@ -19,6 +19,16 @@ export type LightboxLabels = {
 
 type Item = { src: string; alt: string; caption: string };
 
+const SWIPE_DISTANCE = 50;
+// A swipe must be mostly sideways, so scrolling up or down never changes the image.
+const SWIPE_DIRECTION_RATIO = 1.5;
+
+/** Which way a finished drag moves through the images: 1 = next, -1 = previous, 0 = not a swipe. */
+export function swipeStep(dx: number, dy: number): -1 | 0 | 1 {
+  if (Math.abs(dx) < SWIPE_DISTANCE || Math.abs(dx) < Math.abs(dy) * SWIPE_DIRECTION_RATIO) return 0;
+  return dx < 0 ? 1 : -1;
+}
+
 const iconButton =
   "inline-flex size-11 items-center justify-center rounded-full bg-black/55 text-white transition-colors hover:bg-black/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white";
 
@@ -32,6 +42,8 @@ export function NotionLightbox({ children, className, labels }: { children: Reac
   const [index, setIndex] = React.useState<number | null>(null);
   const [zoomed, setZoomed] = React.useState(false);
   const openerRef = React.useRef<HTMLElement | null>(null);
+  const dragRef = React.useRef<{ id: number; x: number; y: number } | null>(null);
+  const swipedRef = React.useRef(false);
 
   const open = (event: React.MouseEvent) => {
     const trigger = (event.target as HTMLElement).closest<HTMLButtonElement>("button[data-lightbox]");
@@ -93,6 +105,23 @@ export function NotionLightbox({ children, className, labels }: { children: Reac
             <div className="relative flex min-h-0 flex-1">
               <div
                 className="flex min-h-0 flex-1 overflow-auto px-3 pb-3 sm:px-16"
+                // While zoomed the same gesture pans the picture, so swiping is only for the fitted view.
+                style={{ touchAction: zoomed ? "auto" : "pan-y" }}
+                onPointerDown={(event) => {
+                  swipedRef.current = false;
+                  dragRef.current = !zoomed && many ? { id: event.pointerId, x: event.clientX, y: event.clientY } : null;
+                }}
+                onPointerUp={(event) => {
+                  const start = dragRef.current;
+                  dragRef.current = null;
+                  if (!start || start.id !== event.pointerId) return;
+                  const step = swipeStep(event.clientX - start.x, event.clientY - start.y);
+                  if (step) {
+                    swipedRef.current = true;
+                    go(step);
+                  }
+                }}
+                onPointerCancel={() => { dragRef.current = null; }}
                 onClick={(event) => { if (event.target === event.currentTarget) setIndex(null); }}
               >
                 {current ? (
@@ -101,7 +130,11 @@ export function NotionLightbox({ children, className, labels }: { children: Reac
                     src={current.src}
                     alt={current.alt}
                     draggable={false}
-                    onClick={() => setZoomed((value) => !value)}
+                    onClick={() => {
+                      // A swipe also ends with a click on the picture; it must not toggle the zoom.
+                      if (swipedRef.current) { swipedRef.current = false; return; }
+                      setZoomed((value) => !value);
+                    }}
                     className={cn("m-auto select-none rounded-lg", zoomed ? "max-w-none cursor-zoom-out" : "max-h-full max-w-full cursor-zoom-in object-contain")}
                   />
                 ) : null}
