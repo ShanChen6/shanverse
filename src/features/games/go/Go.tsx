@@ -5,6 +5,7 @@ import { Flag, RotateCcw, SkipForward } from "lucide-react";
 
 import { MASCOT_NAME, Tianwu, TianwuBadge } from "@/components/mascot/Tianwu";
 import { Button } from "@/components/ui/button";
+import { GameResultDialog } from "@/features/games/components/GameResultDialog";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import { NET_STYLES, type Brain, type Level } from "./engine";
@@ -467,26 +468,27 @@ export function Go() {
             ) : null}
 
             {phase === "over" && result ? (
-              <div className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4" aria-live="polite">
-                <div className="flex items-center gap-3">
-                  <Tianwu pose={result.winner === human ? "wave" : "determined"} className="h-20 w-18 shrink-0" />
-                  <div>
-                    <p className="text-lg font-bold">{result.winner === human ? t("games.goYouWin") : t("games.goTianwuWins")}</p>
-                    <p className="text-sm text-foreground-secondary">
-                      {result.reason === "score"
-                        ? t("games.goWinByScore", { margin: result.margin ?? 0 })
-                        : result.reason === "resign"
-                          ? t("games.goWinByResign")
-                          : t("games.goWinByCapture")}
-                    </p>
-                  </div>
-                </div>
+              <GameResultDialog
+                variant="inline"
+                media={<Tianwu pose={result.winner === human ? "wave" : "determined"} className="h-20 w-18" />}
+                title={result.winner === human ? t("games.goYouWin") : t("games.goTianwuWins")}
+                description={
+                  result.reason === "score"
+                    ? t("games.goWinByScore", { margin: result.margin ?? 0 })
+                    : result.reason === "resign"
+                      ? t("games.goWinByResign")
+                      : t("games.goWinByCapture")
+                }
+                className="flex-wrap sm:flex-wrap"
+                actions={
+                  <Button type="button" onClick={newGame} autoFocus>
+                    {t("games.goNewGame")}
+                  </Button>
+                }
+              >
                 {score && result.reason === "score" ? <ScoreLines score={score} t={t} /> : null}
                 <p className="text-sm text-foreground-secondary">{result.winner === human ? t("games.goYouWinNote") : t("games.goTianwuWinsNote")}</p>
-                <Button type="button" onClick={newGame} autoFocus>
-                  {t("games.goNewGame")}
-                </Button>
-              </div>
+              </GameResultDialog>
             ) : null}
 
             <p className="text-xs text-muted">

@@ -6,6 +6,8 @@ import { FastForward, Lightbulb, RefreshCw, SkipForward } from "lucide-react";
 import { MASCOT_NAME, TianwuBadge } from "@/components/mascot/Tianwu";
 import { Button } from "@/components/ui/button";
 import { GameStatBar } from "@/features/games/components/GameStatBar";
+import { GameResultDialog } from "@/features/games/components/GameResultDialog";
+import { GameToolbar } from "@/features/games/components/GameToolbar";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import { randomSeed } from "./generator";
@@ -378,7 +380,7 @@ export function RedCliffs() {
         />
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-2">
+      <GameToolbar className="justify-center">
         <Button type="button" variant="outline" size="sm" onClick={onHint} disabled={locked || game.hintUsed} className="gap-1.5">
           <Lightbulb aria-hidden="true" className="size-4" /> {game.hintUsed ? t("games.rcHintUsed") : t("games.rcHint")}
         </Button>
@@ -388,7 +390,7 @@ export function RedCliffs() {
         <Button type="button" variant="outline" size="sm" onClick={onNew} disabled={anim !== null || busy !== null} className="gap-1.5">
           <SkipForward aria-hidden="true" className="size-4" /> {t("games.rcNew")}
         </Button>
-      </div>
+      </GameToolbar>
 
       <div className="mx-auto w-fit max-w-full">
         <div className="mb-2 flex min-h-7 items-center justify-between gap-3">
@@ -536,25 +538,22 @@ function EndPanel({
   good?: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        "flex flex-wrap items-center gap-4 rounded-2xl border p-4 sm:flex-nowrap sm:p-5",
-        good ? "border-primary/30 bg-primary/5" : "border-[#D9AF62] bg-[#102653] text-[#FAF7F0]",
-      )}
-    >
-      <TianwuBadge className="size-14 shrink-0" />
-      <div className="min-w-0 flex-1">
-        <p className="font-bold">{title}</p>
-        <p className={cn("text-sm", good ? "text-foreground-secondary" : "text-[#E0E6F1]")}>{text}</p>
-      </div>
-      <div className="flex shrink-0 gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={onReplay} className={good ? undefined : "border-[#D9AF62]/60 bg-transparent text-[#FAF7F0] hover:bg-white/10"}>
-          {replayLabel}
-        </Button>
-        <Button type="button" size="sm" onClick={onNew} autoFocus>
-          {newLabel}
-        </Button>
-      </div>
-    </div>
+    <GameResultDialog
+      variant="inline"
+      media={<TianwuBadge className="size-14" />}
+      title={title}
+      description={text}
+      className={good ? undefined : "border-[#D9AF62] bg-[#102653] text-[#FAF7F0] [&_p]:text-[#E0E6F1]"}
+      actions={
+        <>
+          <Button type="button" variant="outline" size="sm" onClick={onReplay} className={good ? undefined : "border-[#D9AF62]/60 bg-transparent text-[#FAF7F0] hover:bg-white/10"}>
+            {replayLabel}
+          </Button>
+          <Button type="button" size="sm" onClick={onNew} autoFocus>
+            {newLabel}
+          </Button>
+        </>
+      }
+    />
   );
 }

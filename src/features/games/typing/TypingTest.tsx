@@ -4,6 +4,10 @@ import * as React from "react";
 import { RefreshCw, Trophy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { GameResultDialog } from "@/features/games/components/GameResultDialog";
+import { GameStatBar } from "@/features/games/components/GameStatBar";
+import { GameToolbar } from "@/features/games/components/GameToolbar";
+import { GameDifficultyPicker } from "@/features/games/components/GameDifficultyPicker";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import {
@@ -141,37 +145,27 @@ export function TypingTest() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <div role="group" aria-label={t("games.typingModeLabel")} className="inline-flex rounded-xl border border-border bg-surface p-1">
-          {(["text", "code"] as const).map((value) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={mode === value}
-              onClick={() => switchMode(value)}
-              className={cn(
-                "rounded-lg px-4 py-1.5 text-sm font-semibold text-foreground-secondary transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary",
-                mode === value && "bg-primary text-primary-foreground hover:text-primary-foreground",
-              )}
-            >
-              {t(value === "text" ? "games.typingModeText" : "games.typingModeCode")}
-            </button>
-          ))}
-        </div>
-        <Button type="button" variant="outline" size="sm" onClick={nextPassage} className="gap-1.5">
-          <RefreshCw aria-hidden="true" className="size-4" /> {t("games.typingNext")}
-        </Button>
+        <GameDifficultyPicker
+          label={t("games.typingModeLabel")}
+          value={mode}
+          onChange={switchMode}
+          options={(["text", "code"] as const).map((value) => ({ id: value, label: t(value === "text" ? "games.typingModeText" : "games.typingModeCode") }))}
+        />
+        <GameToolbar>
+          <Button type="button" variant="outline" size="sm" onClick={nextPassage} className="h-auto min-h-10 gap-1.5">
+            <RefreshCw aria-hidden="true" className="size-4" /> {t("games.typingNext")}
+          </Button>
+        </GameToolbar>
       </div>
 
-      <div className="flex flex-wrap items-stretch justify-center gap-2 sm:gap-3">
-        <Stat label="WPM" value={String(stats.wpm)} highlight />
-        <Stat label={t("games.typingAccuracy")} value={`${stats.accuracy}%`} />
-        <Stat label={t("games.msTime")} value={(elapsed / 1000).toFixed(1)} />
-        <Stat
-          label={t("games.best")}
-          value={best[mode] !== undefined ? `${best[mode]}` : "—"}
-          icon={<Trophy aria-hidden="true" className="size-3.5" />}
-        />
-      </div>
+      <GameStatBar
+        stats={[
+          { label: "WPM", value: String(stats.wpm), highlight: true },
+          { label: t("games.typingAccuracy"), value: `${stats.accuracy}%` },
+          { label: t("games.msTime"), value: (elapsed / 1000).toFixed(1) },
+          { label: t("games.best"), value: best[mode] !== undefined ? `${best[mode]}` : "—", icon: <Trophy aria-hidden="true" className="size-3.5" /> },
+        ]}
+      />
 
       <div className="mx-auto max-w-3xl">
         <p className="mb-2 text-center text-xs font-medium uppercase tracking-widest text-muted">{passage.label}</p>
@@ -253,35 +247,25 @@ export function TypingTest() {
       </div>
 
       {finished ? (
-        <div role="status" className="mx-auto max-w-xl rounded-2xl border border-primary/30 bg-primary/5 p-5 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary">{t("games.typingDone")}</p>
-          <p className="mt-1 text-4xl font-extrabold tabular-nums">
+        <GameResultDialog
+          variant="inline"
+          title={t("games.typingDone")}
+          description={t("games.typingSummary", { accuracy: stats.accuracy, raw: stats.rawWpm, errors: progress.errors, time: (elapsed / 1000).toFixed(1) })}
+          record={newRecord ? t("games.newRecord") : undefined}
+          actions={
+            <>
+              <Button type="button" variant="outline" onClick={() => restart()}>{t("games.tryAgain")}</Button>
+              <Button type="button" onClick={nextPassage}>{t("games.typingNext")}</Button>
+            </>
+          }
+        >
+          <p className="text-4xl font-extrabold tabular-nums">
             {stats.wpm} <span className="text-lg font-semibold text-foreground-secondary">WPM</span>
           </p>
-          <p className="mt-1 text-sm text-foreground-secondary">
-            {t("games.typingSummary", { accuracy: stats.accuracy, raw: stats.rawWpm, errors: progress.errors, time: (elapsed / 1000).toFixed(1) })}
-          </p>
-          {newRecord ? <p className="mt-2 text-sm font-semibold text-primary">{t("games.newRecord")}</p> : null}
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <Button type="button" variant="outline" onClick={() => restart()}>{t("games.tryAgain")}</Button>
-            <Button type="button" onClick={nextPassage}>{t("games.typingNext")}</Button>
-          </div>
-        </div>
+        </GameResultDialog>
       ) : (
         <p className="hidden text-center text-xs text-muted sm:block">{t("games.typingHint")}</p>
       )}
-    </div>
-  );
-}
-
-function Stat({ label, value, icon, highlight }: { label: string; value: string; icon?: React.ReactNode; highlight?: boolean }) {
-  return (
-    <div className={cn("min-w-[4.25rem] rounded-xl border bg-surface px-2 py-1.5 text-center sm:min-w-20 sm:px-3", highlight ? "border-primary/40" : "border-border")}>
-      <p className="flex items-center justify-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
-        {icon}
-        {label}
-      </p>
-      <p className={cn("text-lg font-extrabold tabular-nums", highlight && "text-primary")}>{value}</p>
     </div>
   );
 }
