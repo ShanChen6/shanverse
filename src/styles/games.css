@@ -72,7 +72,7 @@
 .g2048-tile[data-value="4"] { background: #f3e6cc; color: #031242; }
 .g2048-tile[data-value="8"] { background: #ebcb8b; color: #031242; }
 .g2048-tile[data-value="16"] { background: #d9af62; color: #031242; }
-.g2048-tile[data-value="32"] { background: #e2873a; color: #ffffff; }
+.g2048-tile[data-value="32"] { background: #e2873a; color: #031242; }
 .g2048-tile[data-value="64"] { background: #b8551f; color: #ffffff; }
 .g2048-tile[data-value="128"] { background: #8fb0f5; color: #031242; }
 .g2048-tile[data-value="256"] { background: #4a6bb3; color: #ffffff; }

@@ -137,7 +137,7 @@ Loading skeleton · Empty · Error with retry · Offline / failed fetch (Notion,
 | 3 | Games hub: slimmer hero, whole-card links, compact chips, then remaining games (hub, whole-card links, stat bars and Minesweeper shell done; Go, Bách Linh Ký, Typing, Word Guess, Cờ Lau keep their own toolbars) | **Mostly done** |
 | 4 | Global header search (dialog, `/` shortcut); remove search section from Home; Home restructure; Blog list/detail (search dialog + /api/search, Home "Writing" block, lighter hero on phones; Blog list/detail already had removable filter chips and the planned article order, so they are unchanged) | **Done** |
 | 5 | Projects, About (9 to 5 sections), Contact (About now 5 blocks + Tianwu aside; Contact: form first, topic chips, inline validation, success state; Projects: compact stats, previous/next links. Problem/Solution/Result blocks need Notion content structure and are not done) | **Done** |
-| 6 | "Continue playing" row on Games hub; a11y pass (axe + manual); polish | S |
+| 6 | "Continue playing" row on Games hub; a11y pass (axe + manual); polish ("Recently played" row built from a last-opened list, not saved game state; axe scan of 11 pages in light/dark at phone and desktop width found only colour-contrast issues, now fixed; manual screen-reader pass not done) | **Done** |
 
 Each phase = one PR into `develop`, with before/after screenshots at 360 / 768 / 1280 px in both themes.
 
