@@ -201,7 +201,8 @@ export function Game2048() {
     <div className="mx-auto w-full max-w-[32rem] space-y-4">
       <div className="flex items-stretch gap-2 sm:gap-3">
         <GameStatBar
-          className="flex-1"
+          className="flex-1 justify-start"
+          fill
           stats={[
             {
               label: t("games.score"),

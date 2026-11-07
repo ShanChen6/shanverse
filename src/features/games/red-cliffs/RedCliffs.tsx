@@ -5,6 +5,7 @@ import { FastForward, Lightbulb, RefreshCw, SkipForward } from "lucide-react";
 
 import { MASCOT_NAME, TianwuBadge } from "@/components/mascot/Tianwu";
 import { Button } from "@/components/ui/button";
+import { GameStatBar } from "@/features/games/components/GameStatBar";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import { randomSeed } from "./generator";
@@ -367,10 +368,14 @@ export function RedCliffs() {
             ))}
           </span>
         </div>
-        <Stat label={theme.targetsLeft[lang]} value={String(shipsLeft(shown))} highlight />
-        <Stat label={t("games.rcWins")} value={String(saved.stats.wins)} />
-        <Stat label={t("games.rcStreak")} value={String(saved.stats.streak)} />
-        <Stat label={t("games.rcBest")} value={saved.stats.best === null ? "–" : String(saved.stats.best)} />
+        <GameStatBar
+          stats={[
+            { label: theme.targetsLeft[lang], value: String(shipsLeft(shown)), highlight: true },
+            { label: t("games.rcWins"), value: String(saved.stats.wins) },
+            { label: t("games.rcStreak"), value: String(saved.stats.streak) },
+            { label: t("games.rcBest"), value: saved.stats.best === null ? "–" : String(saved.stats.best) },
+          ]}
+        />
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -550,15 +555,6 @@ function EndPanel({
           {newLabel}
         </Button>
       </div>
-    </div>
-  );
-}
-
-function Stat({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className={cn("min-w-[4.5rem] rounded-xl border bg-surface px-2 py-1.5 text-center sm:px-3", highlight ? "border-primary/40" : "border-border")}>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">{label}</p>
-      <p className={cn("text-lg font-extrabold tabular-nums", highlight && "text-primary")}>{value}</p>
     </div>
   );
 }

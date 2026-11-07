@@ -5,6 +5,7 @@ import { Lightbulb, Lock, RefreshCw, Undo2 } from "lucide-react";
 
 import { MASCOT_NAME, Tianwu, TianwuBadge, TianwuTop } from "@/components/mascot/Tianwu";
 import { Button } from "@/components/ui/button";
+import { GameStatBar } from "@/features/games/components/GameStatBar";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import { LEVELS } from "./levels";
@@ -336,11 +337,16 @@ export function Sokoban() {
       </div>
 
       <div className="flex flex-wrap items-stretch justify-center gap-2 sm:gap-3">
-        <Stat label={t("games.skMoves")} value={String(game.moves)} />
-        <Stat label={t("games.skPushes")} value={String(game.pushes)} />
-        <Stat label={t("games.skCrates")} value={`${cratesOnGoals(game)}/${game.crates.length}`} highlight />
-        <Stat label={t("games.skAttempt")} value={String(attempts)} />
-        <Stat label={t("games.skPar")} value={String(level.par)} />
+        <GameStatBar
+          className="justify-center"
+          stats={[
+            { label: t("games.skMoves"), value: String(game.moves) },
+            { label: t("games.skPushes"), value: String(game.pushes) },
+            { label: t("games.skCrates"), value: `${cratesOnGoals(game)}/${game.crates.length}`, highlight: true },
+            { label: t("games.skAttempt"), value: String(attempts) },
+            { label: t("games.skPar"), value: String(level.par) },
+          ]}
+        />
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -599,14 +605,5 @@ function PadButton({ label, onPress, rotate }: { label: string; onPress: () => v
         <path d="M12 6l7 9H5z" fill="currentColor" />
       </svg>
     </button>
-  );
-}
-
-function Stat({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className={cn("min-w-[3.9rem] rounded-xl border bg-surface px-2 py-1.5 text-center sm:min-w-18 sm:px-3", highlight ? "border-primary/40" : "border-border")}>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">{label}</p>
-      <p className={cn("text-lg font-extrabold tabular-nums", highlight && "text-primary")}>{value}</p>
-    </div>
   );
 }

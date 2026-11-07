@@ -4,6 +4,9 @@ import * as React from "react";
 import { RefreshCw, Trophy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { GameDifficultyPicker } from "@/features/games/components/GameDifficultyPicker";
+import { GameStatBar } from "@/features/games/components/GameStatBar";
+import { GameToolbar } from "@/features/games/components/GameToolbar";
 import { useI18n } from "@/i18n/client";
 import type { TranslationKey } from "@/i18n/messages";
 import { cn } from "@/lib/cn";
@@ -209,37 +212,26 @@ export function Minesweeper() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <div role="group" aria-label={t("games.msDifficulty")} className="inline-flex rounded-xl border border-border bg-surface p-1">
-          {(Object.keys(DIFFICULTIES) as DifficultyId[]).map((id) => (
-            <button
-              key={id}
-              type="button"
-              aria-pressed={difficulty === id}
-              onClick={() => reset(id)}
-              className={cn(
-                "rounded-lg px-3 py-1.5 text-sm font-semibold text-foreground-secondary transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary",
-                difficulty === id && "bg-primary text-primary-foreground hover:text-primary-foreground",
-              )}
-            >
-              {t(DIFFICULTY_LABELS[id])}
-              <span className="ml-1.5 hidden text-xs font-medium opacity-75 sm:inline">
-                {DIFFICULTIES[id].cols}×{DIFFICULTIES[id].rows}
-              </span>
-            </button>
-          ))}
-        </div>
-        <Button type="button" size="sm" onClick={() => reset(difficulty)} className="gap-1.5">
-          <RefreshCw aria-hidden="true" className="size-4" /> {t("games.newGame")}
-        </Button>
+        <GameDifficultyPicker
+          label={t("games.msDifficulty")}
+          value={difficulty}
+          onChange={reset}
+          options={(Object.keys(DIFFICULTIES) as DifficultyId[]).map((id) => ({ id, label: t(DIFFICULTY_LABELS[id]), hint: `${DIFFICULTIES[id].cols}×${DIFFICULTIES[id].rows}` }))}
+        />
+        <GameToolbar>
+          <Button type="button" size="sm" onClick={() => reset(difficulty)} className="h-auto min-h-10 gap-1.5">
+            <RefreshCw aria-hidden="true" className="size-4" /> {t("games.newGame")}
+          </Button>
+        </GameToolbar>
       </div>
 
       <div className="flex flex-wrap items-stretch justify-center gap-3">
-        <Stat label={t("games.msMinesLeft")} value={String(minesLeft(game))} icon={<MineIcon className="size-3.5" />} />
-        <Stat label={t("games.msTime")} value={String(seconds)} icon={<ClockIcon className="size-3.5" />} />
-        <Stat
-          label={t("games.best")}
-          value={best[difficulty] !== undefined ? `${best[difficulty]}s` : "—"}
-          icon={<Trophy aria-hidden="true" className="size-3.5" />}
+        <GameStatBar
+          stats={[
+            { label: t("games.msMinesLeft"), value: String(minesLeft(game)), icon: <MineIcon className="size-3.5" /> },
+            { label: t("games.msTime"), value: String(seconds), icon: <ClockIcon className="size-3.5" /> },
+            { label: t("games.best"), value: best[difficulty] !== undefined ? `${best[difficulty]}s` : "—", icon: <Trophy aria-hidden="true" className="size-3.5" /> },
+          ]}
         />
         <div role="group" aria-label={t("games.msModeLabel")} className="inline-flex items-center rounded-xl border border-border bg-surface p-1">
           {(["reveal", "flag"] as const).map((value) => (
@@ -383,18 +375,6 @@ function MineCell({ index, row, col, cell, exploded, wrongFlag, finished, focusa
     >
       {content}
     </button>
-  );
-}
-
-function Stat({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
-  return (
-    <div className="min-w-20 rounded-xl border border-border bg-surface px-3 py-1.5 text-center">
-      <p className="flex items-center justify-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
-        {icon}
-        {label}
-      </p>
-      <p className="text-lg font-extrabold tabular-nums">{value}</p>
-    </div>
   );
 }
 

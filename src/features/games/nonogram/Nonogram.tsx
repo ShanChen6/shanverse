@@ -5,6 +5,7 @@ import { ArrowLeft, Lightbulb, Lock, RefreshCw, SkipForward, Undo2 } from "lucid
 
 import { MASCOT_NAME, TianwuBadge } from "@/components/mascot/Tianwu";
 import { Button } from "@/components/ui/button";
+import { GameStatBar } from "@/features/games/components/GameStatBar";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import {
@@ -550,10 +551,12 @@ function Board({ open, saved, commit, lang, onBack }: { open: Open; saved: Saved
           ) : null}
           <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
         </div>
-        <div className="flex items-center gap-2">
-          <Stat label={t("games.ngTime")} value={formatTime(elapsedNow())} />
-          <Stat label={t("games.ngHints")} value={`${HINTS_PER_PUZZLE - hintsUsed}/${HINTS_PER_PUZZLE}`} />
-        </div>
+        <GameStatBar
+          stats={[
+            { label: t("games.ngTime"), value: formatTime(elapsedNow()) },
+            { label: t("games.ngHints"), value: `${HINTS_PER_PUZZLE - hintsUsed}/${HINTS_PER_PUZZLE}` },
+          ]}
+        />
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -709,14 +712,5 @@ function Board({ open, saved, commit, lang, onBack }: { open: Open; saved: Saved
         )}
       </div>
     </section>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="min-w-[4.5rem] rounded-xl border border-border bg-surface px-2.5 py-1 text-center">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">{label}</p>
-      <p className="text-base font-extrabold tabular-nums">{value}</p>
-    </div>
   );
 }

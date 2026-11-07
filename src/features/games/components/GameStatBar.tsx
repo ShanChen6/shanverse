@@ -13,14 +13,15 @@ export type GameStat = {
 };
 
 /** Row of score boxes shared by every game: label on top, big number below. */
-export function GameStatBar({ stats, className }: { stats: GameStat[]; className?: string }) {
+export function GameStatBar({ stats, className, fill = false }: { stats: GameStat[]; className?: string; /** Let the boxes share the row width instead of centring at their natural width. */ fill?: boolean }) {
   return (
-    <div className={cn("flex items-stretch gap-2 sm:gap-3", className)}>
+    <div className={cn("flex flex-wrap items-stretch justify-center gap-2 sm:gap-3", className)}>
       {stats.map((stat) => (
         <div
           key={stat.label}
           className={cn(
-            "relative min-w-[4.25rem] flex-1 rounded-xl border bg-surface px-2 py-1.5 text-center sm:min-w-20 sm:flex-none sm:px-3",
+            "relative min-w-[4.25rem] rounded-xl border bg-surface px-2 py-1.5 text-center sm:min-w-20 sm:px-3",
+            fill && "flex-1 sm:flex-none",
             stat.highlight ? "border-primary/40" : "border-border",
           )}
         >
