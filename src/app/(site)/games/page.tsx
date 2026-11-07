@@ -50,6 +50,7 @@ export default async function GamesPage() {
       <GamesCatalog
         categories={usedCategories(GAMES).map((category) => ({ id: category.id, label: t(category.labelKey) }))}
         allLabel={t("games.catAll")}
+        recentLabel={t("games.recent")}
         chipsLabel={t("games.catChips")}
         countTemplate={t("games.catCount", { n: "{n}" })}
         items={GAMES.map((game) => {

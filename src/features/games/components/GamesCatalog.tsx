@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/cn";
 import { isCategoryId, type CategoryId } from "../categories";
+import { recentSlugs } from "../play-history";
 
 export type CatalogItem = {
   slug: string;
@@ -18,6 +19,8 @@ type Props = {
   categories: { id: CategoryId; label: string }[];
   items: CatalogItem[];
   allLabel: string;
+  /** Heading of the "recently played" row. */
+  recentLabel: string;
   chipsLabel: string;
   /** Section count, with {n} for the number, e.g. "{n} games". */
   countTemplate: string;
@@ -31,8 +34,14 @@ type Props = {
  * server and the first paint is "All", so every game is in the HTML search
  * engines see; picking only filters, and is kept in ?category= for sharing.
  */
-export function GamesCatalog({ categories, items, allLabel, chipsLabel, countTemplate, trailing }: Props) {
+export function GamesCatalog({ categories, items, allLabel, recentLabel, chipsLabel, countTemplate, trailing }: Props) {
   const [picked, setPicked] = React.useState<CategoryId | null>(null);
+  const [recent, setRecent] = React.useState<string[]>([]);
+
+  // Read after mount: the list lives in this browser, so the server render never has it.
+  React.useEffect(() => {
+    setRecent(recentSlugs(items.map((item) => item.slug)));
+  }, [items]);
 
   React.useEffect(() => {
     const fromUrl = new URLSearchParams(window.location.search).get("category");
@@ -76,6 +85,16 @@ export function GamesCatalog({ categories, items, allLabel, chipsLabel, countTem
 
       {picked === null ? (
         <>
+          {recent.length ? (
+            <section aria-labelledby="games-recent" className="space-y-4">
+              <h2 id="games-recent" className="border-b border-border pb-2 text-xl font-semibold tracking-tight sm:text-2xl">{recentLabel}</h2>
+              <div className={grid}>
+                {recent.map((slug) => (
+                  <React.Fragment key={slug}>{items.find((item) => item.slug === slug)?.card}</React.Fragment>
+                ))}
+              </div>
+            </section>
+          ) : null}
           {categories.map((category) => {
             const inSection = items.filter((item) => item.categories[0] === category.id);
             if (!inSection.length) return null;

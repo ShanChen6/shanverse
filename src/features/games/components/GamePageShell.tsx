@@ -10,6 +10,7 @@ import { ROUTES } from "@/constants/routes";
 import { getTranslator } from "@/i18n/server";
 
 import { GameRulesSheet } from "./GameRulesSheet";
+import { PlayTracker } from "./PlayTracker";
 
 type GamePageShellProps = {
   path: string;
@@ -35,6 +36,7 @@ export async function GamePageShell({ path, title, intro, description, genre, st
 
   return (
     <>
+      <PlayTracker slug={path.split("/").filter(Boolean).pop() ?? ""} />
       <JsonLd
         data={{
           "@context": "https://schema.org",
