@@ -71,9 +71,14 @@ curl -X POST https://YOUR-SITE/api/revalidate \
 - Answers: `200` refreshed, `401` wrong or missing secret, `400` unknown scope, `503` no secret configured on the server.
 - Nothing is refreshed without the secret, and the secret is compared in constant time.
 
-## Projects that do not show up
+## Projects and posts that do not show up
 
-A published project is hidden when its `Title` or `Slug` is empty. When the cache refreshes (at most every 5 minutes) the server logs one line, `Published projects hidden because a required property is empty`, with the page id, title and the missing property. Unpublished projects are not logged: hiding them is intended.
+The server logs a warning when the cache refreshes (at most every 5 minutes), once per kind of problem, for **both projects and blog posts**:
+
+- `Published projects hidden because a required property is empty` (or `posts`): a published page has an empty `Title` or `Slug`. The line lists the page id, title and the missing property.
+- `Published projects share a slug, so only one can be opened` (or `posts`): two published pages use the same `Slug` (case ignored). Only one is reachable at that address, so give each a unique slug.
+
+Unpublished pages are not logged: hiding them is intended. Pages already hidden for an empty title or slug are not also reported as duplicates.
 
 ## Page template
 

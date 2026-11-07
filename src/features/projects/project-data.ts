@@ -2,18 +2,17 @@ import "server-only";
 
 import { unstable_cache } from "next/cache";
 
+import { reportContentProblems } from "@/features/notion/skipped-content";
 import { logger } from "@/lib/logger";
 import { notionService } from "@/services/notion.service";
 import type { Project } from "@/types/project";
 import { compareProjects } from "./project-sort";
-import { skippedProjects } from "./skipped-projects";
 
 const loadProjects = unstable_cache(
   async () => {
     const projects = await notionService.getProjects();
     // Runs when the cache refreshes, not on every visit, so the log stays short.
-    const skipped = skippedProjects(projects);
-    if (skipped.length) logger.warn("Published projects hidden because a required property is empty", { projects: skipped });
+    reportContentProblems("projects", projects, logger);
     return projects;
   },
   ["notion-project-list"],
