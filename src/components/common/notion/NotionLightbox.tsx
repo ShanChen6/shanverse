@@ -42,14 +42,34 @@ export function NotionLightbox({ children, className, labels }: { children: Reac
   const [index, setIndex] = React.useState<number | null>(null);
   const [zoomed, setZoomed] = React.useState(false);
   const openerRef = React.useRef<HTMLElement | null>(null);
-  const dragRef = React.useRef<{ id: number; x: number; y: number } | null>(null);
+  const dragRef = React.useRef<{ id: number; x: number; y: number; locked: boolean } | null>(null);
   const swipedRef = React.useRef(false);
+  // Horizontal offset of the picture while a finger drags it, and whether changes to it are animated.
+  const [dragX, setDragX] = React.useState(0);
+  const [settling, setSettling] = React.useState(false);
+  const busyRef = React.useRef(false);
+  const timersRef = React.useRef<number[]>([]);
+  const areaRef = React.useRef<HTMLDivElement>(null);
+
+  const later = (callback: () => void, ms: number) => {
+    timersRef.current.push(window.setTimeout(callback, ms));
+  };
+  const resetDrag = () => {
+    timersRef.current.forEach((timer) => window.clearTimeout(timer));
+    timersRef.current = [];
+    busyRef.current = false;
+    dragRef.current = null;
+    setSettling(false);
+    setDragX(0);
+  };
+  React.useEffect(() => () => timersRef.current.forEach((timer) => window.clearTimeout(timer)), []);
 
   const open = (event: React.MouseEvent) => {
     const trigger = (event.target as HTMLElement).closest<HTMLButtonElement>("button[data-lightbox]");
     const root = rootRef.current;
     if (!trigger || !root) return;
     const nodes = Array.from(root.querySelectorAll<HTMLButtonElement>("button[data-lightbox]"));
+    resetDrag();
     openerRef.current = trigger;
     setItems(nodes.map((node) => ({ src: node.dataset.src ?? "", alt: node.dataset.alt ?? "", caption: node.dataset.caption ?? "" })));
     setIndex(Math.max(0, nodes.indexOf(trigger)));
@@ -57,6 +77,7 @@ export function NotionLightbox({ children, className, labels }: { children: Reac
   };
 
   const go = (step: number) => {
+    resetDrag();
     setIndex((current) => (current === null ? current : (current + step + items.length) % items.length));
     setZoomed(false);
   };
@@ -104,24 +125,71 @@ export function NotionLightbox({ children, className, labels }: { children: Reac
 
             <div className="relative flex min-h-0 flex-1">
               <div
+                ref={areaRef}
                 className="flex min-h-0 flex-1 overflow-auto px-3 pb-3 sm:px-16"
                 // While zoomed the same gesture pans the picture, so swiping is only for the fitted view.
                 style={{ touchAction: zoomed ? "auto" : "pan-y" }}
                 onPointerDown={(event) => {
                   swipedRef.current = false;
-                  dragRef.current = !zoomed && many ? { id: event.pointerId, x: event.clientX, y: event.clientY } : null;
+                  if (zoomed || !many || busyRef.current) {
+                    dragRef.current = null;
+                    return;
+                  }
+                  dragRef.current = { id: event.pointerId, x: event.clientX, y: event.clientY, locked: false };
+                }}
+                onPointerMove={(event) => {
+                  const start = dragRef.current;
+                  if (!start || start.id !== event.pointerId) return;
+                  const dx = event.clientX - start.x;
+                  const dy = event.clientY - start.y;
+                  if (!start.locked) {
+                    // Wait until the gesture is clearly sideways before the picture follows the finger.
+                    if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * SWIPE_DIRECTION_RATIO) return;
+                    start.locked = true;
+                    event.currentTarget.setPointerCapture(event.pointerId);
+                  }
+                  swipedRef.current = true;
+                  setSettling(false);
+                  setDragX(dx);
                 }}
                 onPointerUp={(event) => {
                   const start = dragRef.current;
                   dragRef.current = null;
-                  if (!start || start.id !== event.pointerId) return;
-                  const step = swipeStep(event.clientX - start.x, event.clientY - start.y);
-                  if (step) {
-                    swipedRef.current = true;
-                    go(step);
+                  if (!start || start.id !== event.pointerId || !start.locked) return;
+                  const dx = event.clientX - start.x;
+                  const step = swipeStep(dx, event.clientY - start.y);
+                  if (!step) {
+                    setSettling(true);
+                    setDragX(0);
+                    return;
                   }
+                  const width = areaRef.current?.clientWidth ?? window.innerWidth;
+                  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                    go(step);
+                    return;
+                  }
+                  // Slide the picture off the screen, swap it, then slide the next one in from the other side.
+                  busyRef.current = true;
+                  setSettling(true);
+                  setDragX(-step * width);
+                  later(() => {
+                    setIndex((current) => (current === null ? current : (current + step + items.length) % items.length));
+                    setSettling(false);
+                    setDragX(step * width);
+                    later(() => {
+                      setSettling(true);
+                      setDragX(0);
+                      later(() => { busyRef.current = false; }, 200);
+                    }, 30);
+                  }, 180);
                 }}
-                onPointerCancel={() => { dragRef.current = null; }}
+                onPointerCancel={() => {
+                  if (dragRef.current?.locked) {
+                    setSettling(true);
+                    setDragX(0);
+                  }
+                  dragRef.current = null;
+                }}
                 onClick={(event) => { if (event.target === event.currentTarget) setIndex(null); }}
               >
                 {current ? (
@@ -130,6 +198,11 @@ export function NotionLightbox({ children, className, labels }: { children: Reac
                     src={current.src}
                     alt={current.alt}
                     draggable={false}
+                    style={{
+                      transform: dragX ? `translateX(${dragX}px)` : undefined,
+                      opacity: dragX ? Math.max(0.35, 1 - Math.abs(dragX) / 500) : undefined,
+                      transition: settling ? "transform 180ms ease-out, opacity 180ms ease-out" : "none",
+                    }}
                     onClick={() => {
                       // A swipe also ends with a click on the picture; it must not toggle the zoom.
                       if (swipedRef.current) { swipedRef.current = false; return; }
