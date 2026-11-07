@@ -22,6 +22,7 @@ import Badge from "@/components/ui/badge";
 import { ProjectCard } from "@/features/home/common/ProjectCard";
 import {
   getProjectDetail,
+  getAdjacentProjects,
   getRelatedProjects,
 } from "@/features/projects/project-detail-data";
 import { ROUTES } from "@/constants/routes";
@@ -106,6 +107,7 @@ export default async function ProjectDetailPage({ params }: Props) {
   const blocks = project.contentBlocks ?? [];
   const { items: toc, headingIds } = createTableOfContents(blocks);
   const relatedProjects = await getRelatedProjects(project).catch(() => []);
+  const { previous, next } = await getAdjacentProjects(project).catch(() => ({ previous: null, next: null }));
   const cover = project.coverImage ?? project.thumbnailImage ?? brandImage;
   const githubUrl = safeExternalUrl(project.githubUrl);
   const liveUrl = safeExternalUrl(project.liveUrl);
@@ -231,6 +233,23 @@ export default async function ProjectDetailPage({ params }: Props) {
             ) : null}
           </aside>
         </div>
+
+        {previous || next ? (
+          <nav aria-label={t("projects.adjacentLabel")} className="mx-auto grid max-w-6xl gap-4 border-t border-border pt-8 sm:grid-cols-2">
+            {previous ? (
+              <Link href={ROUTES.PROJECT_DETAIL(previous.slug)} rel="prev" className="group flex min-h-16 min-w-0 flex-col gap-1 rounded-card border border-border bg-surface p-4 transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary">
+                <span className="text-xs font-medium text-muted">&larr; {t("projects.previousProject")}</span>
+                <span className="line-clamp-2 font-semibold group-hover:text-primary">{previous.title}</span>
+              </Link>
+            ) : <span aria-hidden="true" className="hidden sm:block" />}
+            {next ? (
+              <Link href={ROUTES.PROJECT_DETAIL(next.slug)} rel="next" className="group flex min-h-16 min-w-0 flex-col gap-1 rounded-card border border-border bg-surface p-4 text-left transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary sm:text-right">
+                <span className="text-xs font-medium text-muted">{t("projects.nextProject")} &rarr;</span>
+                <span className="line-clamp-2 font-semibold group-hover:text-primary">{next.title}</span>
+              </Link>
+            ) : null}
+          </nav>
+        ) : null}
 
         {relatedProjects.length ? (
           <section aria-labelledby="related-projects-heading" className="mx-auto max-w-6xl space-y-6 border-t border-border pt-10">

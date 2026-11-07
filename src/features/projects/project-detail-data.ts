@@ -24,6 +24,15 @@ export const getProjectDetail = cache(
   },
 );
 
+/** The project before and after this one in the list (newest first), for "previous / next" links. */
+export async function getAdjacentProjects(project: Project): Promise<{ previous: Project | null; next: Project | null }> {
+  const { projects } = await getProjectData();
+  const ordered = [...projects].sort((a, b) => Date.parse(b.updatedAt || b.createdAt) - Date.parse(a.updatedAt || a.createdAt));
+  const index = ordered.findIndex((candidate) => candidate.id === project.id);
+  if (index < 0) return { previous: null, next: null };
+  return { previous: ordered[index - 1] ?? null, next: ordered[index + 1] ?? null };
+}
+
 export async function getRelatedProjects(project: Project): Promise<Project[]> {
   const { projects } = await getProjectData();
   const technologies = new Set(

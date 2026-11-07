@@ -44,15 +44,15 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
   return (
     <>
         {!data.hasError && (
-          <dl aria-label={t("projects.statsLabel")} className="grid gap-3 sm:grid-cols-3">
+          <dl aria-label={t("projects.statsLabel")} className="grid grid-cols-3 gap-2 sm:gap-3">
             {[
               [String(data.projects.length), t("projects.statsPublished")],
               [String(technologies.length), t("projects.statsTechnologies")],
               [String(data.projects.filter((project) => project.featured).length), t("projects.statsFeatured")],
             ].map(([value, label]) => (
-              <div key={label} className="rounded-2xl border border-border bg-surface p-5">
-                <dd className="text-3xl font-bold text-primary">{value}</dd>
-                <dt className="mt-1 text-sm text-foreground-secondary">{label}</dt>
+              <div key={label} className="rounded-card border border-border bg-surface p-3 sm:p-5">
+                <dd className="text-2xl font-bold text-primary sm:text-3xl">{value}</dd>
+                <dt className="mt-1 text-xs text-foreground-secondary sm:text-sm">{label}</dt>
               </div>
             ))}
           </dl>
