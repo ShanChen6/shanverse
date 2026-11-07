@@ -166,7 +166,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             {(liveUrl || githubUrl) && (
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 {liveUrl ? (
-                  <a href={liveUrl} target="_blank" rel="noopener noreferrer" aria-label={t("projects.liveDemoOf", { title: project.title })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                  <a href={liveUrl} target="_blank" rel="noopener noreferrer" aria-label={t("projects.liveDemoOf", { title: project.title })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                     <ExternalLink aria-hidden="true" className="size-4" /> {t("projects.viewLiveDemo")}
                   </a>
                 ) : null}
@@ -262,7 +262,7 @@ export default async function ProjectDetailPage({ params }: Props) {
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("projects.ctaTitle")}</h2>
           <p className="mx-auto mt-3 max-w-2xl leading-relaxed text-foreground-secondary">{t("projects.ctaDescription")}</p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href={ROUTES.CONTACT} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary">{t("common.contactMe")} <ArrowRight aria-hidden="true" className="size-4" /></Link>
+            <Link href={ROUTES.CONTACT} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary">{t("common.contactMe")} <ArrowRight aria-hidden="true" className="size-4" /></Link>
             <Link href={ROUTES.PROJECTS} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-semibold hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" /> {t("projects.back")}</Link>
           </div>
         </section>

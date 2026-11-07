@@ -199,7 +199,7 @@ export function TypingTest() {
                   className={cn(
                     "typing-char",
                     state === "correct" && "text-foreground",
-                    state === "pending" && "text-muted/70",
+                    state === "pending" && "text-muted",
                     state === "incorrect" && "rounded-sm bg-danger/15 text-danger",
                     atCursor && focused && "typing-cursor",
                   )}

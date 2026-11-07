@@ -18,7 +18,7 @@ export async function AboutHeroSection() {
           <p className="max-w-3xl text-pretty text-lg leading-8 text-foreground-secondary">{t("about.heroDescription")}</p>
           <p className="text-sm font-medium text-primary">{t("about.heroTagline")}</p>
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Link href={ROUTES.PROJECTS} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">{t("common.viewProjects")} <ArrowRight aria-hidden="true" className="size-4" /></Link>
+            <Link href={ROUTES.PROJECTS} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">{t("common.viewProjects")} <ArrowRight aria-hidden="true" className="size-4" /></Link>
             <Link href={ROUTES.CONTACT} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-semibold hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"><Mail aria-hidden="true" className="size-4" /> {t("common.contactMe")}</Link>
           </div>
         </div>

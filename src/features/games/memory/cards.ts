@@ -19,7 +19,7 @@ export const TECH_CARDS: TechCard[] = [
   { id: "tailwind", name: "Tailwind CSS", mark: "Tw", background: "#0f172a", foreground: "#38bdf8" },
   { id: "nodejs", name: "Node.js", mark: "Nd", background: "#215732", foreground: "#8cc84b" },
   { id: "notion", name: "Notion", mark: "N", background: "#ffffff", foreground: "#111111" },
-  { id: "git", name: "Git", mark: "git", background: "#f05032", foreground: "#ffffff" },
+  { id: "git", name: "Git", mark: "git", background: "#c93a1f", foreground: "#ffffff" },
   { id: "redis", name: "Redis", mark: "Rd", background: "#a41e11", foreground: "#ffffff" },
   { id: "postgres", name: "PostgreSQL", mark: "Pg", background: "#336791", foreground: "#ffffff" },
   { id: "docker", name: "Docker", mark: "Dk", background: "#1d63ed", foreground: "#ffffff" },
