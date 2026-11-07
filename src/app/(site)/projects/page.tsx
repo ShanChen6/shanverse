@@ -3,7 +3,7 @@ import { PageContainer, PageHeader } from "@/components/layout";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import * as React from "react";
 import { Suspense } from "react";
-import { ArrowRight, ArrowUpRight, BriefcaseBusiness, Code2, Layers3, Search, Sparkles, Tags, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BriefcaseBusiness, Layers3, Search, Sparkles, X } from "lucide-react";
 
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/routes";
 import { ProjectCard } from "@/features/home/common/ProjectCard";
 import { getProjectData } from "@/features/projects/project-data";
-import { filterProjects, parseProjectQuery, PROJECTS_PER_PAGE, projectHref, type ProjectSearchParams, uniqueNames } from "@/features/projects/project-query";
+import { filterProjects, parseProjectQuery, PROJECTS_PER_PAGE, projectHref, showProjectTools, type ProjectSearchParams, uniqueNames } from "@/features/projects/project-query";
 import { cn } from "@/lib/cn";
 import { localizeHref } from "@/i18n/config";
 import { getTranslator } from "@/i18n/server";
@@ -26,6 +26,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const filterClass = "inline-flex min-w-0 items-center rounded-full border px-3.5 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+const activeClass = "border-primary/30 bg-primary/10 text-primary";
+const idleClass = "border-border bg-surface text-foreground-secondary hover:border-primary/40 hover:text-primary";
 const textLinkClass = "rounded-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-primary";
 
 async function ProjectsDataSection({ query }: { query: ReturnType<typeof parseProjectQuery> }) {
@@ -39,11 +41,13 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
   const totalPages = Math.max(1, Math.ceil(gridProjects.length / PROJECTS_PER_PAGE));
   const currentPage = Math.min(query.page, totalPages);
   const pageProjects = gridProjects.slice((currentPage - 1) * PROJECTS_PER_PAGE, currentPage * PROJECTS_PER_PAGE);
-  const hasFilters = Boolean(query.q || query.tech || query.tag);
+  const statuses = uniqueNames(data.projects.map((project) => project.status ?? ""));
+  const hasFilters = Boolean(query.q || query.tech || query.tag || query.status);
+  const showTools = showProjectTools(data.projects.length, hasFilters);
 
   return (
     <>
-        {!data.hasError && (
+        {!data.hasError && showTools && (
           <dl aria-label={t("projects.statsLabel")} className="grid grid-cols-3 gap-2 sm:gap-3">
             {[
               [String(data.projects.length), t("projects.statsPublished")],
@@ -58,7 +62,7 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
           </dl>
         )}
 
-        <section aria-label={t("projects.searchSection")} className="space-y-6">
+        {showTools ? <section aria-label={t("projects.searchSection")} className="space-y-6">
           <form action={localizeHref(ROUTES.PROJECTS, locale)} method="get" role="search" className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
               <label htmlFor="project-search" className="sr-only">{t("projects.searchLabel")}</label>
@@ -67,30 +71,41 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
             </div>
             {query.tech && <input type="hidden" name="tech" value={query.tech} />}
             {query.tag && <input type="hidden" name="tag" value={query.tag} />}
+            {query.status && <input type="hidden" name="status" value={query.status} />}
             <button type="submit" className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-6 text-sm font-semibold text-primary transition-colors hover:bg-primary/20 focus-visible:ring-2 focus-visible:ring-primary">{t("blog.searchButton")} <ArrowUpRight aria-hidden="true" className="size-4" /></button>
           </form>
 
-          <div className="space-y-3">
-            <p id="tech-filter-label" className="flex items-center gap-2 text-sm font-semibold"><Code2 aria-hidden="true" className="size-4 text-primary" /> {t("projects.techStack")}</p>
-            <nav aria-labelledby="tech-filter-label" className="flex flex-wrap gap-2">
-              <Link href={projectHref(query, { tech: "", page: 1 })} aria-current={!query.tech ? "true" : undefined} className={cn(filterClass, !query.tech ? "border-primary/30 bg-primary/10 text-primary" : "border-border bg-surface text-foreground-secondary hover:border-primary/40 hover:text-primary")}>{t("common.all")}</Link>
-              {technologies.map((technology) => {
-                const active = query.tech.toLowerCase() === technology.toLowerCase();
-                return <Link key={technology} href={projectHref(query, { tech: active ? "" : technology, page: 1 })} aria-current={active ? "true" : undefined} className={cn(filterClass, active ? "border-primary/30 bg-primary/10 text-primary" : "border-border bg-surface text-foreground-secondary hover:border-primary/40 hover:text-primary")}><span className="break-words [overflow-wrap:anywhere]">{technology}</span></Link>;
-              })}
-            </nav>
-          </div>
+          <nav aria-label={t("projects.filtersLabel")} className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+            <Link href={projectHref(query, { tech: "", tag: "", status: "", page: 1 })} aria-current={!query.tech && !query.tag && !query.status ? "true" : undefined} className={cn(filterClass, "shrink-0", !query.tech && !query.tag && !query.status ? activeClass : idleClass)}>{t("common.all")}</Link>
+            {[
+              { key: "status" as const, label: t("projects.status"), values: statuses },
+              { key: "tech" as const, label: t("projects.techStack"), values: technologies },
+              { key: "tag" as const, label: t("blog.tags"), values: tags },
+            ].filter((group) => group.values.length > 0).map((group) => (
+              <React.Fragment key={group.key}>
+                <span aria-hidden="true" className="ml-2 shrink-0 text-xs font-semibold uppercase tracking-wider text-muted">{group.label}</span>
+                {group.values.map((value) => {
+                  const active = query[group.key].toLowerCase() === value.toLowerCase();
+                  return (
+                    <Link key={`${group.key}-${value}`} href={projectHref(query, { [group.key]: active ? "" : value, page: 1 })} aria-current={active ? "true" : undefined} aria-label={`${group.label}: ${value}`} className={cn(filterClass, "shrink-0", active ? activeClass : idleClass)}>
+                      <span className="whitespace-nowrap">{value}</span>
+                    </Link>
+                  );
+                })}
+              </React.Fragment>
+            ))}
+          </nav>
 
           {hasFilters && (
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <span className="text-foreground-secondary">{t("projects.filters")}</span>
-              {(["q", "tech", "tag"] as const).filter((key) => query[key]).map((key) => (
+              {(["q", "tech", "tag", "status"] as const).filter((key) => query[key]).map((key) => (
                 <Link key={key} href={projectHref(query, { [key]: "", page: 1 })} aria-label={t("projects.removeFilter", { value: `${key}: ${query[key]}` })} className="inline-flex min-w-0 max-w-full items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary"><span className="break-words [overflow-wrap:anywhere]">{query[key]}</span><X aria-hidden="true" className="size-3.5" /></Link>
               ))}
               <Link href={ROUTES.PROJECTS} className={textLinkClass}>{t("common.clearAll")}</Link>
             </div>
           )}
-        </section>
+        </section> : null}
 
         {data.hasError ? (
           <section role="status" className="rounded-2xl border border-border bg-surface px-6 py-16 text-center">
@@ -113,7 +128,7 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
               </section>
             )}
 
-            <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-10">
+            <div className="min-w-0">
               <div className="min-w-0 space-y-8">
                 {filteredProjects.length === 0 ? (
                   <EmptyState
@@ -126,24 +141,11 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
                 ) : pageProjects.length > 0 ? (
                   <section aria-labelledby="project-grid-heading" className="space-y-5">
                     <h2 id="project-grid-heading" className="flex items-center gap-2 text-2xl font-semibold tracking-tight"><Layers3 aria-hidden="true" className="size-5 text-primary" /> {t("projects.otherProjects")}</h2>
-                    <div className="grid gap-6 sm:grid-cols-2">{pageProjects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{pageProjects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
                   </section>
                 ) : null}
                 <Pagination currentPage={currentPage} totalPages={totalPages} hrefBuilder={(page) => projectHref(query, { page })} labels={paginationLabels(t)} className="justify-center border-t border-border pt-6" />
               </div>
-
-              <aside aria-labelledby="project-tags-heading" className="min-w-0 rounded-2xl border border-border bg-surface p-5 lg:sticky lg:top-24">
-                <h2 id="project-tags-heading" className="flex items-center gap-2 text-lg font-semibold"><Tags aria-hidden="true" className="size-4 text-primary" /> {t("blog.tags")}</h2>
-                <p className="mb-5 mt-2 text-sm leading-relaxed text-foreground-secondary">{t("projects.tagsDescription")}</p>
-                {tags.length > 0 ? (
-                  <nav aria-label={t("projects.filterByTag")} className="-m-1 flex max-h-96 flex-wrap gap-2 overflow-y-auto p-1">
-                    {tags.map((tag) => {
-                      const active = query.tag.toLowerCase() === tag.toLowerCase();
-                      return <Link key={tag} href={projectHref(query, { tag: active ? "" : tag, page: 1 })} aria-current={active ? "true" : undefined} className={cn(filterClass, "px-3 py-1.5 text-xs", active ? "border-primary/30 bg-primary/10 text-primary" : "border-border bg-background text-foreground-secondary hover:border-primary/40 hover:text-primary")}><span className="break-words [overflow-wrap:anywhere]">#{tag}</span></Link>;
-                    })}
-                  </nav>
-                ) : <p className="text-sm text-muted">{t("projects.noTags")}</p>}
-              </aside>
             </div>
           </>
         )}

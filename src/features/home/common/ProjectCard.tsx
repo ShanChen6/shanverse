@@ -100,6 +100,9 @@ export function ProjectCard({
       <div className="flex min-w-0 flex-1 flex-col">
         <CardHeader className="flex flex-1 flex-col gap-3 border-b-0 p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
+            {project.status ? (
+              <Badge variant="outline" className="bg-surface text-[11px]">{project.status}</Badge>
+            ) : null}
             {featured && project.featured ? (
               <Badge className="gap-1 bg-primary/10 text-primary">
                 <Sparkles className="size-3" aria-hidden="true" />{" "}

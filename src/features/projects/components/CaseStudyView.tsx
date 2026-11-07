@@ -15,7 +15,7 @@ const CASE_STUDY_ICONS = {
 
 /** A project page written with Problem / Solution / Result headings, shown as one card per section. */
 export function CaseStudyView({ study, headingIds, title }: { study: CaseStudy; headingIds: Map<string, string>; title: string }) {
-  const render = (blocks: NotionContentBlock[]) => <NotionRenderer blocks={blocks} headingIds={headingIds} articleTitle={title} />;
+  const render = (blocks: NotionContentBlock[]) => <NotionRenderer blocks={blocks} headingIds={headingIds} articleTitle={title} galleries />;
   return (
     <div className="space-y-8">
       {study.intro.length ? render(study.intro) : null}

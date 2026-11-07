@@ -4,7 +4,7 @@ import { NotionBlock } from "./NotionBlock";
 import type { NotionContentBlock } from "@/types/notion";
 import type { NotionLocale } from "../notion-messages";
 
-export function NotionRenderer({ blocks, headingIds, articleTitle, locale = "en" }: { blocks: NotionContentBlock[]; headingIds: Map<string, string>; articleTitle: string; locale?: NotionLocale }) {
+export function NotionRenderer({ blocks, headingIds, articleTitle, locale = "en", galleries = false }: { blocks: NotionContentBlock[]; headingIds: Map<string, string>; articleTitle: string; locale?: NotionLocale; /** Show two or more images in a row as a grid instead of one tall column. */ galleries?: boolean }) {
   const renderBlocks = (entries: NotionContentBlock[]): React.ReactNode[] => {
     const nodes: React.ReactNode[] = [];
     for (let index = 0; index < entries.length;) {
@@ -19,6 +19,19 @@ export function NotionRenderer({ blocks, headingIds, articleTitle, locale = "en"
         }
         const className = "space-y-2 pl-6 marker:text-primary";
         nodes.push(type === "bulleted_list_item" ? <ul key={`list-${block.id}`} className={`${className} list-disc`}>{list}</ul> : <ol key={`list-${block.id}`} className={`${className} list-decimal`}>{list}</ol>);
+        continue;
+      }
+      if (galleries && block.type === "image" && entries[index + 1]?.type === "image") {
+        const images: NotionContentBlock[] = [];
+        while (index < entries.length && entries[index].type === "image") {
+          images.push(entries[index]);
+          index += 1;
+        }
+        nodes.push(
+          <div key={`gallery-${block.id}`} role="group" aria-label={articleTitle} className="grid gap-4 sm:grid-cols-2">
+            {images.map((image) => <NotionBlock key={image.id} block={image} headingIds={headingIds} renderChildren={renderBlocks} articleTitle={articleTitle} locale={locale} />)}
+          </div>,
+        );
         continue;
       }
       nodes.push(<NotionBlock key={block.id} block={block} headingIds={headingIds} renderChildren={renderBlocks} articleTitle={articleTitle} locale={locale} />);

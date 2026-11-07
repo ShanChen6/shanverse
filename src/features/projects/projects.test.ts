@@ -5,6 +5,8 @@ import type { NotionContentBlock } from "@/types/notion";
 import { caseStudyKind, splitCaseStudy } from "./case-study";
 import { parseHighlights } from "./project-highlights";
 import { compareProjects } from "./project-sort";
+import { filterProjects, parseProjectQuery, projectHref, showProjectTools } from "./project-query";
+import type { Project } from "@/types/project";
 
 const project = (title: string, extra: { order?: number | null; date?: string | null; createdAt?: string } = {}) => ({
   title,
@@ -87,4 +89,21 @@ test("a page with two known headings becomes a case study", () => {
 test("a page with fewer than two known headings stays as it is", () => {
   assert.equal(splitCaseStudy([block("h1", "heading_2", "Kết quả"), block("p1", "paragraph")]), null);
   assert.equal(splitCaseStudy([block("p1", "paragraph")]), null);
+});
+
+const filterable = (title: string, status: string | null, tech: string[] = []) =>
+  ({ title, description: "", summary: null, status, techStack: tech, tags: [] }) as unknown as Project;
+
+test("projects can be filtered by status, and the status stays in the link", () => {
+  const list = [filterable("a", "Hoàn thành"), filterable("b", "Đang làm"), filterable("c", null)];
+  const query = parseProjectQuery({ status: "hoàn thành" });
+  assert.deepEqual(filterProjects(list, query).map((p) => p.title), ["a"]);
+  assert.equal(projectHref(query, { tech: "React" }), "/projects?tech=React&status=ho%C3%A0n+th%C3%A0nh");
+  assert.equal(filterProjects(list, parseProjectQuery({})).length, 3);
+});
+
+test("the filter bar is hidden for a short list unless a filter is already active", () => {
+  assert.equal(showProjectTools(3, false), false);
+  assert.equal(showProjectTools(6, false), true);
+  assert.equal(showProjectTools(3, true), true);
 });

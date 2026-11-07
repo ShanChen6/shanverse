@@ -19,6 +19,7 @@ import { Breadcrumb } from "@/components/layout/breadcrumb";
 import Badge from "@/components/ui/badge";
 import { ProjectCard } from "@/features/home/common/ProjectCard";
 import { splitCaseStudy } from "@/features/projects/case-study";
+import { ProjectActionBar } from "@/features/projects/components/ProjectActionBar";
 import { CaseStudyView } from "@/features/projects/components/CaseStudyView";
 import {
   getProjectDetail,
@@ -135,6 +136,20 @@ export default async function ProjectDetailPage({ params }: Props) {
                 {project.description}
               </p>
             ) : null}
+            {(liveUrl || githubUrl) && (
+              <div id="project-actions" className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                {liveUrl ? (
+                  <a href={liveUrl} target="_blank" rel="noopener noreferrer" aria-label={t("projects.liveDemoOf", { title: project.title })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                    <ExternalLink aria-hidden="true" className="size-4" /> {t("projects.viewLiveDemo")}
+                  </a>
+                ) : null}
+                {githubUrl ? (
+                  <a href={githubUrl} target="_blank" rel="noopener noreferrer" aria-label={t("projects.sourceOnGitHub", { title: project.title })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-5 py-3 text-sm font-semibold transition-colors hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary">
+                    <Code2 aria-hidden="true" className="size-4" /> {t("projects.viewSource")}
+                  </a>
+                ) : null}
+              </div>
+            )}
             {project.techStack.length ? (
               <div aria-label={t("projects.techStack")} className="flex flex-wrap gap-2">
                 {project.techStack.map((technology) => (
@@ -156,20 +171,6 @@ export default async function ProjectDetailPage({ params }: Props) {
                 {project.status ? <span><span className="font-medium text-foreground">{t("projects.status")}:</span> {project.status}</span> : null}
               </div>
             ) : null}
-            {(liveUrl || githubUrl) && (
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                {liveUrl ? (
-                  <a href={liveUrl} target="_blank" rel="noopener noreferrer" aria-label={t("projects.liveDemoOf", { title: project.title })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
-                    <ExternalLink aria-hidden="true" className="size-4" /> {t("projects.viewLiveDemo")}
-                  </a>
-                ) : null}
-                {githubUrl ? (
-                  <a href={githubUrl} target="_blank" rel="noopener noreferrer" aria-label={t("projects.sourceOnGitHub", { title: project.title })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-5 py-3 text-sm font-semibold transition-colors hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary">
-                    <Code2 aria-hidden="true" className="size-4" /> {t("projects.viewSource")}
-                  </a>
-                ) : null}
-              </div>
-            )}
           </div>
         </header>
 
@@ -201,7 +202,7 @@ export default async function ProjectDetailPage({ params }: Props) {
               caseStudy ? (
                 <CaseStudyView study={caseStudy} headingIds={headingIds} title={project.title} />
               ) : (
-                <NotionRenderer blocks={blocks} headingIds={headingIds} articleTitle={project.title} />
+                <NotionRenderer blocks={blocks} headingIds={headingIds} articleTitle={project.title} galleries />
               )
             ) : (
               <section className="rounded-2xl border border-dashed border-border bg-surface p-6 text-foreground-secondary">
@@ -261,6 +262,16 @@ export default async function ProjectDetailPage({ params }: Props) {
             <Link href={ROUTES.PROJECTS} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-semibold hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" /> {t("projects.back")}</Link>
           </div>
         </section>
+        {liveUrl || githubUrl ? (
+          <ProjectActionBar
+            targetId="project-actions"
+            liveUrl={liveUrl}
+            githubUrl={githubUrl}
+            liveLabel={t("projects.viewLiveDemo")}
+            sourceLabel={t("projects.viewSource")}
+            groupLabel={t("projects.quickLinks", { title: project.title })}
+          />
+        ) : null}
     </article>
   );
 }

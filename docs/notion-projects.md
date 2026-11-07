@@ -40,3 +40,10 @@ Write the page with **Heading 2** blocks named like this (Vietnamese or English,
 - With fewer than two matching headings the page is shown as plain Notion content, as before.
 
 Content refreshes about every 5 minutes.
+
+## What the list and page do with this
+
+- **Status** (`Status` property, e.g. "Hoàn thành", "Đang làm") shows as a small chip on each card and as a filter.
+- **Filters** (status, technology, tags) share one row; on phones it scrolls sideways. With fewer than 6 projects the stats and the filter bar are hidden (they appear again if a filter is already active in the link).
+- **Images**: two or more images placed one after another in a project page are shown as a two-column grid; a single image stays full width. Clicking an image opens it full size.
+- **Links**: the Demo and Source buttons sit right under the description. On phones they are also pinned above the bottom bar once the top of the page has scrolled away.

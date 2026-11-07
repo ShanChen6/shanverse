@@ -8,6 +8,7 @@ export type ProjectQuery = {
   q: string;
   tech: string;
   tag: string;
+  status: string;
   page: number;
 };
 
@@ -21,6 +22,7 @@ export function parseProjectQuery(params: ProjectSearchParams): ProjectQuery {
     q: (firstValue(params.q) ?? "").trim(),
     tech: (firstValue(params.tech) ?? "").trim(),
     tag: (firstValue(params.tag) ?? "").trim(),
+    status: (firstValue(params.status) ?? "").trim(),
     page: Number.isFinite(page) && page > 0 ? page : 1,
   };
 }
@@ -35,6 +37,7 @@ export function projectHref(
   if (next.q) params.set("q", next.q);
   if (next.tech) params.set("tech", next.tech);
   if (next.tag) params.set("tag", next.tag);
+  if (next.status) params.set("status", next.status);
   if (next.page > 1) params.set("page", String(next.page));
 
   const search = params.toString();
@@ -45,6 +48,7 @@ export function filterProjects(projects: Project[], query: ProjectQuery) {
   const search = query.q.toLocaleLowerCase("en");
   const tech = query.tech.toLocaleLowerCase("en");
   const tag = query.tag.toLocaleLowerCase("en");
+  const status = query.status.toLocaleLowerCase("en");
 
   return projects.filter((project) => {
     const matchesSearch =
@@ -52,6 +56,7 @@ export function filterProjects(projects: Project[], query: ProjectQuery) {
       [
         project.title,
         project.description,
+        project.summary ?? "",
         ...project.techStack,
         ...project.tags,
       ].some((value) => value.toLocaleLowerCase("en").includes(search));
@@ -64,7 +69,9 @@ export function filterProjects(projects: Project[], query: ProjectQuery) {
       !tag ||
       project.tags.some((value) => value.toLocaleLowerCase("en") === tag);
 
-    return matchesSearch && matchesTech && matchesTag;
+    const matchesStatus = !status || (project.status ?? "").toLocaleLowerCase("en") === status;
+
+    return matchesSearch && matchesTech && matchesTag && matchesStatus;
   });
 }
 
@@ -77,4 +84,11 @@ export function uniqueNames(values: string[]) {
   }
 
   return [...names.values()].sort((a, b) => a.localeCompare(b, "en"));
+}
+
+/** The filter bar and stats only earn their space once there are enough projects to sort through. */
+export const PROJECT_TOOLS_MIN = 6;
+
+export function showProjectTools(total: number, hasActiveFilters: boolean) {
+  return total >= PROJECT_TOOLS_MIN || hasActiveFilters;
 }
