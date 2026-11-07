@@ -159,3 +159,7 @@ Each phase = one PR into `develop`, with before/after screenshots at 360 / 768 /
 - A global search dialog must trap focus, close on Escape and return focus to the trigger.
 - Cutting About sections changes copy in both `vi` and `en`; keep both locales in step.
 - Bottom nav is now 5.25 rem tall (`--mobile-bottom-nav-height`); any new fixed element at the bottom must account for it.
+
+## 9. Projects and Notion
+
+Project ordering, the one-line summary, key-number highlights and the Problem / Solution / Result layout are driven by optional Notion properties and heading names. See `docs/notion-projects.md`.

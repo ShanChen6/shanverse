@@ -66,7 +66,7 @@ export function createSearchDocuments({
       id: `project-${project.id}`,
       type: "project",
       title: project.title.trim(),
-      description: normalizeSearchDescription(project.description),
+      description: normalizeSearchDescription(project.summary?.trim() || project.description),
       href: ROUTES.PROJECT_DETAIL(project.slug),
       tags: project.tags.map((tag) => tag.trim()).filter(Boolean),
       techStack: project.techStack.map((item) => item.trim()).filter(Boolean),

@@ -9,8 +9,6 @@ import {
   CalendarDays,
   Code2,
   ExternalLink,
-  FolderKanban,
-  RefreshCw,
   Sparkles,
   Tags,
 } from "lucide-react";
@@ -20,6 +18,8 @@ import { createTableOfContents } from "@/components/common/notion/table-of-conte
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import Badge from "@/components/ui/badge";
 import { ProjectCard } from "@/features/home/common/ProjectCard";
+import { splitCaseStudy } from "@/features/projects/case-study";
+import { CaseStudyView } from "@/features/projects/components/CaseStudyView";
 import {
   getProjectDetail,
   getAdjacentProjects,
@@ -45,16 +45,6 @@ function safeExternalUrl(value: string | null) {
   }
 }
 
-
-function sameDay(first: string, second: string) {
-  const a = new Date(first);
-  const b = new Date(second);
-  return (
-    !Number.isNaN(a.getTime()) &&
-    !Number.isNaN(b.getTime()) &&
-    a.toISOString().slice(0, 10) === b.toISOString().slice(0, 10)
-  );
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -106,6 +96,7 @@ export default async function ProjectDetailPage({ params }: Props) {
 
   const blocks = project.contentBlocks ?? [];
   const { items: toc, headingIds } = createTableOfContents(blocks);
+  const caseStudy = splitCaseStudy(blocks);
   const relatedProjects = await getRelatedProjects(project).catch(() => []);
   const { previous, next } = await getAdjacentProjects(project).catch(() => ({ previous: null, next: null }));
   const cover = project.coverImage ?? project.thumbnailImage ?? brandImage;
@@ -153,16 +144,18 @@ export default async function ProjectDetailPage({ params }: Props) {
                 ))}
               </div>
             ) : null}
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-y border-border py-4 text-sm text-foreground-secondary">
-              <span className="inline-flex items-center gap-2">
-                <CalendarDays aria-hidden="true" className="size-4" /> {t("common.createdLabel")} <time dateTime={project.createdAt}>{displayDate(project.createdAt)}</time>
-              </span>
-              {!sameDay(project.createdAt, project.updatedAt) ? (
-                <span className="inline-flex items-center gap-2">
-                  <RefreshCw aria-hidden="true" className="size-4" /> {t("common.updatedLabel")} <time dateTime={project.updatedAt}>{displayDate(project.updatedAt)}</time>
-                </span>
-              ) : null}
-            </div>
+            {project.date || project.role || project.timeline || project.status ? (
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-y border-border py-4 text-sm text-foreground-secondary">
+                {project.date ? (
+                  <span className="inline-flex items-center gap-2">
+                    <CalendarDays aria-hidden="true" className="size-4" /> <span className="sr-only">{t("projects.projectDateLabel")}</span> <time dateTime={project.date}>{displayDate(project.date)}</time>
+                  </span>
+                ) : null}
+                {project.role ? <span><span className="font-medium text-foreground">{t("projects.role")}:</span> {project.role}</span> : null}
+                {project.timeline ? <span><span className="font-medium text-foreground">{t("projects.timeline")}:</span> {project.timeline}</span> : null}
+                {project.status ? <span><span className="font-medium text-foreground">{t("projects.status")}:</span> {project.status}</span> : null}
+              </div>
+            ) : null}
             {(liveUrl || githubUrl) && (
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 {liveUrl ? (
@@ -181,8 +174,19 @@ export default async function ProjectDetailPage({ params }: Props) {
         </header>
 
         <figure className="relative mx-auto aspect-[16/8] max-w-6xl overflow-hidden rounded-3xl border border-border bg-surface">
-          <Image src={cover} alt={t("projects.coverAlt", { title: project.title })} fill priority unoptimized sizes="(min-width: 1280px) 1152px, 100vw" className="object-cover" />
+          <Image src={cover} alt={t("projects.coverAlt", { title: project.title })} fill priority unoptimized={!cover.startsWith("/")} sizes="(min-width: 1280px) 1152px, 100vw" className="object-cover" />
         </figure>
+
+        {project.highlights.length ? (
+          <dl aria-label={t("projects.highlightsLabel")} className="mx-auto grid max-w-6xl grid-cols-2 gap-3 sm:grid-cols-4">
+            {project.highlights.map((highlight) => (
+              <div key={highlight.label} className="rounded-card border border-border bg-surface p-4 text-center sm:p-5">
+                <dd className="text-2xl font-extrabold text-primary sm:text-3xl">{highlight.value}</dd>
+                <dt className="mt-1 text-xs text-foreground-secondary sm:text-sm">{highlight.label}</dt>
+              </div>
+            ))}
+          </dl>
+        ) : null}
 
         {toc.length >= 2 ? (
           <details className="mx-auto max-w-3xl rounded-2xl border border-border bg-surface p-5 lg:hidden">
@@ -193,21 +197,12 @@ export default async function ProjectDetailPage({ params }: Props) {
 
         <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,800px)_260px]">
           <main className="min-w-0 space-y-8">
-            <section aria-labelledby="overview-heading" className="rounded-2xl border border-border bg-surface p-6">
-              <h2 id="overview-heading" className="flex items-center gap-2 text-xl font-semibold">
-                <FolderKanban aria-hidden="true" className="size-5 text-primary" /> {t("projects.overview")}
-              </h2>
-              <dl className="mt-5 grid gap-5 text-sm sm:grid-cols-2">
-                {project.role ? <MetadataItem label={t("projects.role")} value={project.role} /> : null}
-                {project.timeline ? <MetadataItem label={t("projects.timeline")} value={project.timeline} /> : null}
-                {project.status ? <MetadataItem label={t("projects.status")} value={project.status} /> : null}
-                <MetadataItem label={t("projects.createdLabel")} value={displayDate(project.createdAt)} />
-                <MetadataItem label={t("projects.lastUpdated")} value={displayDate(project.updatedAt)} />
-              </dl>
-            </section>
-
             {blocks.length ? (
-              <NotionRenderer blocks={blocks} headingIds={headingIds} articleTitle={project.title} />
+              caseStudy ? (
+                <CaseStudyView study={caseStudy} headingIds={headingIds} title={project.title} />
+              ) : (
+                <NotionRenderer blocks={blocks} headingIds={headingIds} articleTitle={project.title} />
+              )
             ) : (
               <section className="rounded-2xl border border-dashed border-border bg-surface p-6 text-foreground-secondary">
                 <h2 className="font-semibold text-foreground">{t("projects.caseStudyPendingTitle")}</h2>
@@ -268,10 +263,6 @@ export default async function ProjectDetailPage({ params }: Props) {
         </section>
     </article>
   );
-}
-
-function MetadataItem({ label, value }: { label: string; value: string }) {
-  return <div><dt className="font-medium text-muted">{label}</dt><dd className="mt-1 break-words font-semibold text-foreground">{value}</dd></div>;
 }
 
 function TocList({ items }: { items: ReturnType<typeof createTableOfContents>["items"] }) {

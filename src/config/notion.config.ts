@@ -27,6 +27,12 @@ export const notionPropertyNames = {
 	role: ["Role", "role"],
 	timeline: ["Timeline", "timeline"],
 	status: ["Status", "status"],
+	// Project database extras, all optional: Date = when the project was made, Order = manual position
+	// (smaller first), Summary = one line for cards, Highlights = "value | label" lines.
+	projectDate: ["Project Date", "Date", "Start Date", "Completed", "projectDate"],
+	order: ["Order", "Sort Order", "Priority", "order"],
+	projectSummary: ["Summary", "Tagline", "summary"],
+	highlights: ["Highlights", "Key Results", "highlights"],
 	bio: ["Bio", "Biography", "bio", "biography"],
 	avatar: ["Avatar", "Profile Image", "avatar", "profileImage"],
 	// Word Guess database. Hints are read from "Hint 1" … "Hint 5" (or "Gợi ý 1" …).

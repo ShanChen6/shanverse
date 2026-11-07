@@ -4,11 +4,7 @@ import { unstable_cache } from "next/cache";
 
 import { notionService } from "@/services/notion.service";
 import type { Project } from "@/types/project";
-
-const projectTime = (project: Project) => {
-	const value = Date.parse(project.createdAt);
-  return Number.isNaN(value) ? 0 : value;
-};
+import { compareProjects } from "./project-sort";
 
 const loadProjects = unstable_cache(
   () => notionService.getProjects(),
@@ -28,7 +24,7 @@ export async function getProjectData(): Promise<{
           project.title.trim().length > 0 &&
           project.slug.trim().length > 0,
       )
-      .sort((a, b) => projectTime(b) - projectTime(a));
+      .sort(compareProjects);
 
     return { projects, hasError: false };
   } catch {

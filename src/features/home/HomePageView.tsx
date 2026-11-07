@@ -9,7 +9,7 @@ import { FeaturedProjectsSection } from "./components/FeaturedProjectsSection";
 import { ContactSection } from "./components/ContactSection";
 import { HomeGamesSection } from "./components/HomeGamesSection";
 import type { Post } from "@/types/post";
-import type { Project } from "@/types/project";
+import { compareProjects } from "@/features/projects/project-sort";
 import { getSocialLinks } from "@/config/social.config";
 import { getHomeData } from "./home-data";
 import { HeroSpaceBackdrop } from "./components/HeroSpaceBackdrop";
@@ -17,11 +17,6 @@ import { getTranslator } from "@/i18n/server";
 
 function postTimestamp(post: Post) {
   const value = Date.parse(post.publishedAt ?? post.createdAt);
-  return Number.isNaN(value) ? 0 : value;
-}
-
-function projectTimestamp(project: Project) {
-  const value = Date.parse(project.updatedAt || project.createdAt);
   return Number.isNaN(value) ? 0 : value;
 }
 
@@ -46,7 +41,7 @@ async function HomeDataSections() {
         project.title.trim().length > 0 &&
         project.slug.trim().length > 0,
     )
-    .sort((a, b) => projectTimestamp(b) - projectTimestamp(a));
+    .sort(compareProjects);
   const featuredProjects = publishedProjects
     .filter((project) => project.featured)
     .slice(0, 3);
