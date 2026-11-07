@@ -4,8 +4,10 @@ import * as React from "react";
 import { Trophy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { GameResultDialog } from "@/features/games/components/GameResultDialog";
+import { GameStatBar } from "@/features/games/components/GameStatBar";
+import { GameToolbar } from "@/features/games/components/GameToolbar";
 import { useI18n } from "@/i18n/client";
-import { cn } from "@/lib/cn";
 import { createSnake, step, tickMs, turn, type Direction, type SnakeState } from "./logic";
 
 const BEST_KEY = "shanverse:snake:best";
@@ -291,18 +293,24 @@ export function SnakeGame() {
 
   return (
     <div className="mx-auto w-full max-w-[30rem] space-y-4">
-      <div className="flex items-stretch justify-center gap-3">
-        <Stat label={t("games.score")} value={String(score)} highlight />
-        <Stat label={t("games.best")} value={String(best)} icon={<Trophy aria-hidden="true" className="size-3.5" />} />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-auto self-stretch px-4"
-          onClick={() => (status === "running" ? pause() : start())}
-        >
-          {t(status === "running" ? "games.snakePause" : status === "paused" ? "games.snakeResume" : status === "over" ? "games.tryAgain" : "games.snakeStart")}
-        </Button>
+      <div className="flex items-stretch justify-center gap-2 sm:gap-3">
+        <GameStatBar
+          stats={[
+            { label: t("games.score"), value: score, highlight: true },
+            { label: t("games.best"), value: best, icon: <Trophy aria-hidden="true" className="size-3.5" /> },
+          ]}
+        />
+        <GameToolbar>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-auto min-h-10 self-stretch px-4"
+            onClick={() => (status === "running" ? pause() : start())}
+          >
+            {t(status === "running" ? "games.snakePause" : status === "paused" ? "games.snakeResume" : status === "over" ? "games.tryAgain" : "games.snakeStart")}
+          </Button>
+        </GameToolbar>
       </div>
 
       <div ref={wrapRef} className="snake-wrap relative">
@@ -318,22 +326,17 @@ export function SnakeGame() {
           onPointerLeave={endPointer}
         />
         {status !== "running" ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-background/55 p-6 text-center backdrop-blur-[2px]">
-            {status === "over" ? (
-              <>
-                <p className="text-2xl font-extrabold">{t("games.snakeOver")}</p>
-                <p className="text-foreground-secondary">{t("games.overDescription", { score })}</p>
-                {newRecord ? <p className="text-sm font-semibold text-primary">{t("games.newRecord")}</p> : null}
-              </>
-            ) : status === "paused" ? (
-              <p className="text-2xl font-extrabold">{t("games.snakePaused")}</p>
-            ) : (
-              <p className="max-w-xs text-sm text-foreground-secondary">{t("games.snakeReady")}</p>
-            )}
-            <Button type="button" onClick={start} autoFocus={status !== "ready"}>
-              {t(status === "over" ? "games.tryAgain" : status === "paused" ? "games.snakeResume" : "games.snakeStart")}
-            </Button>
-          </div>
+          <GameResultDialog
+            className="rounded-2xl bg-background/55"
+            title={status === "over" ? t("games.snakeOver") : status === "paused" ? t("games.snakePaused") : undefined}
+            description={status === "over" ? t("games.overDescription", { score }) : status === "ready" ? t("games.snakeReady") : undefined}
+            record={status === "over" && newRecord ? t("games.newRecord") : undefined}
+            actions={
+              <Button type="button" onClick={start} autoFocus={status !== "ready"}>
+                {t(status === "over" ? "games.tryAgain" : status === "paused" ? "games.snakeResume" : "games.snakeStart")}
+              </Button>
+            }
+          />
         ) : null}
       </div>
 
@@ -376,17 +379,5 @@ function PadButton({ label, onPress, rotate }: { label: string; onPress: () => v
         <path d="M12 6l7 9H5z" fill="currentColor" />
       </svg>
     </button>
-  );
-}
-
-function Stat({ label, value, icon, highlight }: { label: string; value: string; icon?: React.ReactNode; highlight?: boolean }) {
-  return (
-    <div className={cn("min-w-[4.25rem] rounded-xl border bg-surface px-2 py-1.5 text-center sm:min-w-20 sm:px-3", highlight ? "border-primary/40" : "border-border")}>
-      <p className="flex items-center justify-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
-        {icon}
-        {label}
-      </p>
-      <p className={cn("text-lg font-extrabold tabular-nums", highlight && "text-primary")}>{value}</p>
-    </div>
   );
 }

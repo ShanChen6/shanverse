@@ -4,9 +4,12 @@ import * as React from "react";
 import { RefreshCw, Trophy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { GameDifficultyPicker } from "@/features/games/components/GameDifficultyPicker";
+import { GameResultDialog } from "@/features/games/components/GameResultDialog";
+import { GameStatBar } from "@/features/games/components/GameStatBar";
+import { GameToolbar } from "@/features/games/components/GameToolbar";
 import { useI18n } from "@/i18n/client";
 import type { TranslationKey } from "@/i18n/messages";
-import { cn } from "@/lib/cn";
 import { TECH_CARDS, TECH_CARD_BY_ID } from "./cards";
 import { MEMORY_LEVELS, createDeck, flip, hideMismatch, rating, type MemoryLevelId, type MemoryState } from "./logic";
 
@@ -122,46 +125,45 @@ export function MemoryMatch() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <div role="group" aria-label={t("games.msDifficulty")} className="inline-flex rounded-xl border border-border bg-surface p-1">
-          {(Object.keys(MEMORY_LEVELS) as MemoryLevelId[]).map((id) => (
-            <button
-              key={id}
-              type="button"
-              aria-pressed={level === id}
-              onClick={() => deal(id)}
-              className={cn(
-                "rounded-lg px-3 py-1.5 text-sm font-semibold text-foreground-secondary transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary",
-                level === id && "bg-primary text-primary-foreground hover:text-primary-foreground",
-              )}
-            >
-              {t(LEVEL_LABELS[id])}
-              <span className="ml-1.5 text-xs font-medium opacity-75">{MEMORY_LEVELS[id].pairs * 2}</span>
-            </button>
-          ))}
-        </div>
-        <Button type="button" size="sm" onClick={() => deal(level)} className="gap-1.5">
-          <RefreshCw aria-hidden="true" className="size-4" /> {t("games.newGame")}
-        </Button>
+        <GameDifficultyPicker
+          label={t("games.msDifficulty")}
+          value={level}
+          onChange={deal}
+          options={(Object.keys(MEMORY_LEVELS) as MemoryLevelId[]).map((id) => ({ id, label: t(LEVEL_LABELS[id]), hint: String(MEMORY_LEVELS[id].pairs * 2) }))}
+        />
+        <GameToolbar>
+          <Button type="button" size="sm" onClick={() => deal(level)} className="h-auto min-h-10 gap-1.5">
+            <RefreshCw aria-hidden="true" className="size-4" /> {t("games.newGame")}
+          </Button>
+        </GameToolbar>
       </div>
 
-      <div className="flex flex-wrap items-stretch justify-center gap-2 sm:gap-3">
-        <Stat label={t("games.memoryMoves")} value={String(game?.moves ?? 0)} />
-        <Stat label={t("games.memoryPairs")} value={`${game?.matchedPairs ?? 0}/${config.pairs}`} />
-        <Stat label={t("games.msTime")} value={String(seconds)} />
-        <Stat label={t("games.best")} value={best[level] !== undefined ? String(best[level]) : "—"} icon={<Trophy aria-hidden="true" className="size-3.5" />} />
-      </div>
+      <GameStatBar
+        className="justify-center"
+        stats={[
+          { label: t("games.memoryMoves"), value: game?.moves ?? 0 },
+          { label: t("games.memoryPairs"), value: `${game?.matchedPairs ?? 0}/${config.pairs}` },
+          { label: t("games.msTime"), value: seconds },
+          { label: t("games.best"), value: best[level] !== undefined ? String(best[level]) : "—", icon: <Trophy aria-hidden="true" className="size-3.5" /> },
+        ]}
+      />
 
       {game?.won ? (
-        <div role="status" className="mx-auto max-w-md rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center">
-          <p aria-label={t("games.memoryStars", { stars })} className="text-2xl tracking-widest text-primary">
-            {"★".repeat(stars)}
-            <span className="text-muted/50">{"★".repeat(3 - stars)}</span>
-          </p>
-          <p className="mt-1 text-lg font-bold">{t("games.memoryWin")}</p>
-          <p className="text-sm text-foreground-secondary">{t("games.memoryWinDescription", { moves: game.moves, time: seconds })}</p>
-          {newRecord ? <p className="mt-1 text-sm font-semibold text-primary">{t("games.newRecord")}</p> : null}
-          <Button type="button" className="mt-3" onClick={() => deal(level)}>{t("games.tryAgain")}</Button>
-        </div>
+        <GameResultDialog
+          variant="inline"
+          title={
+            <>
+              <span aria-label={t("games.memoryStars", { stars })} className="block text-2xl tracking-widest text-primary">
+                {"★".repeat(stars)}
+                <span className="text-muted/50">{"★".repeat(3 - stars)}</span>
+              </span>
+              <span className="text-lg font-bold">{t("games.memoryWin")}</span>
+            </>
+          }
+          description={t("games.memoryWinDescription", { moves: game.moves, time: seconds })}
+          record={newRecord ? t("games.newRecord") : undefined}
+          actions={<Button type="button" onClick={() => deal(level)}>{t("games.tryAgain")}</Button>}
+        />
       ) : null}
 
       <div
@@ -202,18 +204,6 @@ export function MemoryMatch() {
           );
         })}
       </div>
-    </div>
-  );
-}
-
-function Stat({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
-  return (
-    <div className="min-w-[4.25rem] rounded-xl border border-border bg-surface px-2 py-1.5 text-center sm:min-w-20 sm:px-3">
-      <p className="flex items-center justify-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
-        {icon}
-        {label}
-      </p>
-      <p className="text-lg font-extrabold tabular-nums">{value}</p>
     </div>
   );
 }

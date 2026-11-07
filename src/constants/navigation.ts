@@ -22,6 +22,12 @@ export const FOOTER_EXPLORE_ITEMS = [
 export const MOBILE_TAB_ITEMS = NAVIGATION_ITEMS.slice(0, 4);
 export const MOBILE_MORE_ITEMS = NAVIGATION_ITEMS.slice(4);
 
+/** A single game page (/games/<slug>), where the site chrome gives way to the game's own top bar on mobile. */
+export function isGamePlayRoute(pathname: string): boolean {
+  const route = pathname.replace(/^\/(vi|en)(?=\/|$)/u, "") || "/";
+  return /^\/games\/[^/]+\/?$/u.test(route);
+}
+
 export type NavigationItem = (typeof NAVIGATION_ITEMS)[number];
 
 export function isActiveRoute(pathname: string, href: string): boolean {

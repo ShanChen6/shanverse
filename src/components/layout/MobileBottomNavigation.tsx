@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { isActiveRoute, MOBILE_MORE_ITEMS, MOBILE_TAB_ITEMS } from "@/constants/navigation";
+import { isActiveRoute, isGamePlayRoute, MOBILE_MORE_ITEMS, MOBILE_TAB_ITEMS } from "@/constants/navigation";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 
@@ -20,6 +20,7 @@ const MORE_INDEX = MOBILE_TAB_ITEMS.length;
 export function MobileBottomNavigation() {
   const pathname = usePathname();
   const { t } = useI18n();
+  const hidden = isGamePlayRoute(pathname);
   const [moreOpen, setMoreOpen] = React.useState(false);
 
   const rootRef = React.useRef<HTMLElement>(null);
@@ -34,8 +35,11 @@ export function MobileBottomNavigation() {
   // Slide the notch and bubble to the active tab with the same spring as the original.
   React.useEffect(() => {
     const root = rootRef.current;
-    if (!root || activeIndex < 0) return;
     const m = motion.current;
+    if (!root || hidden || activeIndex < 0) {
+      m.ready = false;
+      return;
+    }
     const centre = () => {
       const li = itemRefs.current[activeIndex];
       return li ? li.offsetLeft + li.offsetWidth / 2 : 0;
@@ -72,7 +76,7 @@ export function MobileBottomNavigation() {
       cancelAnimationFrame(m.raf);
       m.raf = 0;
     };
-  }, [activeIndex]);
+  }, [activeIndex, hidden]);
 
   function onKeyDown(event: React.KeyboardEvent, index: number) {
     const delta = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
@@ -84,6 +88,8 @@ export function MobileBottomNavigation() {
       tabRefs.current[(index + delta + TAB_COUNT) % TAB_COUNT]?.focus();
     }
   }
+
+  if (hidden) return null;
 
   const iconProps = { "aria-hidden": true, fill: "none", strokeLinecap: "round", strokeLinejoin: "round" } as const;
 
