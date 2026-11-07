@@ -5,6 +5,8 @@ import { ArrowLeft, Lightbulb, Lock, RefreshCw, SkipForward, Undo2 } from "lucid
 
 import { MASCOT_NAME, TianwuBadge } from "@/components/mascot/Tianwu";
 import { Button } from "@/components/ui/button";
+import { GameStatBar } from "@/features/games/components/GameStatBar";
+import { GameResultDialog } from "@/features/games/components/GameResultDialog";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import {
@@ -550,10 +552,12 @@ function Board({ open, saved, commit, lang, onBack }: { open: Open; saved: Saved
           ) : null}
           <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
         </div>
-        <div className="flex items-center gap-2">
-          <Stat label={t("games.ngTime")} value={formatTime(elapsedNow())} />
-          <Stat label={t("games.ngHints")} value={`${HINTS_PER_PUZZLE - hintsUsed}/${HINTS_PER_PUZZLE}`} />
-        </div>
+        <GameStatBar
+          stats={[
+            { label: t("games.ngTime"), value: formatTime(elapsedNow()) },
+            { label: t("games.ngHints"), value: `${HINTS_PER_PUZZLE - hintsUsed}/${HINTS_PER_PUZZLE}` },
+          ]}
+        />
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -674,30 +678,29 @@ function Board({ open, saved, commit, lang, onBack }: { open: Open; saved: Saved
 
       <div id="ng-status" aria-live="polite" className="mx-auto max-w-xl">
         {won ? (
-          <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-4 sm:flex-nowrap">
-            <TianwuBadge className="size-14 shrink-0" />
-            <div className="min-w-0 flex-1">
-              <p className="font-bold">{open.kind === "picture" ? t("games.ngWinPicture", { name: entry?.name[lang] ?? "" }) : t("games.ngWin")}</p>
-              <p className="text-sm text-foreground-secondary">
-                {t("games.ngWinTime", { time: formatTime(won.time), hints: hintsUsed })}
-                {won.record ? ` · ${t("games.newRecord")}` : ""}
-              </p>
-            </div>
-            <div className="flex shrink-0 gap-2">
-              <Button type="button" variant="outline" size="sm" onClick={restart}>
-                {t("games.ngRestart")}
-              </Button>
-              {open.kind === "picture" ? (
-                <Button type="button" size="sm" onClick={onBack} autoFocus>
-                  {t("games.ngBack")}
+          <GameResultDialog
+            variant="inline"
+            media={<TianwuBadge className="size-14" />}
+            title={open.kind === "picture" ? t("games.ngWinPicture", { name: entry?.name[lang] ?? "" }) : t("games.ngWin")}
+            description={t("games.ngWinTime", { time: formatTime(won.time), hints: hintsUsed })}
+            record={won.record ? t("games.newRecord") : undefined}
+            actions={
+              <>
+                <Button type="button" variant="outline" size="sm" onClick={restart}>
+                  {t("games.ngRestart")}
                 </Button>
-              ) : (
-                <Button type="button" size="sm" onClick={newPuzzle} autoFocus>
-                  {t("games.ngNew")}
-                </Button>
-              )}
-            </div>
-          </div>
+                {open.kind === "picture" ? (
+                  <Button type="button" size="sm" onClick={onBack} autoFocus>
+                    {t("games.ngBack")}
+                  </Button>
+                ) : (
+                  <Button type="button" size="sm" onClick={newPuzzle} autoFocus>
+                    {t("games.ngNew")}
+                  </Button>
+                )}
+              </>
+            }
+          />
         ) : shownHint?.kind === "line" ? (
           <p className="text-center text-sm font-semibold text-primary">
             {t(shownHint.axis === "row" ? "games.ngHintRow" : "games.ngHintCol", { name: MASCOT_NAME, n: shownHint.index + 1 })}
@@ -709,14 +712,5 @@ function Board({ open, saved, commit, lang, onBack }: { open: Open; saved: Saved
         )}
       </div>
     </section>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="min-w-[4.5rem] rounded-xl border border-border bg-surface px-2.5 py-1 text-center">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">{label}</p>
-      <p className="text-base font-extrabold tabular-nums">{value}</p>
-    </div>
   );
 }

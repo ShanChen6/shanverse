@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Suspense } from "react";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/constants/routes";
 import { getTranslator } from "@/i18n/server";
@@ -9,7 +10,6 @@ import { AboutCTASection } from "./components/AboutCTASection";
 import { AboutHeroSection } from "./components/AboutHeroSection";
 import { AboutStatsSection } from "./components/AboutStatsSection";
 import { AboutStorySection } from "./components/AboutStorySection";
-import { ApproachSection } from "./components/ApproachSection";
 import { JourneySection } from "./components/JourneySection";
 import { SkillsSection } from "./components/SkillsSection";
 import { TianwuStorySection } from "./components/TianwuStorySection";
@@ -34,17 +34,20 @@ function AboutStatsSkeleton({ label }: { label: string }) {
 export async function AboutPageView() {
   const { t } = await getTranslator();
   return (
-    <div className="mx-auto max-w-6xl space-y-16 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-24">
-        <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("about.breadcrumb") }]} />
+    <PageContainer rhythm="loose">
+      <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("about.breadcrumb") }]} />
+      {/* 1. Intro: who I am, my story and a few numbers, kept together as one block. */}
+      <div className="space-y-6">
         <AboutHeroSection />
         <AboutStorySection />
         <Suspense fallback={<AboutStatsSkeleton label={t("about.statsLoading")} />}><AboutStatsData /></Suspense>
-        <SkillsSection />
-        <ApproachSection />
-        <JourneySection />
-        <ValuesSection />
-        <TianwuStorySection />
-        <AboutCTASection />
-    </div>
+      </div>
+      {/* 2. Skills  3. Journey  4. Values and approach  then Tianwu, and the call to action. */}
+      <SkillsSection />
+      <JourneySection />
+      <ValuesSection />
+      <TianwuStorySection />
+      <AboutCTASection />
+    </PageContainer>
   );
 }

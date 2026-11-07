@@ -5,6 +5,9 @@ import { Lightbulb, Lock, RefreshCw, Undo2 } from "lucide-react";
 
 import { MASCOT_NAME, Tianwu, TianwuBadge, TianwuTop } from "@/components/mascot/Tianwu";
 import { Button } from "@/components/ui/button";
+import { GameStatBar } from "@/features/games/components/GameStatBar";
+import { GameResultDialog } from "@/features/games/components/GameResultDialog";
+import { GameToolbar } from "@/features/games/components/GameToolbar";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import { LEVELS } from "./levels";
@@ -336,14 +339,19 @@ export function Sokoban() {
       </div>
 
       <div className="flex flex-wrap items-stretch justify-center gap-2 sm:gap-3">
-        <Stat label={t("games.skMoves")} value={String(game.moves)} />
-        <Stat label={t("games.skPushes")} value={String(game.pushes)} />
-        <Stat label={t("games.skCrates")} value={`${cratesOnGoals(game)}/${game.crates.length}`} highlight />
-        <Stat label={t("games.skAttempt")} value={String(attempts)} />
-        <Stat label={t("games.skPar")} value={String(level.par)} />
+        <GameStatBar
+          className="justify-center"
+          stats={[
+            { label: t("games.skMoves"), value: String(game.moves) },
+            { label: t("games.skPushes"), value: String(game.pushes) },
+            { label: t("games.skCrates"), value: `${cratesOnGoals(game)}/${game.crates.length}`, highlight: true },
+            { label: t("games.skAttempt"), value: String(attempts) },
+            { label: t("games.skPar"), value: String(level.par) },
+          ]}
+        />
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-2">
+      <GameToolbar className="justify-center">
         <Button
           type="button"
           variant="outline"
@@ -371,7 +379,7 @@ export function Sokoban() {
         <Button type="button" variant="outline" size="sm" onClick={restart} aria-keyshortcuts="R" className="gap-1.5">
           <RefreshCw aria-hidden="true" className="size-4" /> {t("games.skRestart")}
         </Button>
-      </div>
+      </GameToolbar>
 
       <div className="mx-auto w-fit max-w-full">
         <div
@@ -413,29 +421,27 @@ export function Sokoban() {
 
       <div id="sk-status" aria-live="polite" className="mx-auto max-w-xl">
         {solved ? (
-          <div className="flex items-center gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-4 sm:p-5">
-            <Tianwu pose="wave" className="h-24 w-22 shrink-0" />
-            <div className="min-w-0 flex-1 space-y-1">
-              <p aria-label={t("games.memoryStars", { stars })} className="text-xl tracking-widest text-[#D9AF62]">
-                {"★".repeat(stars)}
-                <span className="text-muted/40">{"★".repeat(3 - stars)}</span>
-              </p>
-              <p className="text-lg font-bold">{allDone ? t("games.skAllDoneTitle") : t("games.skWinTitle")}</p>
-              <p className="text-sm text-foreground-secondary">
-                {t("games.skWinMoves", { moves: game.moves, par: level.par })}
-                {" · "}
-                {attempts > 1 ? t("games.skWinPersist", { n: attempts }) : t("games.skWinFirst")}
-              </p>
-              {cleanWin ? <p className="text-sm font-semibold text-[#D9AF62]">🐢 {t("games.skShellWin")}</p> : null}
-              {record ? <p className="text-sm font-semibold text-primary">{t("games.newRecord")}</p> : null}
-              {allDone ? <p className="text-sm text-foreground-secondary">{t("games.skAllDone", { name: MASCOT_NAME })}</p> : null}
-            </div>
-            {!allDone ? (
-              <Button type="button" onClick={goNext} autoFocus aria-keyshortcuts="N" className="shrink-0">
-                {t("games.skNext")}
-              </Button>
-            ) : null}
-          </div>
+          <GameResultDialog
+            variant="inline"
+            media={<Tianwu pose="wave" className="h-24 w-22" />}
+            title={allDone ? t("games.skAllDoneTitle") : t("games.skWinTitle")}
+            description={`${t("games.skWinMoves", { moves: game.moves, par: level.par })} · ${attempts > 1 ? t("games.skWinPersist", { n: attempts }) : t("games.skWinFirst")}`}
+            record={record ? t("games.newRecord") : undefined}
+            actions={
+              !allDone ? (
+                <Button type="button" onClick={goNext} autoFocus aria-keyshortcuts="N" className="shrink-0">
+                  {t("games.skNext")}
+                </Button>
+              ) : undefined
+            }
+          >
+            <p aria-label={t("games.memoryStars", { stars })} className="text-xl tracking-widest text-[#D9AF62]">
+              {"★".repeat(stars)}
+              <span className="text-muted/40">{"★".repeat(3 - stars)}</span>
+            </p>
+            {cleanWin ? <p className="text-sm font-semibold text-[#D9AF62]">🐢 {t("games.skShellWin")}</p> : null}
+            {allDone ? <p className="text-sm text-foreground-secondary">{t("games.skAllDone", { name: MASCOT_NAME })}</p> : null}
+          </GameResultDialog>
         ) : stuck ? (
           <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-[#D9AF62] bg-[#102653] p-4 text-[#FAF7F0] sm:flex-nowrap sm:p-5">
             <TianwuBadge className="size-16 shrink-0" />
@@ -599,14 +605,5 @@ function PadButton({ label, onPress, rotate }: { label: string; onPress: () => v
         <path d="M12 6l7 9H5z" fill="currentColor" />
       </svg>
     </button>
-  );
-}
-
-function Stat({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className={cn("min-w-[3.9rem] rounded-xl border bg-surface px-2 py-1.5 text-center sm:min-w-18 sm:px-3", highlight ? "border-primary/40" : "border-border")}>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">{label}</p>
-      <p className={cn("text-lg font-extrabold tabular-nums", highlight && "text-primary")}>{value}</p>
-    </div>
   );
 }

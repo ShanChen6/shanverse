@@ -12,6 +12,7 @@ import { getNotionEnv } from "@/lib/env";
 import { notionMediaUrl, type NotionMediaTarget, type NotionPageImageSlot } from "@/lib/notion-media";
 import type { NotionAuthor, NotionCategory, NotionContentBlock, NotionIcon, NotionRichText, NotionTag, NotionWordRow } from "@/types/notion";
 import type { Post } from "@/types/post";
+import { parseHighlights } from "@/features/projects/project-highlights";
 import type { Project } from "@/types/project";
 
 type NotionProperty = PageObjectResponse["properties"][string];
@@ -488,6 +489,10 @@ export class NotionService {
 			title: propertyText(firstProperty(properties, notionPropertyNames.title)),
 			slug: propertyText(firstProperty(properties, notionPropertyNames.slug)),
 			description: propertyText(firstProperty(properties, notionPropertyNames.description)),
+			summary: propertyText(firstProperty(properties, notionPropertyNames.projectSummary)) || null,
+			highlights: parseHighlights(propertyText(firstProperty(properties, notionPropertyNames.highlights))),
+			date: propertyDate(firstProperty(properties, notionPropertyNames.projectDate)),
+			order: propertyNumber(firstProperty(properties, notionPropertyNames.order)),
 			content: contentBlocks ? blocksToText(contentBlocks) : propertyText(firstProperty(properties, notionPropertyNames.content)),
 			...(contentBlocks ? { contentBlocks } : {}),
 			thumbnailImage: pageImage(page, "thumbnailImage"),

@@ -34,7 +34,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
           className={cn(
             "flex min-h-9 min-w-10 items-center justify-center rounded-md px-2 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-wait disabled:opacity-70",
             locale === nextLocale
-              ? "bg-primary text-white"
+              ? "bg-primary text-primary-foreground"
               : "text-foreground-secondary hover:bg-background hover:text-foreground",
             compact && "min-h-8 min-w-9 px-1.5",
           )}

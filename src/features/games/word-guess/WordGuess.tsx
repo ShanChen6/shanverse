@@ -5,6 +5,8 @@ import { Lightbulb, Lock, SkipForward } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { GameResultDialog } from "@/features/games/components/GameResultDialog";
+import { GameStatBar } from "@/features/games/components/GameStatBar";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import {
@@ -224,12 +226,14 @@ export function WordGuess({ words, topics }: { words: WordEntry[]; topics: Topic
         })}
       </nav>
 
-      <div className="flex flex-wrap items-stretch justify-center gap-2 sm:gap-3">
-        <Stat label={t("games.wgSolved")} value={String(saved.stats.solved)} highlight />
-        <Stat label={t("games.wgStreak")} value={String(saved.stats.streak)} />
-        <Stat label={t("games.wgStars")} value={`${saved.stats.stars}★`} />
-        <Stat label={t("games.wgProgress")} value={`${playedInPool}/${pool.length}`} />
-      </div>
+      <GameStatBar
+          stats={[
+            { label: t("games.wgSolved"), value: String(saved.stats.solved), highlight: true },
+            { label: t("games.wgStreak"), value: String(saved.stats.streak) },
+            { label: t("games.wgStars"), value: `${saved.stats.stars}★` },
+            { label: t("games.wgProgress"), value: `${playedInPool}/${pool.length}` },
+          ]}
+        />
 
       {lang === "en" ? <p className="text-center text-xs text-muted">{t("games.wgContentNote")}</p> : null}
 
@@ -281,21 +285,23 @@ export function WordGuess({ words, topics }: { words: WordEntry[]; topics: Topic
           ) : null}
 
           {finished ? (
-            <div aria-live="polite" className="flex flex-wrap items-center gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-4">
-              <div className="min-w-0 flex-1 space-y-1">
-                <p className="text-lg font-bold">{round.status === "won" ? t("games.wgWinTitle") : t("games.wgLoseTitle")}</p>
-                <p className="text-sm text-foreground-secondary">{t("games.wgAnswerWas", { answer: word.answer })}</p>
-                {round.status === "won" ? (
-                  <p aria-label={t("games.wgStarsLabel", { stars: stars(round) })} className="text-xl tracking-widest text-[#D9AF62]">
-                    {"★".repeat(stars(round))}
-                    <span className="text-muted/40">{"★".repeat(MAX_HINTS - stars(round))}</span>
-                  </p>
-                ) : null}
-              </div>
-              <Button type="button" onClick={onNext} autoFocus className="shrink-0 gap-1.5">
-                <SkipForward aria-hidden="true" className="size-4" /> {t("games.wgNext")}
-              </Button>
-            </div>
+            <GameResultDialog
+              variant="inline"
+              title={round.status === "won" ? t("games.wgWinTitle") : t("games.wgLoseTitle")}
+              description={t("games.wgAnswerWas", { answer: word.answer })}
+              actions={
+                <Button type="button" onClick={onNext} autoFocus className="shrink-0 gap-1.5">
+                  <SkipForward aria-hidden="true" className="size-4" /> {t("games.wgNext")}
+                </Button>
+              }
+            >
+              {round.status === "won" ? (
+                <p aria-label={t("games.wgStarsLabel", { stars: stars(round) })} className="text-xl tracking-widest text-[#D9AF62]">
+                  {"★".repeat(stars(round))}
+                  <span className="text-muted/40">{"★".repeat(MAX_HINTS - stars(round))}</span>
+                </p>
+              ) : null}
+            </GameResultDialog>
           ) : (
             <form onSubmit={onSubmit} className="space-y-3">
               <label htmlFor="wg-answer" className="sr-only">
@@ -345,15 +351,6 @@ export function WordGuess({ words, topics }: { words: WordEntry[]; topics: Topic
       ) : (
         <p className="rounded-2xl border border-border bg-surface p-6 text-center text-foreground-secondary">{t("games.wgEmpty")}</p>
       )}
-    </div>
-  );
-}
-
-function Stat({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className={cn("min-w-[4.5rem] rounded-xl border bg-surface px-2 py-1.5 text-center sm:min-w-20 sm:px-3", highlight ? "border-primary/40" : "border-border")}>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">{label}</p>
-      <p className={cn("text-lg font-extrabold tabular-nums", highlight && "text-primary")}>{value}</p>
     </div>
   );
 }

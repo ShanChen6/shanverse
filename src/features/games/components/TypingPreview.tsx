@@ -19,19 +19,19 @@ export function TypingPreview() {
             key={i}
             className={
               i === TYPED
-                ? "typing-char typing-cursor text-muted/70"
+                ? "typing-char typing-cursor text-muted"
                 : i === WRONG
                   ? "rounded-sm bg-danger/15 text-danger"
                   : i < TYPED
                     ? "text-foreground"
-                    : "text-muted/70"
+                    : "text-muted"
             }
           >
             {char}
           </span>
         ))}
         {"\n"}
-        <span className="text-muted/70">{LINE_TWO}</span>
+        <span className="text-muted">{LINE_TWO}</span>
       </p>
     </div>
   );

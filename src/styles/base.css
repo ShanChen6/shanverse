@@ -270,3 +270,15 @@
     display: none;
   }
 }
+
+@utility rounded-control {
+  border-radius: var(--radius-control);
+}
+
+@utility rounded-card {
+  border-radius: var(--radius-card);
+}
+
+@utility rounded-panel {
+  border-radius: var(--radius-panel);
+}

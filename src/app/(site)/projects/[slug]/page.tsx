@@ -9,8 +9,6 @@ import {
   CalendarDays,
   Code2,
   ExternalLink,
-  FolderKanban,
-  RefreshCw,
   Sparkles,
   Tags,
 } from "lucide-react";
@@ -20,8 +18,12 @@ import { createTableOfContents } from "@/components/common/notion/table-of-conte
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import Badge from "@/components/ui/badge";
 import { ProjectCard } from "@/features/home/common/ProjectCard";
+import { splitCaseStudy } from "@/features/projects/case-study";
+import { ProjectActionBar } from "@/features/projects/components/ProjectActionBar";
+import { CaseStudyView } from "@/features/projects/components/CaseStudyView";
 import {
   getProjectDetail,
+  getAdjacentProjects,
   getRelatedProjects,
 } from "@/features/projects/project-detail-data";
 import { ROUTES } from "@/constants/routes";
@@ -44,16 +46,6 @@ function safeExternalUrl(value: string | null) {
   }
 }
 
-
-function sameDay(first: string, second: string) {
-  const a = new Date(first);
-  const b = new Date(second);
-  return (
-    !Number.isNaN(a.getTime()) &&
-    !Number.isNaN(b.getTime()) &&
-    a.toISOString().slice(0, 10) === b.toISOString().slice(0, 10)
-  );
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -105,7 +97,9 @@ export default async function ProjectDetailPage({ params }: Props) {
 
   const blocks = project.contentBlocks ?? [];
   const { items: toc, headingIds } = createTableOfContents(blocks);
+  const caseStudy = splitCaseStudy(blocks);
   const relatedProjects = await getRelatedProjects(project).catch(() => []);
+  const { previous, next } = await getAdjacentProjects(project).catch(() => ({ previous: null, next: null }));
   const cover = project.coverImage ?? project.thumbnailImage ?? brandImage;
   const githubUrl = safeExternalUrl(project.githubUrl);
   const liveUrl = safeExternalUrl(project.liveUrl);
@@ -142,29 +136,10 @@ export default async function ProjectDetailPage({ params }: Props) {
                 {project.description}
               </p>
             ) : null}
-            {project.techStack.length ? (
-              <div aria-label={t("projects.techStack")} className="flex flex-wrap gap-2">
-                {project.techStack.map((technology) => (
-                  <Badge key={technology} variant="outline" className="bg-surface">
-                    {technology}
-                  </Badge>
-                ))}
-              </div>
-            ) : null}
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-y border-border py-4 text-sm text-foreground-secondary">
-              <span className="inline-flex items-center gap-2">
-                <CalendarDays aria-hidden="true" className="size-4" /> {t("common.createdLabel")} <time dateTime={project.createdAt}>{displayDate(project.createdAt)}</time>
-              </span>
-              {!sameDay(project.createdAt, project.updatedAt) ? (
-                <span className="inline-flex items-center gap-2">
-                  <RefreshCw aria-hidden="true" className="size-4" /> {t("common.updatedLabel")} <time dateTime={project.updatedAt}>{displayDate(project.updatedAt)}</time>
-                </span>
-              ) : null}
-            </div>
             {(liveUrl || githubUrl) && (
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <div id="project-actions" className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 {liveUrl ? (
-                  <a href={liveUrl} target="_blank" rel="noopener noreferrer" aria-label={t("projects.liveDemoOf", { title: project.title })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                  <a href={liveUrl} target="_blank" rel="noopener noreferrer" aria-label={t("projects.liveDemoOf", { title: project.title })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                     <ExternalLink aria-hidden="true" className="size-4" /> {t("projects.viewLiveDemo")}
                   </a>
                 ) : null}
@@ -175,12 +150,44 @@ export default async function ProjectDetailPage({ params }: Props) {
                 ) : null}
               </div>
             )}
+            {project.techStack.length ? (
+              <div aria-label={t("projects.techStack")} className="flex flex-wrap gap-2">
+                {project.techStack.map((technology) => (
+                  <Badge key={technology} variant="outline" className="bg-surface">
+                    {technology}
+                  </Badge>
+                ))}
+              </div>
+            ) : null}
+            {project.date || project.role || project.timeline || project.status ? (
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-y border-border py-4 text-sm text-foreground-secondary">
+                {project.date ? (
+                  <span className="inline-flex items-center gap-2">
+                    <CalendarDays aria-hidden="true" className="size-4" /> <span className="sr-only">{t("projects.projectDateLabel")}</span> <time dateTime={project.date}>{displayDate(project.date)}</time>
+                  </span>
+                ) : null}
+                {project.role ? <span><span className="font-medium text-foreground">{t("projects.role")}:</span> {project.role}</span> : null}
+                {project.timeline ? <span><span className="font-medium text-foreground">{t("projects.timeline")}:</span> {project.timeline}</span> : null}
+                {project.status ? <span><span className="font-medium text-foreground">{t("projects.status")}:</span> {project.status}</span> : null}
+              </div>
+            ) : null}
           </div>
         </header>
 
         <figure className="relative mx-auto aspect-[16/8] max-w-6xl overflow-hidden rounded-3xl border border-border bg-surface">
-          <Image src={cover} alt={t("projects.coverAlt", { title: project.title })} fill priority unoptimized sizes="(min-width: 1280px) 1152px, 100vw" className="object-cover" />
+          <Image src={cover} alt={t("projects.coverAlt", { title: project.title })} fill priority unoptimized={!cover.startsWith("/")} sizes="(min-width: 1280px) 1152px, 100vw" className="object-cover" />
         </figure>
+
+        {project.highlights.length ? (
+          <dl aria-label={t("projects.highlightsLabel")} className="mx-auto grid max-w-6xl grid-cols-2 gap-3 sm:grid-cols-4">
+            {project.highlights.map((highlight) => (
+              <div key={highlight.label} className="rounded-card border border-border bg-surface p-4 text-center sm:p-5">
+                <dd className="text-2xl font-extrabold text-primary sm:text-3xl">{highlight.value}</dd>
+                <dt className="mt-1 text-xs text-foreground-secondary sm:text-sm">{highlight.label}</dt>
+              </div>
+            ))}
+          </dl>
+        ) : null}
 
         {toc.length >= 2 ? (
           <details className="mx-auto max-w-3xl rounded-2xl border border-border bg-surface p-5 lg:hidden">
@@ -191,21 +198,12 @@ export default async function ProjectDetailPage({ params }: Props) {
 
         <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,800px)_260px]">
           <main className="min-w-0 space-y-8">
-            <section aria-labelledby="overview-heading" className="rounded-2xl border border-border bg-surface p-6">
-              <h2 id="overview-heading" className="flex items-center gap-2 text-xl font-semibold">
-                <FolderKanban aria-hidden="true" className="size-5 text-primary" /> {t("projects.overview")}
-              </h2>
-              <dl className="mt-5 grid gap-5 text-sm sm:grid-cols-2">
-                {project.role ? <MetadataItem label={t("projects.role")} value={project.role} /> : null}
-                {project.timeline ? <MetadataItem label={t("projects.timeline")} value={project.timeline} /> : null}
-                {project.status ? <MetadataItem label={t("projects.status")} value={project.status} /> : null}
-                <MetadataItem label={t("projects.createdLabel")} value={displayDate(project.createdAt)} />
-                <MetadataItem label={t("projects.lastUpdated")} value={displayDate(project.updatedAt)} />
-              </dl>
-            </section>
-
             {blocks.length ? (
-              <NotionRenderer blocks={blocks} headingIds={headingIds} articleTitle={project.title} />
+              caseStudy ? (
+                <CaseStudyView study={caseStudy} headingIds={headingIds} title={project.title} locale={locale === "en" ? "en" : "vi"} />
+              ) : (
+                <NotionRenderer blocks={blocks} headingIds={headingIds} articleTitle={project.title} locale={locale === "en" ? "en" : "vi"} galleries />
+              )
             ) : (
               <section className="rounded-2xl border border-dashed border-border bg-surface p-6 text-foreground-secondary">
                 <h2 className="font-semibold text-foreground">{t("projects.caseStudyPendingTitle")}</h2>
@@ -232,6 +230,23 @@ export default async function ProjectDetailPage({ params }: Props) {
           </aside>
         </div>
 
+        {previous || next ? (
+          <nav aria-label={t("projects.adjacentLabel")} className="mx-auto grid max-w-6xl gap-4 border-t border-border pt-8 sm:grid-cols-2">
+            {previous ? (
+              <Link href={ROUTES.PROJECT_DETAIL(previous.slug)} rel="prev" className="group flex min-h-16 min-w-0 flex-col gap-1 rounded-card border border-border bg-surface p-4 transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary">
+                <span className="text-xs font-medium text-muted">&larr; {t("projects.previousProject")}</span>
+                <span className="line-clamp-2 font-semibold group-hover:text-primary">{previous.title}</span>
+              </Link>
+            ) : <span aria-hidden="true" className="hidden sm:block" />}
+            {next ? (
+              <Link href={ROUTES.PROJECT_DETAIL(next.slug)} rel="next" className="group flex min-h-16 min-w-0 flex-col gap-1 rounded-card border border-border bg-surface p-4 text-left transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary sm:text-right">
+                <span className="text-xs font-medium text-muted">{t("projects.nextProject")} &rarr;</span>
+                <span className="line-clamp-2 font-semibold group-hover:text-primary">{next.title}</span>
+              </Link>
+            ) : null}
+          </nav>
+        ) : null}
+
         {relatedProjects.length ? (
           <section aria-labelledby="related-projects-heading" className="mx-auto max-w-6xl space-y-6 border-t border-border pt-10">
             <div><p className="text-sm font-medium text-primary">{t("projects.exploreMore")}</p><h2 id="related-projects-heading" className="text-2xl font-semibold tracking-tight">{t("projects.related")}</h2></div>
@@ -243,16 +258,22 @@ export default async function ProjectDetailPage({ params }: Props) {
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("projects.ctaTitle")}</h2>
           <p className="mx-auto mt-3 max-w-2xl leading-relaxed text-foreground-secondary">{t("projects.ctaDescription")}</p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href={ROUTES.CONTACT} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary">{t("common.contactMe")} <ArrowRight aria-hidden="true" className="size-4" /></Link>
+            <Link href={ROUTES.CONTACT} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary">{t("common.contactMe")} <ArrowRight aria-hidden="true" className="size-4" /></Link>
             <Link href={ROUTES.PROJECTS} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-semibold hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" /> {t("projects.back")}</Link>
           </div>
         </section>
+        {liveUrl || githubUrl ? (
+          <ProjectActionBar
+            targetId="project-actions"
+            liveUrl={liveUrl}
+            githubUrl={githubUrl}
+            liveLabel={t("projects.viewLiveDemo")}
+            sourceLabel={t("projects.viewSource")}
+            groupLabel={t("projects.quickLinks", { title: project.title })}
+          />
+        ) : null}
     </article>
   );
-}
-
-function MetadataItem({ label, value }: { label: string; value: string }) {
-  return <div><dt className="font-medium text-muted">{label}</dt><dd className="mt-1 break-words font-semibold text-foreground">{value}</dd></div>;
 }
 
 function TocList({ items }: { items: ReturnType<typeof createTableOfContents>["items"] }) {

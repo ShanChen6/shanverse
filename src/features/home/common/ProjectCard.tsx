@@ -59,9 +59,11 @@ export function ProjectCard({
   ];
   const displayedTech = technologies.slice(0, 4);
   const remainingTech = technologies.length - displayedTech.length;
-  const dateValue = project.updatedAt || project.createdAt;
+  const hasProjectDate = Boolean(project.date);
+  const dateValue = project.date || project.updatedAt || project.createdAt;
   const date = formatMonthYear(dateValue, locale);
   const featured = variant === "featured";
+  const cardText = project.summary?.trim() || project.description.trim();
 
   return (
     <Card
@@ -98,6 +100,9 @@ export function ProjectCard({
       <div className="flex min-w-0 flex-1 flex-col">
         <CardHeader className="flex flex-1 flex-col gap-3 border-b-0 p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
+            {project.status ? (
+              <Badge variant="outline" className="bg-surface text-[11px]">{project.status}</Badge>
+            ) : null}
             {featured && project.featured ? (
               <Badge className="gap-1 bg-primary/10 text-primary">
                 <Sparkles className="size-3" aria-hidden="true" />{" "}
@@ -106,7 +111,7 @@ export function ProjectCard({
             ) : null}
             {date ? (
               <span className="text-xs text-muted">
-                {t("common.updatedLabel")}{" "}
+                {hasProjectDate ? null : <>{t("common.updatedLabel")}{" "}</>}
                 <time dateTime={dateValue}>{date}</time>
               </span>
             ) : null}
@@ -121,12 +126,25 @@ export function ProjectCard({
               {project.title}
             </Link>
           </CardTitle>
-          {project.description.trim() ? (
+          {cardText ? (
             <CardDescription
               className={`${featured ? "line-clamp-4" : "line-clamp-3"} p-0 leading-relaxed text-foreground-secondary wrap-anywhere`}
             >
-              {project.description.trim()}
+              {cardText}
             </CardDescription>
+          ) : null}
+          {project.highlights.length ? (
+            <dl aria-label={t("projects.highlightsLabel")} className="flex flex-wrap gap-x-5 gap-y-2">
+              {project.highlights.slice(0, 3).map((highlight) => (
+                <div key={highlight.label} className="min-w-0">
+                  <dt className="sr-only">{highlight.label}</dt>
+                  <dd className="text-sm text-foreground-secondary">
+                    <span className="text-base font-bold text-primary">{highlight.value}</span>{" "}
+                    <span aria-hidden="true">{highlight.label}</span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
           ) : null}
         </CardHeader>
         <CardContent className="flex min-h-10 flex-wrap items-center gap-1.5 px-5 pb-4 pt-0 sm:px-6">

@@ -5,6 +5,7 @@ import { Flag, Shuffle, Sparkles, Swords, Target, Wand2, X } from "lucide-react"
 
 import { MASCOT_NAME, TianwuBadge } from "@/components/mascot/Tianwu";
 import { Button } from "@/components/ui/button";
+import { GameResultDialog } from "@/features/games/components/GameResultDialog";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import { tianwuTeam, type Difficulty } from "./ai";
@@ -741,9 +742,22 @@ function Result({ game, you, them, lossesToSummon, complete, onNew, onRematch, o
       : t("games.blkByElimination");
   return (
     <div role="status" className="blk-result absolute inset-0 grid place-items-center p-3">
-      <div className="w-full max-w-xs space-y-3 rounded-2xl border border-border bg-surface/95 p-5 text-center shadow-xl backdrop-blur">
-        <p className={cn("text-2xl font-extrabold", winner === 0 ? "text-primary" : winner === 1 ? "text-red-500" : "text-foreground")}>{title}</p>
-        <p className="text-sm text-foreground-secondary">{reason}</p>
+      <GameResultDialog
+        variant="inline"
+        className="max-w-xs border-border bg-surface/95 p-5 shadow-xl backdrop-blur sm:p-5"
+        title={<span className={cn("text-2xl", winner === 0 ? "text-primary" : winner === 1 ? "text-red-500" : "text-foreground")}>{title}</span>}
+        description={reason}
+        actions={
+          <>
+            <Button type="button" size="sm" onClick={onRematch}>
+              {t("games.blkRematch")}
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={onNew}>
+              {t("games.blkNewGame")}
+            </Button>
+          </>
+        }
+      >
         {game.summoned && !game.summonSeen ? (
           <button type="button" onClick={onSummon} className="blk-urn-button mx-auto flex flex-col items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-3 font-semibold text-primary focus-visible:ring-2 focus-visible:ring-primary">
             <span aria-hidden="true" className="blk-urn" />
@@ -760,15 +774,7 @@ function Result({ game, you, them, lossesToSummon, complete, onNew, onRematch, o
         ) : winner === 1 ? (
           <p className="text-xs text-muted">{t("games.blkSummonIn", { n: lossesToSummon })}</p>
         ) : null}
-        <div className="flex flex-wrap justify-center gap-2">
-          <Button type="button" size="sm" onClick={onRematch}>
-            {t("games.blkRematch")}
-          </Button>
-          <Button type="button" size="sm" variant="outline" onClick={onNew}>
-            {t("games.blkNewGame")}
-          </Button>
-        </div>
-      </div>
+      </GameResultDialog>
     </div>
   );
 }

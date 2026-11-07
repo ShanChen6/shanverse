@@ -4,6 +4,9 @@ import * as React from "react";
 import { RefreshCw, Trophy, Undo2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { GameResultDialog } from "@/features/games/components/GameResultDialog";
+import { GameStatBar } from "@/features/games/components/GameStatBar";
+import { GameToolbar } from "@/features/games/components/GameToolbar";
 import { useI18n } from "@/i18n/client";
 import {
   BOARD_SIZE,
@@ -196,25 +199,33 @@ export function Game2048() {
 
   return (
     <div className="mx-auto w-full max-w-[32rem] space-y-4">
-      <div className="flex items-stretch gap-3">
-        <ScoreBox label={t("games.score")} value={game?.score ?? 0}>
-          {gain ? (
-            <span key={gain.key} aria-hidden="true" className="g2048-score-gain pointer-events-none absolute inset-x-0 top-1 text-center text-sm font-bold text-primary">
-              +{gain.value}
-            </span>
-          ) : null}
-        </ScoreBox>
-        <ScoreBox label={t("games.best")} value={best} icon={<Trophy aria-hidden="true" className="size-3.5" />} />
-        <div className="ml-auto flex items-center gap-2">
-          <Button type="button" variant="outline" size="sm" onClick={undo} disabled={!previous || !game} aria-keyshortcuts="U" className="gap-1.5">
+      <div className="flex items-stretch gap-2 sm:gap-3">
+        <GameStatBar
+          className="flex-1 justify-start"
+          fill
+          stats={[
+            {
+              label: t("games.score"),
+              value: game?.score ?? 0,
+              extra: gain ? (
+                <span key={gain.key} aria-hidden="true" className="g2048-score-gain pointer-events-none absolute inset-x-0 top-1 text-center text-sm font-bold text-primary">
+                  +{gain.value}
+                </span>
+              ) : null,
+            },
+            { label: t("games.best"), value: best, icon: <Trophy aria-hidden="true" className="size-3.5" /> },
+          ]}
+        />
+        <GameToolbar label={t("games.boardLabel")} className="flex-nowrap">
+          <Button type="button" variant="outline" size="sm" onClick={undo} disabled={!previous || !game} aria-keyshortcuts="U" className="h-auto min-h-10 gap-1.5">
             <Undo2 aria-hidden="true" className="size-4" />
             <span className="hidden sm:inline">{t("games.undo")}</span>
             <span className="sr-only sm:hidden">{t("games.undo")}</span>
           </Button>
-          <Button type="button" size="sm" onClick={newGame} className="gap-1.5">
+          <Button type="button" size="sm" onClick={newGame} className="h-auto min-h-10 gap-1.5">
             <RefreshCw aria-hidden="true" className="size-4" /> {t("games.newGame")}
           </Button>
-        </div>
+        </GameToolbar>
       </div>
 
       <div
@@ -255,28 +266,33 @@ export function Game2048() {
         </div>
 
         {game && paused ? (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-[1.25rem] bg-background/80 p-6 text-center backdrop-blur-[2px]">
-            {game.over ? (
-              <>
-                <p className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t("games.overTitle")}</p>
-                <p className="text-foreground-secondary">{t("games.overDescription", { score: game.score })}</p>
-                {isNewRecord ? <p className="text-sm font-semibold text-primary">{t("games.newRecord")}</p> : null}
-                <div className="mt-2 flex flex-wrap justify-center gap-2">
+          game.over ? (
+            <GameResultDialog
+              className="rounded-[1.25rem]"
+              title={t("games.overTitle")}
+              description={t("games.overDescription", { score: game.score })}
+              record={isNewRecord ? t("games.newRecord") : undefined}
+              actions={
+                <>
                   {previous ? <Button type="button" variant="outline" onClick={undo}>{t("games.undo")}</Button> : null}
                   <Button type="button" onClick={newGame} autoFocus>{t("games.tryAgain")}</Button>
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="brand-gradient-text text-3xl font-extrabold tracking-tight sm:text-4xl">{t("games.winTitle")}</p>
-                <p className="max-w-xs text-foreground-secondary">{t("games.winDescription")}</p>
-                <div className="mt-2 flex flex-wrap justify-center gap-2">
+                </>
+              }
+            />
+          ) : (
+            <GameResultDialog
+              className="rounded-[1.25rem]"
+              tone="win"
+              title={t("games.winTitle")}
+              description={t("games.winDescription")}
+              actions={
+                <>
                   <Button type="button" onClick={keepPlaying} autoFocus>{t("games.keepPlaying")}</Button>
                   <Button type="button" variant="outline" onClick={newGame}>{t("games.newGame")}</Button>
-                </div>
-              </>
-            )}
-          </div>
+                </>
+              }
+            />
+          )
         ) : null}
       </div>
 
@@ -284,19 +300,6 @@ export function Game2048() {
         {game ? t("games.status", { score: game.score, highest }) : ""}
       </p>
       <p className="hidden text-center text-xs text-muted sm:block">{t("games.controlsHint")}</p>
-    </div>
-  );
-}
-
-function ScoreBox({ label, value, icon, children }: { label: string; value: number; icon?: React.ReactNode; children?: React.ReactNode }) {
-  return (
-    <div className="relative min-w-20 rounded-xl border border-border bg-surface px-3 py-2 text-center sm:min-w-24">
-      <p className="flex items-center justify-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
-        {icon}
-        {label}
-      </p>
-      <p className="mt-0.5 text-xl font-extrabold tabular-nums text-foreground">{value}</p>
-      {children}
     </div>
   );
 }

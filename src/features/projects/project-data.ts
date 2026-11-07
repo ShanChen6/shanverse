@@ -2,16 +2,19 @@ import "server-only";
 
 import { unstable_cache } from "next/cache";
 
+import { reportContentProblems } from "@/features/notion/skipped-content";
+import { logger } from "@/lib/logger";
 import { notionService } from "@/services/notion.service";
 import type { Project } from "@/types/project";
-
-const projectTime = (project: Project) => {
-	const value = Date.parse(project.createdAt);
-  return Number.isNaN(value) ? 0 : value;
-};
+import { compareProjects } from "./project-sort";
 
 const loadProjects = unstable_cache(
-  () => notionService.getProjects(),
+  async () => {
+    const projects = await notionService.getProjects();
+    // Runs when the cache refreshes, not on every visit, so the log stays short.
+    reportContentProblems("projects", projects, logger);
+    return projects;
+  },
   ["notion-project-list"],
   { revalidate: 300, tags: ["notion-projects"] },
 );
@@ -28,7 +31,7 @@ export async function getProjectData(): Promise<{
           project.title.trim().length > 0 &&
           project.slug.trim().length > 0,
       )
-      .sort((a, b) => projectTime(b) - projectTime(a));
+      .sort(compareProjects);
 
     return { projects, hasError: false };
   } catch {

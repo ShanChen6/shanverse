@@ -72,10 +72,10 @@
 .g2048-tile[data-value="4"] { background: #f3e6cc; color: #031242; }
 .g2048-tile[data-value="8"] { background: #ebcb8b; color: #031242; }
 .g2048-tile[data-value="16"] { background: #d9af62; color: #031242; }
-.g2048-tile[data-value="32"] { background: #e2873a; color: #ffffff; }
+.g2048-tile[data-value="32"] { background: #e2873a; color: #031242; }
 .g2048-tile[data-value="64"] { background: #b8551f; color: #ffffff; }
 .g2048-tile[data-value="128"] { background: #8fb0f5; color: #031242; }
-.g2048-tile[data-value="256"] { background: #5677be; color: #ffffff; }
+.g2048-tile[data-value="256"] { background: #4a6bb3; color: #ffffff; }
 .g2048-tile[data-value="512"] { background: #1d3a7d; color: #ffffff; }
 .g2048-tile[data-value="1024"] { background: #122859; color: #f0c27b; box-shadow: inset 0 0 0 2px rgb(217 175 98 / 0.55); }
 .g2048-tile[data-value="2048"] {
@@ -313,7 +313,7 @@
 }
 
 .mem-mark { font-weight: 800; font-size: clamp(1.4rem, 7vw, 2.2rem); line-height: 1; letter-spacing: -0.02em; }
-.mem-name { font-size: clamp(0.6rem, 2.4vw, 0.78rem); font-weight: 600; opacity: 0.85; text-align: center; padding: 0 0.25rem; }
+.mem-name { font-size: clamp(0.6rem, 2.4vw, 0.78rem); font-weight: 600; text-align: center; padding: 0 0.25rem; }
 
 .mem-grid[data-level="hard"] .mem-mark { font-size: clamp(1.2rem, 6vw, 1.8rem); }
 

@@ -6,6 +6,7 @@ import { cache } from "react";
 import { notionService } from "@/services/notion.service";
 import type { Project } from "@/types/project";
 import { getProjectData } from "./project-data";
+import { compareProjects } from "./project-sort";
 
 const loadProject = unstable_cache(
   (slug: string) => notionService.getProjectBySlug(slug),
@@ -23,6 +24,15 @@ export const getProjectDetail = cache(
       : null;
   },
 );
+
+/** The project before and after this one in the list (newest first), for "previous / next" links. */
+export async function getAdjacentProjects(project: Project): Promise<{ previous: Project | null; next: Project | null }> {
+  const { projects } = await getProjectData();
+  const ordered = [...projects].sort(compareProjects);
+  const index = ordered.findIndex((candidate) => candidate.id === project.id);
+  if (index < 0) return { previous: null, next: null };
+  return { previous: ordered[index - 1] ?? null, next: ordered[index + 1] ?? null };
+}
 
 export async function getRelatedProjects(project: Project): Promise<Project[]> {
   const { projects } = await getProjectData();

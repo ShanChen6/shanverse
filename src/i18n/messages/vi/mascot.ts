@@ -16,7 +16,7 @@ export default {
   storyFirst: "Mình làm gì cũng chậm và hay được ví với con rùa. Thay vì cãi lại, mình vẽ luôn chú rùa đó, cho đội mũ phi hành gia và để chú làm bạn đồng hành của Shanverse.",
   storySecond: "Tianwu không bay nhanh nhất, nhưng chưa bao giờ quay đầu. Gặp thùng hàng nặng thì đẩy từng bước, lạc đường thì dừng lại nhìn sao rồi đi tiếp.",
   storyThird: "Bạn sẽ gặp Tianwu ở nhiều góc của trang: khi nội dung đang tải, khi chưa có kết quả, hay khi lỡ lạc vào một trang không tồn tại.",
-  storyMotto: "Chậm mà chắc. Không bỏ cuộc.",
+  storyMore: "Đọc tiếp câu chuyện", storyMotto: "Chậm mà chắc. Không bỏ cuộc.",
   storyPlay: "Chơi Tianwu đẩy thùng",
   stickersTitle: "Sticker Tianwu",
   stickersDescription: "Tải về để làm avatar hoặc dán vào ghi chú. File SVG nên phóng to bao nhiêu cũng không vỡ.",

@@ -1,1 +1,1 @@
-export default { primary: "Primary navigation", mobile: "Mobile navigation", language: "Select language" } as const;
+export default { primary: "Primary navigation", mobile: "Mobile navigation", language: "Select language", more: "More", moreTitle: "More pages", moreDescription: "Other pages on Shanverse" } as const;

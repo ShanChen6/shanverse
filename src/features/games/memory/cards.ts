@@ -17,17 +17,17 @@ export const TECH_CARDS: TechCard[] = [
   { id: "typescript", name: "TypeScript", mark: "TS", background: "#3178c6", foreground: "#ffffff" },
   { id: "javascript", name: "JavaScript", mark: "JS", background: "#f7df1e", foreground: "#1b1b1b" },
   { id: "tailwind", name: "Tailwind CSS", mark: "Tw", background: "#0f172a", foreground: "#38bdf8" },
-  { id: "nodejs", name: "Node.js", mark: "Nd", background: "#215732", foreground: "#8cc84b" },
+  { id: "nodejs", name: "Node.js", mark: "Nd", background: "#215732", foreground: "#a6dc6a" },
   { id: "notion", name: "Notion", mark: "N", background: "#ffffff", foreground: "#111111" },
-  { id: "git", name: "Git", mark: "git", background: "#f05032", foreground: "#ffffff" },
+  { id: "git", name: "Git", mark: "git", background: "#c93a1f", foreground: "#ffffff" },
   { id: "redis", name: "Redis", mark: "Rd", background: "#a41e11", foreground: "#ffffff" },
   { id: "postgres", name: "PostgreSQL", mark: "Pg", background: "#336791", foreground: "#ffffff" },
   { id: "docker", name: "Docker", mark: "Dk", background: "#1d63ed", foreground: "#ffffff" },
-  { id: "html", name: "HTML", mark: "<>", background: "#e34f26", foreground: "#ffffff" },
+  { id: "html", name: "HTML", mark: "<>", background: "#c0391a", foreground: "#ffffff" },
   { id: "css", name: "CSS", mark: "{}", background: "#663399", foreground: "#ffffff" },
   { id: "graphql", name: "GraphQL", mark: "GQ", background: "#e10098", foreground: "#ffffff" },
   { id: "vite", name: "Vite", mark: "⚡", background: "#2a1f5c", foreground: "#ffd62e" },
-  { id: "python", name: "Python", mark: "Py", background: "#306998", foreground: "#ffd43b" },
+  { id: "python", name: "Python", mark: "Py", background: "#306998", foreground: "#ffe066" },
 ];
 
 export const TECH_CARD_BY_ID = new Map(TECH_CARDS.map((card) => [card.id, card]));

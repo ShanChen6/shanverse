@@ -12,3 +12,9 @@ export type SearchDocument = {
   featured?: boolean;
   timestamp?: number;
 };
+
+export type SearchCategory = {
+  id: string;
+  name: string;
+  slug: string;
+};

@@ -16,7 +16,7 @@ export default {
   storyFirst: "I do everything slowly, and people often compare me to a turtle. Instead of arguing, I drew that turtle, gave him an astronaut helmet and made him Shanverse's travel companion.",
   storySecond: "Tianwu isn't the fastest flyer, but he never turns back. A heavy crate gets pushed one step at a time; when he's lost, he stops, reads the stars and keeps going.",
   storyThird: "You'll run into Tianwu all over the site: while content loads, when a search comes up empty, or if you wander onto a page that doesn't exist.",
-  storyMotto: "Slow and steady. Never give up.",
+  storyMore: "Read the rest of the story", storyMotto: "Slow and steady. Never give up.",
   storyPlay: "Play Tianwu's crate puzzle",
   stickersTitle: "Tianwu stickers",
   stickersDescription: "Download them as avatars or for your notes. They're SVG files, so they stay sharp at any size.",

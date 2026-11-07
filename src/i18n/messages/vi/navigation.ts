@@ -1,1 +1,1 @@
-export default { primary: "Điều hướng chính", mobile: "Điều hướng di động", language: "Chọn ngôn ngữ" } as const;
+export default { primary: "Điều hướng chính", mobile: "Điều hướng di động", language: "Chọn ngôn ngữ", more: "Thêm", moreTitle: "Khám phá thêm", moreDescription: "Các trang khác của Shanverse" } as const;

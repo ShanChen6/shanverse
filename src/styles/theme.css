@@ -3,7 +3,12 @@
 ========================================================== */
 
 :root {
-  --mobile-bottom-nav-height: 4rem;
+  --mobile-bottom-nav-height: 5.25rem;
+
+  /* Radius scale: controls, cards, hero/panel surfaces. */
+  --radius-control: 0.5rem;
+  --radius-card: 1rem;
+  --radius-panel: 1.5rem;
 
   /* Shared brand gradients: decorative only, never content surfaces. */
   --brand-gradient: linear-gradient(120deg, #1D3A7D 0%, #786F70 50%, #D9AF62 100%);
