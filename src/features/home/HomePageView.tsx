@@ -4,20 +4,14 @@ import { HomeContentSkeleton } from "@/components/common/PageSkeletons";
 import { HeroSection } from "./components/HeroSection";
 import { HeroProfileCard } from "./components/HeroProfileCard";
 import { TechTicker } from "./components/TechTicker";
-import { HomeSearchSection } from "./components/HomeSearchSection";
-import { FeaturedPostsSection } from "./components/FeaturedPostsSection";
-import { LatestPostsSection } from "./components/LatestPostsSection";
+import { WritingSection } from "./components/WritingSection";
 import { FeaturedProjectsSection } from "./components/FeaturedProjectsSection";
 import { ContactSection } from "./components/ContactSection";
 import { HomeGamesSection } from "./components/HomeGamesSection";
 import type { Post } from "@/types/post";
 import type { Project } from "@/types/project";
 import { getSocialLinks } from "@/config/social.config";
-import type {
-  HomeSearchCategory,
-} from "./home-search";
 import { getHomeData } from "./home-data";
-import { createSearchDocuments } from "@/features/search/create-search-documents";
 import { HeroSpaceBackdrop } from "./components/HeroSpaceBackdrop";
 import { getTranslator } from "@/i18n/server";
 
@@ -32,7 +26,7 @@ function projectTimestamp(project: Project) {
 }
 
 async function HomeDataSections() {
-  const { posts, projects, categories } = await getHomeData();
+  const { posts, projects } = await getHomeData();
 
   const publishedPosts = posts
     .filter(
@@ -42,21 +36,8 @@ async function HomeDataSections() {
         post.slug.trim().length > 0,
     )
     .sort((a, b) => postTimestamp(b) - postTimestamp(a));
-  const highlightedPosts = publishedPosts
-    .filter((post) => post.featured)
-    .slice(0, 3);
-
-  const featuredPosts = [
-    ...highlightedPosts,
-    ...publishedPosts.filter(
-      (post) =>
-        !highlightedPosts.some((highlighted) => highlighted.id === post.id),
-    ),
-  ].slice(0, 3);
-  const featuredPostIds = new Set(featuredPosts.map((post) => post.id));
-  const latestPosts = publishedPosts
-    .filter((post) => !featuredPostIds.has(post.id))
-    .slice(0, 6);
+  const leadPost = publishedPosts.find((post) => post.featured) ?? publishedPosts[0] ?? null;
+  const latestPosts = publishedPosts.filter((post) => post.id !== leadPost?.id).slice(0, 3);
 
   const publishedProjects = projects
     .filter(
@@ -70,50 +51,8 @@ async function HomeDataSections() {
     .filter((project) => project.featured)
     .slice(0, 3);
 
-  const searchCategories: HomeSearchCategory[] = Array.from(
-    new Map(
-      categories
-        .filter(
-          (category) => category.name.trim() && category.slug.trim(),
-        )
-        .map((category) => [
-          category.slug.trim().toLowerCase(),
-          {
-            id: `category-${category.slug.trim()}`,
-            name: category.name.trim(),
-            slug: category.slug.trim(),
-          },
-        ]),
-    ).values(),
-  );
-
-  const searchTags = Array.from(
-    new Map(
-      publishedPosts
-        .flatMap((post) => post.tags)
-        .map((name) => name.trim())
-        .filter(Boolean)
-        .map((name) => [name.toLowerCase(), name]),
-    ).entries(),
-  ).map(([id, name]) => ({
-    id,
-    name,
-    slug: name,
-    description: "",
-    icon: null,
-    url: "",
-  }));
-  const searchDocuments = createSearchDocuments({
-    posts: publishedPosts,
-    projects: publishedProjects,
-    categories,
-    tags: searchTags,
-  });
-
   return <>
-    <HomeSearchSection categories={searchCategories.slice(0, 8)} documents={searchDocuments} />
-    <FeaturedPostsSection posts={featuredPosts} />
-    <LatestPostsSection posts={latestPosts} />
+    <WritingSection lead={leadPost} posts={latestPosts} />
     <FeaturedProjectsSection projects={featuredProjects.length > 0 ? featuredProjects : publishedProjects.slice(0, 1)} />
   </>;
 }
@@ -127,7 +66,7 @@ export async function HomePageView() {
       className="relative overflow-hidden border-b border-border bg-surface/30"
     >
       <HeroSpaceBackdrop />
-      <div aria-hidden="true" className="brand-gradient-soft pointer-events-none absolute -right-32 -top-40 size-96 rounded-full blur-3xl" />
+      <div aria-hidden="true" className="brand-gradient-soft pointer-events-none absolute -right-32 -top-40 hidden size-96 rounded-full blur-3xl sm:block" />
       <div className="hero-space-content relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-12 lg:items-center lg:gap-14 lg:py-20">
         <HeroSection socialLinks={socialLinks} />
         <HeroProfileCard codeLabel={t("home.codeProfileLabel")} />
