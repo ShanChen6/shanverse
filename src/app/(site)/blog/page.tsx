@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Suspense } from "react";
+import { PageContainer, PageHeader } from "@/components/layout";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import {
   BookOpen,
@@ -281,11 +282,11 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
 export default async function BlogPage({ searchParams }: { searchParams: Promise<BlogSearchParams> }) {
   const query = parseBlogQuery(await searchParams);
   const { locale, t } = await getTranslator();
-  return <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-12">
+  return <PageContainer>
     <JsonLd data={{ "@context": "https://schema.org", "@type": "Blog", name: "Shanverse Blog", description: t("metadata.blogDescription"), url: buildAbsoluteUrl(`/${locale}/blog`), inLanguage: "vi-VN", author: { "@type": "Person", name: SEO_CONFIG.author }, publisher: { "@type": "Person", name: SEO_CONFIG.author } }} />
     <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("common.blog") }]} />
-    <header className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/10 via-surface to-background p-6 sm:p-10 lg:p-12"><div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full border border-primary/10 sm:size-96" /><div className="relative max-w-3xl space-y-6"><p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-medium text-primary"><Sprout className="size-4" aria-hidden="true" /> {t("blog.gardenBadge")}</p><h1 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{t("blog.title")}</h1><p className="max-w-2xl text-pretty leading-relaxed text-foreground-secondary sm:text-lg">{t("blog.description")}</p></div></header>
+    <PageHeader eyebrow={t("blog.gardenBadge")} icon={<Sprout />} title={t("blog.title")} description={t("blog.description")} />
     {locale === "en" ? <p role="note" className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground-secondary">{t("blog.vietnameseOnly")}</p> : null}
     <Suspense fallback={<BlogDataSkeleton label={t("common.loadingArticles")} />}><BlogDataSection query={query} t={t} /></Suspense>
-  </div>;
+  </PageContainer>;
 }

@@ -14,6 +14,8 @@ export const NAVIGATION_ITEMS = [
 export const FOOTER_EXPLORE_ITEMS = [
   { href: ROUTES.BLOG, labelKey: "home.latestPosts" },
   { href: ROUTES.PROJECTS, labelKey: "home.featuredProjects" },
+  { href: ROUTES.GAMES, labelKey: "common.games" },
+  { href: ROUTES.CONTACT, labelKey: "common.contact" },
 ] as const;
 
 /** Mobile bottom bar: first four items are tabs, the rest live behind the "More" tab. */

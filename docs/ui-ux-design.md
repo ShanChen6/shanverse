@@ -132,7 +132,7 @@ Loading skeleton · Empty · Error with retry · Offline / failed fetch (Notion,
 | Phase | Content | Size |
 | --- | --- | --- |
 | 0 | Mobile bottom nav: notched 5 tabs + More sheet | **Done** |
-| 1 | Foundation: tokens (radius, spacing, type scale), `PageContainer`, `PageHeader`, branded 404 + `error`/`loading` for games routes, footer links (add Games, About, Contact) | S |
+| 1 | Foundation: tokens (radius, spacing, type scale), `PageContainer`, `PageHeader`, branded 404 + `error`/`loading` for games routes, footer links (add Games, About, Contact) | **Done** |
 | 2 | Game shell: new anatomy + shared components (`GameToolbar`, `GameStatBar`, `GameResultDialog`, `GameRulesSheet`, `GameDifficultyPicker`); hide site header and bottom nav on game pages at mobile width; migrate 2048, Memory, Snake first | M |
 | 3 | Games hub: slimmer hero, whole-card links, compact chips, then remaining games | L |
 | 4 | Global header search (dialog, `/` shortcut); remove search section from Home; Home restructure; Blog list/detail | M |

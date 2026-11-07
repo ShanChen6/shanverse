@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PageContainer, PageHeader } from "@/components/layout";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import * as React from "react";
 import { Suspense } from "react";
@@ -154,10 +155,10 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
 export default async function ProjectsPage({ searchParams }: { searchParams: Promise<ProjectSearchParams> }) {
   const query = parseProjectQuery(await searchParams);
   const { t } = await getTranslator();
-  return <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-12">
+  return <PageContainer>
     <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("common.projects") }]} />
-    <header className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/10 via-surface to-background p-6 sm:p-10 lg:p-12"><div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full border border-primary/10 sm:size-96" /><div className="relative max-w-3xl space-y-6"><p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-medium uppercase tracking-widest text-primary"><Sparkles aria-hidden="true" className="size-4" /> {t("home.featuredProjectsEyebrow")}</p><h1 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{t("projects.title")}</h1><p className="max-w-2xl text-pretty leading-relaxed text-foreground-secondary sm:text-lg">{t("projects.description")}</p></div></header>
+    <PageHeader eyebrow={t("home.featuredProjectsEyebrow")} icon={<Sparkles />} title={t("projects.title")} description={t("projects.description")} />
     <Suspense fallback={<ProjectsDataSkeleton label={t("common.loadingProjects")} />}><ProjectsDataSection query={query} /></Suspense>
     <section className="rounded-3xl border border-primary/20 bg-linear-to-br from-primary/10 via-surface to-background px-6 py-10 text-center sm:px-10 sm:py-14"><h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("projects.ctaTitle")}</h2><p className="mx-auto mt-3 max-w-2xl leading-relaxed text-foreground-secondary">{t("projects.ctaDescription")}</p><Link href={ROUTES.CONTACT} className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">{t("common.contactMe")} <ArrowRight aria-hidden="true" className="size-4" /></Link></section>
-  </div>;
+  </PageContainer>;
 }

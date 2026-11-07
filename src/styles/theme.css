@@ -5,6 +5,11 @@
 :root {
   --mobile-bottom-nav-height: 5.25rem;
 
+  /* Radius scale: controls, cards, hero/panel surfaces. */
+  --radius-control: 0.5rem;
+  --radius-card: 1rem;
+  --radius-panel: 1.5rem;
+
   /* Shared brand gradients: decorative only, never content surfaces. */
   --brand-gradient: linear-gradient(120deg, #1D3A7D 0%, #786F70 50%, #D9AF62 100%);
   --brand-gradient-soft: linear-gradient(120deg, rgb(29 58 125 / 0.12) 0%, rgb(120 111 112 / 0.08) 52%, rgb(217 175 98 / 0.14) 100%);

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
-import { BookOpen, FolderKanban, Home } from "lucide-react";
+import { BookOpen, FolderKanban, Gamepad2, Home } from "lucide-react";
 
 import { LandingLayout } from "@/components/layout/LandingLayout";
 import { TianwuLost } from "@/components/mascot/TianwuScenes";
@@ -33,6 +33,11 @@ export default async function NotFound() {
             <Button asChild variant="outline" size="lg">
               <Link href={ROUTES.PROJECTS}>
                 <FolderKanban className="mr-2 h-4 w-4" /> {t("common.viewProjects")}
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link href={ROUTES.GAMES}>
+                <Gamepad2 className="mr-2 h-4 w-4" /> {t("common.games")}
               </Link>
             </Button>
           </div>

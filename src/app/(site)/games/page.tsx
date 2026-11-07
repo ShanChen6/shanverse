@@ -4,6 +4,7 @@ import { ArrowRight, Gamepad2, Lightbulb } from "lucide-react";
 
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
+import { PageContainer, PageHeader } from "@/components/layout";
 import Badge from "@/components/ui/badge";
 import { buildPageMetadata } from "@/config/seo.config";
 import { ROUTES } from "@/constants/routes";
@@ -28,19 +29,10 @@ export default async function GamesPage() {
   const { t } = await getTranslator();
 
   return (
-    <div className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:space-y-12">
+    <PageContainer>
       <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("common.games") }]} />
 
-      <header className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/10 via-surface to-background p-6 sm:p-10 lg:p-12">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full border border-primary/10 sm:size-96" />
-        <div className="relative max-w-3xl space-y-6">
-          <p className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-medium uppercase tracking-widest text-primary">
-            <Gamepad2 aria-hidden="true" className="size-4" /> {t("games.eyebrow")}
-          </p>
-          <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{t("games.title")}</h1>
-          <p className="max-w-2xl text-pretty leading-relaxed text-foreground-secondary sm:text-lg">{t("games.description")}</p>
-        </div>
-      </header>
+      <PageHeader eyebrow={t("games.eyebrow")} icon={<Gamepad2 />} title={t("games.title")} description={t("games.description")} />
 
       <GamesCatalog
         categories={usedCategories(GAMES).map((category) => ({ id: category.id, label: t(category.labelKey) }))}
@@ -98,6 +90,6 @@ export default async function GamesPage() {
           </div>
         }
       />
-    </div>
+    </PageContainer>
   );
 }
