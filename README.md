@@ -302,7 +302,7 @@ The project is deployed on [Vercel](https://vercel.com/).
 
 ## 📸 Preview
 
-Coming soon...
+Coming soon... 
 
 ---
 
