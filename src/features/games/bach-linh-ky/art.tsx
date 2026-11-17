@@ -4,7 +4,7 @@
 
 import type * as React from "react";
 
-import { MONSTER_ART, artSrc } from "./art-images";
+import { MONSTER_ART, figureSrc, tokenSrc } from "./art-images";
 import { ELEMENT_NAME, monster, type Element } from "./monsters";
 import { PORTRAITS, type Pal } from "./portraits";
 
@@ -45,30 +45,15 @@ export function palette(element: Element, locked = false): Pal {
   };
 }
 
-/** The inside of the medallion: a 54-unit circle centred on (32, 32). */
-const FACE = 54;
-
-/** A monster's painted art, placed so its `face` square fills the medallion. Locked: a dark silhouette. */
+/** A monster's painted face (already cropped, see art-images.ts), filling the medallion. Locked: a dark silhouette. */
 function ArtImage({ id, locked }: { id: string; locked: boolean }) {
-  const [x, y, side] = MONSTER_ART[id].face;
-  const size = FACE / side;
-  return (
-    <image
-      href={artSrc(id)}
-      x={32 - x * size}
-      y={32 - y * size}
-      width={size}
-      height={size}
-      preserveAspectRatio="xMidYMid slice"
-      style={locked ? { filter: "brightness(0)", opacity: 0.6 } : undefined}
-    />
-  );
+  return <image href={tokenSrc(id)} x="5" y="5" width="54" height="54" style={locked ? { filter: "brightness(0)", opacity: 0.6 } : undefined} />;
 }
 
 /** The whole painted figure of a monster, for places with room to show it (null if it has no art yet). */
 export function MonsterFigure({ monsterId, className, title }: { monsterId: string; className?: string; title?: string }) {
   if (!MONSTER_ART[monsterId]) return null;
-  return <img src={artSrc(monsterId)} alt={title ?? ""} className={className} loading="lazy" decoding="async" />;
+  return <img src={figureSrc(monsterId)} width={448} height={448} alt={title ?? ""} className={className} loading="lazy" decoding="async" />;
 }
 
 type TokenProps = {

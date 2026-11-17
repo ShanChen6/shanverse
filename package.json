@@ -13,7 +13,8 @@
     "sync:reading-time": "tsx scripts/sync-notion-reading-time.ts",
     "stickers:tianwu": "tsx scripts/generate-tianwu-stickers.tsx",
     "sokoban:plans": "tsx scripts/generate-sokoban-plans.ts",
-    "blk:balance": "tsx scripts/blk-balance.ts"
+    "blk:balance": "tsx scripts/blk-balance.ts",
+    "blk:art": "tsx scripts/blk-art.ts"
   },
   "dependencies": {
     "@giscus/react": "^3.1.0",
@@ -50,6 +51,7 @@
     "eslint": "^10.9.1",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^17.12.0",
+    "sharp": "0.34.5",
     "tailwindcss": "^4",
     "tsx": "^4.23.13",
     "typescript": "^5",
