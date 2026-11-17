@@ -1,6 +1,6 @@
 # Bách Linh Kỳ: prompt tạo ảnh
 
-Bộ prompt để tạo ảnh cho chế độ chơi Bách Linh Kỳ: 50 nhân vật, 16 bản đồ, 5 hành, 4 loại địa hình, 5 linh địa và các hiệu ứng. Nội dung bám theo dữ liệu trong `src/features/games/bach-linh-ky/` (`monsters.ts`, `maps.ts`, `art.tsx`, `rules.ts`).
+Bộ prompt để tạo ảnh cho chế độ chơi Bách Linh Kỳ: 50 nhân vật, 15 bản đồ, 5 hành, 4 loại địa hình, 5 linh địa và các hiệu ứng. Nội dung bám theo dữ liệu trong `src/features/games/bach-linh-ky/` (`monsters.ts`, `maps.ts`, `art.tsx`, `rules.ts`).
 
 Phần mô tả viết bằng tiếng Việt, còn prompt viết bằng tiếng Anh vì các công cụ tạo ảnh (Midjourney, Stable Diffusion, DALL·E, Imagen, Flux...) hiểu tiếng Anh tốt hơn.
 
