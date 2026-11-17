@@ -1,7 +1,8 @@
-// Pieces for Bách Linh Kỳ: lacquer medallions coloured by element, each
-// with its monster's painted portrait (art-images.ts).
+// Pieces for Bách Linh Kỳ: painted lacquer medallions by element, each
+// with its monster's painted portrait (art-images.ts, assets.ts).
 
 import { figureSrc, tokenSrc } from "./art-images";
+import { PIECE, elementIcon } from "./assets";
 import { ELEMENT_NAME, monster, type Element } from "./monsters";
 
 /** Ngũ hành colours, after the traditional ones: Kim white-gold, Mộc green, Thủy deep blue-black, Hỏa red, Thổ yellow-ochre. */
@@ -18,7 +19,7 @@ export const ELEMENT_GLOW: Record<Element, string> = { kim: "#5fc8ff", moc: "#9d
 
 /** A monster's painted face (already cropped, see art-images.ts), filling the medallion. Locked: a dark silhouette. */
 function ArtImage({ id, locked }: { id: string; locked: boolean }) {
-  return <image href={tokenSrc(id)} x="5" y="5" width="54" height="54" style={locked ? { filter: "brightness(0)", opacity: 0.6 } : undefined} />;
+  return <image href={tokenSrc(id)} x="9" y="9" width="46" height="46" style={locked ? { filter: "brightness(0)", opacity: 0.6 } : undefined} />;
 }
 
 /** The whole painted figure of a monster, for places with room to show it. */
@@ -39,46 +40,40 @@ type TokenProps = {
 };
 
 /**
- * A round piece. Face up: element colour, glyph, level badge. Face down: the
- * Tianwu-red lacquer back with a gold seal and only the level. Player pieces
- * have a gold rim, Tianwu's a dark one.
+ * A round piece, built from painted lacquer parts (assets.ts): the element's
+ * medallion with the monster's portrait inside, under a gold rim for the
+ * player or a black one for Tianwu. Face down: the red lacquer back with only
+ * the level. Every piece carries its level on a badge.
  */
 export function Token({ monsterId, level, side, locked = false, className, title }: TokenProps) {
-  const rim = side === 0 ? "#e2b84a" : "#1a1a22";
-  const rimInner = side === 0 ? "#fff3c4" : "#5b5b6e";
   const label = title ? { role: "img" as const, "aria-label": title } : { "aria-hidden": true as const };
+  const ring = side === 0 ? "#e2b84a" : "#1a1a22";
   if (!monsterId) {
     return (
       <svg viewBox="0 0 64 64" className={className} {...label}>
         {title ? <title>{title}</title> : null}
-        <circle cx="32" cy="32" r="30" fill={rim} />
-        <circle cx="32" cy="32" r="27" fill="#5a1414" stroke={rimInner} strokeWidth="1" />
-        <circle cx="32" cy="32" r="20" fill="none" stroke="#c99a3b" strokeWidth="1.4" strokeDasharray="3 2.4" />
-        <path d="M32 17 L45 32 L32 47 L19 32Z" fill="none" stroke="#c99a3b" strokeWidth="1.6" />
-        <text x="32" y="38.5" textAnchor="middle" fontSize="18" fontWeight="800" fill="#f3d58a" fontFamily="ui-sans-serif, system-ui">
+        <image href={PIECE.back} x="1" y="1" width="62" height="62" />
+        <circle cx="32" cy="32" r="30.5" fill="none" stroke={ring} strokeWidth="2" />
+        <text x="32" y="38.5" textAnchor="middle" fontSize="17" fontWeight="800" fill="#f3d58a" stroke="#5a1414" strokeWidth="0.8" paintOrder="stroke" fontFamily="ui-sans-serif, system-ui">
           {level}
         </text>
       </svg>
     );
   }
   const m = monster(monsterId);
-  const c = locked ? { base: "#3f3f46", deep: "#27272a", ink: "#18181b" } : ELEMENT_COLOR[m.element];
+  const grey = locked ? { filter: "grayscale(1) brightness(0.55)" } : undefined;
   return (
     <svg viewBox="0 0 64 64" className={className} {...label}>
       {title ? <title>{title}</title> : null}
-      <defs>
-        <radialGradient id={`blk-g-${m.element}-${locked ? "l" : "u"}`} cx="38%" cy="32%" r="75%">
-          <stop offset="0" stopColor={c.base} />
-          <stop offset="1" stopColor={c.deep} />
-        </radialGradient>
-      </defs>
-      <circle cx="32" cy="32" r="30" fill={rim} />
-      <circle cx="32" cy="32" r="27" fill={`url(#blk-g-${m.element}-${locked ? "l" : "u"})`} stroke={rimInner} strokeWidth="1" />
+      <image href={PIECE.base(m.element)} x="1" y="1" width="62" height="62" style={grey} />
       <clipPath id="blk-clip">
-        <circle cx="32" cy="32" r="26.5" />
+        <circle cx="32" cy="32" r="23" />
       </clipPath>
-      <g clipPath="url(#blk-clip)"><ArtImage id={m.id} locked={locked} /></g>
-      <circle cx="51" cy="51" r="9" fill="#111827" stroke={rim} strokeWidth="1.6" />
+      <g clipPath="url(#blk-clip)">
+        <ArtImage id={m.id} locked={locked} />
+      </g>
+      <image href={PIECE.rim(side)} x="0" y="0" width="64" height="64" style={grey} />
+      <circle cx="51" cy="51" r="9" fill="#111827" stroke={ring} strokeWidth="1.6" />
       <text x="51" y="55" textAnchor="middle" fontSize="11.5" fontWeight="800" fill="#fff" fontFamily="ui-sans-serif, system-ui">
         {level}
       </text>
@@ -86,13 +81,19 @@ export function Token({ monsterId, level, side, locked = false, className, title
   );
 }
 
-/** A small round swatch of an element's colour, with its name for screen readers. */
+/** The painted emblem of an element, with its name for screen readers. */
 export function ElementDot({ element, lang, className }: { element: Element; lang: "vi" | "en"; className?: string }) {
   return (
-    <span
-      className={className}
+    <img
+      src={elementIcon(element)}
+      width={128}
+      height={128}
+      alt={ELEMENT_NAME[element][lang]}
       title={ELEMENT_NAME[element][lang]}
-      style={{ display: "inline-block", width: "0.7em", height: "0.7em", borderRadius: 9999, background: ELEMENT_COLOR[element].base, boxShadow: `inset 0 0 0 1.5px ${ELEMENT_COLOR[element].deep}` }}
+      className={className}
+      style={{ display: "inline-block", width: "1.25em", height: "1.25em", verticalAlign: "middle" }}
+      loading="lazy"
+      decoding="async"
     />
   );
 }

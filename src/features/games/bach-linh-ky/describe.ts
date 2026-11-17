@@ -3,13 +3,16 @@
 
 import type { Translate } from "@/i18n/messages";
 
-import { monster } from "./monsters";
-import type { GameEvent, GameState, Side, View } from "./rules";
+import type { Fx } from "./assets";
+import { ELEMENT_TERRAIN } from "./maps";
+import { OVERCOMES, activeAbility, areRivals, monster } from "./monsters";
+import type { Action, GameEvent, GameState, Side, View } from "./rules";
 
 type T = Translate;
 
 export type LogLine = { key: number; side: Side | null; text: string };
-export type Highlight = { cell: number; kind: "from" | "to" | "battle" | "effect" };
+/** A cell to light up; `fx` names a painted effect to play over it. */
+export type Highlight = { cell: number; kind: "from" | "to" | "battle" | "effect"; fx?: Fx };
 
 /** A unit's name for the player: its monster, or "Face-down piece (level n)". */
 function nameIn(view: View, id: number, lang: "vi" | "en", t: T): string {
@@ -86,23 +89,55 @@ export function describe(events: GameEvent[], before: View, after: View, mover: 
   return lines;
 }
 
-/** Cells to light up after an action, so the player can see what happened. */
-export function highlights(events: GameEvent[], before: GameState): Highlight[] {
+/** Cells to light up after an action, so the player can see what happened, with the effect to paint on each. */
+export function highlights(events: GameEvent[], before: GameState, action?: Action): Highlight[] {
   const out: Highlight[] = [];
-  const cellOf = (id: number) => before.units.find((u) => u.id === id)?.cell;
+  const unit = (id: number) => before.units.find((u) => u.id === id);
+  const cellOf = (id: number) => unit(id)?.cell;
+  const actor = action?.kind === "ability" ? unit(action.unit) : undefined;
+  const used = actor ? activeAbility(monster(actor.monster))?.kind : undefined;
+  let landed: number | undefined;
   for (const e of events) {
-    if (e.type === "move") out.push({ cell: e.from, kind: "from" }, { cell: e.to, kind: "to" });
-    else if (e.type === "battle") {
-      const at = cellOf(e.defender);
-      if (at !== undefined) out.push({ cell: at, kind: "battle" });
-      const from = cellOf(e.attacker);
-      if (from !== undefined) out.push({ cell: from, kind: "from" });
-    } else if (e.type === "terraform") for (const cell of e.cells) out.push({ cell, kind: "effect" });
+    if (e.type === "move") {
+      landed = e.to;
+      const u = unit(e.unit);
+      const m = u ? monster(u.monster) : null;
+      const ground = before.terrain[e.to];
+      let fx: Fx | undefined;
+      if (used === "leap") fx = "leap";
+      else if (m && ground === ELEMENT_TERRAIN[m.element]) fx = `home-${m.element}`;
+      else if (m && m.path === "land" && (ground === "river" || ground === "marsh")) fx = "mire";
+      out.push({ cell: e.from, kind: "from" }, { cell: e.to, kind: "to", fx });
+    } else if (e.type === "battle") {
+      const a = unit(e.attacker);
+      const d = unit(e.defender);
+      if (a && d) out.push({ cell: d.cell, kind: "battle", fx: battleFx(e.kind, a, d, used) });
+      if (a) out.push({ cell: a.cell, kind: "from", fx: e.result === "defender" || e.result === "both" ? "fall" : undefined });
+    } else if (e.type === "terraform") for (const cell of e.cells) out.push({ cell, kind: "effect", fx: e.to === "river" ? "flood" : "raise-mountain" });
     else if (e.type === "bind" || e.type === "seal") {
       const at = cellOf(e.target);
-      if (at !== undefined) out.push({ cell: at, kind: "effect" });
-    } else if (e.type === "swap") out.push({ cell: e.from, kind: "effect" }, { cell: e.to, kind: "effect" });
-    else if (e.type === "revive" || e.type === "recall") out.push({ cell: e.cell, kind: "effect" });
+      if (at !== undefined) out.push({ cell: at, kind: "effect", fx: e.type });
+    } else if (e.type === "swap") out.push({ cell: e.from, kind: "effect", fx: "swap" }, { cell: e.to, kind: "effect", fx: "swap" });
+    else if (e.type === "revive" || e.type === "recall") out.push({ cell: e.cell, kind: "effect", fx: e.type });
+    else if (e.type === "evolve") {
+      // Carp and Gióng grow by their own ability; anyone else stepped onto a temple.
+      const at = landed ?? cellOf(e.unit);
+      if (at !== undefined) out.push({ cell: at, kind: "effect", fx: used === "rise" ? "rise" : "temple" });
+    } else if (e.type === "reveal" && !events.some((x) => x.type === "battle")) {
+      const at = cellOf(e.unit);
+      if (at !== undefined) out.push({ cell: at, kind: "effect", fx: "reveal" });
+    }
   }
   return out;
+}
+
+/** The effect for a battle: the most telling bonus in play, else the attacker's own strike. */
+function battleFx(kind: "melee" | "ranged", a: GameState["units"][number], d: GameState["units"][number], used: string | undefined): Fx {
+  const element = monster(a.monster).element;
+  if (used === "strike") return "lightning";
+  if (used === "leap") return "leap";
+  if (areRivals(a.monster, d.monster)) return "rival";
+  if (!d.revealed) return "ambush";
+  if (OVERCOMES[element] === monster(d.monster).element) return "counter";
+  return kind === "ranged" ? "ranged" : `${element}-strike`;
 }
