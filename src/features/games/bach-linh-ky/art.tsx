@@ -1,8 +1,10 @@
 // Pieces for Bách Linh Kỳ: lacquer medallions coloured by element, each
-// with its monster's own portrait (portraits.tsx).
+// with its monster's own portrait: painted art where there is some
+// (art-images.ts), the vector portrait otherwise (portraits.tsx).
 
 import type * as React from "react";
 
+import { MONSTER_ART, artSrc } from "./art-images";
 import { ELEMENT_NAME, monster, type Element } from "./monsters";
 import { PORTRAITS, type Pal } from "./portraits";
 
@@ -41,6 +43,32 @@ export function palette(element: Element, locked = false): Pal {
     skin: "#f1cf9f",
     locked: false,
   };
+}
+
+/** The inside of the medallion: a 54-unit circle centred on (32, 32). */
+const FACE = 54;
+
+/** A monster's painted art, placed so its `face` square fills the medallion. Locked: a dark silhouette. */
+function ArtImage({ id, locked }: { id: string; locked: boolean }) {
+  const [x, y, side] = MONSTER_ART[id].face;
+  const size = FACE / side;
+  return (
+    <image
+      href={artSrc(id)}
+      x={32 - x * size}
+      y={32 - y * size}
+      width={size}
+      height={size}
+      preserveAspectRatio="xMidYMid slice"
+      style={locked ? { filter: "brightness(0)", opacity: 0.6 } : undefined}
+    />
+  );
+}
+
+/** The whole painted figure of a monster, for places with room to show it (null if it has no art yet). */
+export function MonsterFigure({ monsterId, className, title }: { monsterId: string; className?: string; title?: string }) {
+  if (!MONSTER_ART[monsterId]) return null;
+  return <img src={artSrc(monsterId)} alt={title ?? ""} className={className} loading="lazy" decoding="async" />;
 }
 
 type TokenProps = {
@@ -94,7 +122,7 @@ export function Token({ monsterId, level, side, locked = false, className, title
       <clipPath id="blk-clip">
         <circle cx="32" cy="32" r="26.5" />
       </clipPath>
-      <g clipPath="url(#blk-clip)">{PORTRAITS[m.id]?.(palette(m.element, locked))}</g>
+      <g clipPath="url(#blk-clip)">{MONSTER_ART[m.id] ? <ArtImage id={m.id} locked={locked} /> : PORTRAITS[m.id]?.(palette(m.element, locked))}</g>
       <circle cx="51" cy="51" r="9" fill="#111827" stroke={rim} strokeWidth="1.6" />
       <text x="51" y="55" textAnchor="middle" fontSize="11.5" fontWeight="800" fill="#fff" fontFamily="ui-sans-serif, system-ui">
         {level}
