@@ -19,6 +19,10 @@ export type MonsterArt = {
 };
 
 export const MONSTER_ART: Record<string, MonsterArt> = {
+  "chim-lac": { face: [0.54, 0.47, 0.86] },
+  "ma-tranh": { face: [0.6, 0.34, 0.36] },
+  "moc-tinh-non": { face: [0.44, 0.36, 0.52] },
+  "thuy-tinh": { face: [0.53, 0.2, 0.42] },
   "son-tinh": { face: [0.48, 0.2, 0.46] },
 };
 
