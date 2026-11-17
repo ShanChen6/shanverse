@@ -2,7 +2,8 @@
 
 import { useI18n } from "@/i18n/client";
 import { ElementDot } from "./art";
-import { ELEMENTS, ELEMENT_NAME } from "./monsters";
+import { CYCLE_SRC, fxSrc, pairSrc } from "./assets";
+import { ELEMENTS, ELEMENT_NAME, PARTNERS, RIVALS, monster } from "./monsters";
 
 /** The rules reference under "how to play": elements, terrain and bonuses. */
 export function Legend() {
@@ -19,8 +20,15 @@ export function Legend() {
             </span>
           ))}
         </p>
-        <p className="text-foreground-secondary">{t("games.blkLegendKhac")}</p>
-        <p className="text-foreground-secondary">{t("games.blkLegendSinh")}</p>
+        <img src={CYCLE_SRC} alt="" width={640} height={640} className="mx-auto w-full max-w-56" loading="lazy" decoding="async" />
+        <p className="flex items-start gap-2 text-foreground-secondary">
+          <img src={fxSrc("counter")} alt="" className="size-8 shrink-0 rounded-full bg-surface-hover" loading="lazy" />
+          <span>{t("games.blkLegendKhac")}</span>
+        </p>
+        <p className="flex items-start gap-2 text-foreground-secondary">
+          <img src={fxSrc("feed")} alt="" className="size-8 shrink-0 rounded-full bg-surface-hover" loading="lazy" />
+          <span>{t("games.blkLegendSinh")}</span>
+        </p>
       </section>
       <section className="space-y-1.5">
         <h3 className="font-semibold">{t("games.blkLegendTerrain")}</h3>
@@ -48,6 +56,18 @@ export function Legend() {
           <li>{t("games.blkLegendAmbush")}</li>
           <li>{t("games.blkLegendPartner")}</li>
           <li>{t("games.blkLegendRival")}</li>
+        </ul>
+        <ul className="grid grid-cols-2 gap-2 pt-1">
+          {[...PARTNERS, ...RIVALS].map(([a, b]) => {
+            const src = pairSrc(a, b);
+            const names = `${monster(a).name[lang]} · ${monster(b).name[lang]}`;
+            return src ? (
+              <li key={`${a}-${b}`} className="space-y-1">
+                <img src={src} alt={names} width={960} height={540} className="aspect-video w-full rounded-lg object-cover" loading="lazy" decoding="async" />
+                <p className="text-[11px] leading-tight text-muted">{names}</p>
+              </li>
+            ) : null;
+          })}
         </ul>
       </section>
     </div>

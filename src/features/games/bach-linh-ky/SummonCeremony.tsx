@@ -6,6 +6,7 @@ import { FastForward, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/client";
 import { ELEMENT_COLOR, MonsterFigure } from "./art";
+import { SUMMON } from "./assets";
 import { MonsterInfo } from "./MonsterInfo";
 import { monster, type Element } from "./monsters";
 
@@ -85,8 +86,9 @@ export function SummonCeremony({ monsterId, onClose }: { monsterId: string; onCl
       aria-modal="true"
       aria-label={t("games.blkSummonTitle")}
       className="blk-ceremony fixed inset-0 z-50 grid place-items-center p-4"
-      style={{ ["--blk-glow" as string]: GLOW[m.element], ["--blk-base" as string]: color.base }}
+      style={{ ["--blk-glow" as string]: GLOW[m.element], ["--blk-base" as string]: color.base, backgroundImage: `linear-gradient(rgb(11 6 4 / 0.55), rgb(11 6 4 / 0.8)), url(${SUMMON.hall})` }}
     >
+      <img src={SUMMON.array} alt="" aria-hidden="true" className="blk-summon-array pointer-events-none absolute w-[min(90vw,36rem)]" decoding="async" />
       <div ref={stage3d} aria-hidden="true" className={stage === "revealed" ? "hidden" : "absolute inset-0"} />
       {stage !== "revealed" ? (
         <div className="absolute inset-x-0 bottom-8 flex flex-col items-center gap-3">
@@ -106,8 +108,10 @@ export function SummonCeremony({ monsterId, onClose }: { monsterId: string; onCl
             <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] text-primary">
               <Sparkles aria-hidden="true" className="size-4" /> {t("games.blkSummonNew")}
             </span>
-            <span className="blk-summon-token">
-              <MonsterFigure monsterId={monsterId} className="h-56 w-auto drop-shadow-xl" title={m.name[lang]} />
+            <span className="blk-summon-token relative">
+              <img src={SUMMON.pillar(m.element)} alt="" aria-hidden="true" className="pointer-events-none absolute -inset-8 size-[calc(100%+4rem)] max-w-none object-contain opacity-90" decoding="async" />
+              {m.level >= 4 ? <img src={SUMMON.rare} alt="" aria-hidden="true" className="pointer-events-none absolute -inset-10 size-[calc(100%+5rem)] max-w-none object-contain opacity-80" decoding="async" /> : null}
+              <MonsterFigure monsterId={monsterId} className="relative h-56 w-auto drop-shadow-xl" title={m.name[lang]} />
             </span>
           </div>
           <MonsterInfo monsterId={monsterId} showToken={false} />

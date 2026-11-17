@@ -10,6 +10,7 @@ import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import { tianwuTeam, type Difficulty } from "./ai";
 import { ElementDot, Token } from "./art";
+import { END, PIECE, coverSrc, fxSrc, mapSrc } from "./assets";
 import { afterGame, canField, LOSSES_PER_SUMMON, type Collection as CollectionData } from "./collection";
 import { describe, highlights, type Highlight, type LogLine } from "./describe";
 import { MAPS, MAP_BY_ID, SIZE, buildBoard, type Terrain } from "./maps";
@@ -193,7 +194,7 @@ export function BachLinhKy() {
       setGame(next);
       const lines = describe(events, viewFor(before, 0), viewFor(after, 0), before.toMove, lang, t);
       setLog((old) => [...lines.map((text) => ({ key: ++logKey.current, side: before.toMove, text })), ...old].slice(0, 40));
-      setMarks((old) => ({ key: old.key + 1, cells: highlights(events, before) }));
+      setMarks((old) => ({ key: old.key + 1, cells: highlights(events, before, action) }));
     },
     [collection, lang, t],
   );
@@ -402,7 +403,7 @@ export function BachLinhKy() {
                     on ? "border-primary bg-primary/10" : "border-border bg-surface hover:border-primary/50",
                   )}
                 >
-                  {map ? <MiniMap terrain={buildBoard(map).terrain} /> : <span aria-hidden="true" className="grid size-16 place-items-center rounded-md bg-surface-hover text-2xl">?</span>}
+                  {map ? <MiniMap mapId={map.id} /> : <span aria-hidden="true" className="grid size-16 place-items-center rounded-md bg-surface-hover text-2xl">?</span>}
                   <span className="inline-flex items-center gap-1">
                     {map?.element ? <ElementDot element={map.element} lang={lang} /> : null}
                     {map ? map.name[lang] : t("games.blkMapRandom")}
@@ -411,7 +412,12 @@ export function BachLinhKy() {
               );
             })}
           </div>
-          {prefs.map !== "random" ? <p className="text-sm text-foreground-secondary">{MAP_BY_ID.get(prefs.map)?.blurb[lang]}</p> : null}
+          {prefs.map !== "random" ? (
+            <div className="space-y-2">
+              <img src={coverSrc(prefs.map)} alt={MAP_BY_ID.get(prefs.map)?.name[lang] ?? ""} width={640} height={360} className="aspect-video w-full max-w-md object-contain" decoding="async" />
+              <p className="text-sm text-foreground-secondary">{MAP_BY_ID.get(prefs.map)?.blurb[lang]}</p>
+            </div>
+          ) : null}
         </section>
 
         <section className="flex flex-wrap items-center justify-between gap-3">
@@ -454,6 +460,7 @@ export function BachLinhKy() {
         </div>
         <div className="mx-auto w-fit max-w-full">
         <Board
+          mapId={mapId}
           terrain={board.terrain}
           templeOwner={board.templeOwner}
           units={placement.map((p, i) => ({ id: i, side: 0, cell: p.cell, level: monster(p.monster).level, evolved: 0, monster: p.monster, revealed: false, abilityUsed: false, boundUntil: 0, sealed: false, revived: false }))}
@@ -525,6 +532,7 @@ export function BachLinhKy() {
 
         <div className="relative">
           <Board
+            mapId={state.mapId}
             terrain={state.terrain}
             templeOwner={state.templeOwner}
             units={view.units}
@@ -658,6 +666,7 @@ function ModeButton({ on, onClick, icon, children }: { on: boolean; onClick: () 
 }
 
 type BoardProps = {
+  mapId: string;
   terrain: Terrain[];
   templeOwner: (Side | null)[];
   units: UnitView[];
@@ -669,15 +678,20 @@ type BoardProps = {
 };
 
 /** The 8×8 board: terrain cells you can press, and a layer of pieces that slide between them. */
-function Board({ terrain, templeOwner, units, marks, selectedCell, flash, onCell, cellLabel }: BoardProps) {
+function Board({ mapId, terrain, templeOwner, units, marks, selectedCell, flash, onCell, cellLabel }: BoardProps) {
   const { locale } = useI18n();
   const lang = locale === "en" ? "en" : "vi";
+  // Temples drawn on the map that have since been used up show as spent.
+  const drawn = React.useMemo(() => buildBoard(MAP_BY_ID.get(mapId) ?? MAPS[0]).terrain, [mapId]);
   return (
-    <div className="blk-board">
+    <div className="blk-frame">
+      <div className="blk-board">
       <div className="blk-grid">
         {terrain.map((kind, cell) => {
           const mark = marks.get(cell);
-          const lit = flash.cells.filter((h) => h.cell === cell).map((h) => h.kind);
+          const here = flash.cells.filter((h) => h.cell === cell);
+          const lit = here.map((h) => h.kind);
+          const fx = here.find((h) => h.fx)?.fx;
           return (
             <button
               key={cell}
@@ -685,6 +699,7 @@ function Board({ terrain, templeOwner, units, marks, selectedCell, flash, onCell
               className="blk-cell"
               data-terrain={kind}
               data-owner={kind === "temple" ? String(templeOwner[cell]) : undefined}
+              data-used={kind === "plain" && drawn[cell] === "temple" ? "" : undefined}
               data-mark={mark}
               data-selected={selectedCell === cell || undefined}
               data-flash={lit.length ? lit.join(" ") : undefined}
@@ -692,6 +707,7 @@ function Board({ terrain, templeOwner, units, marks, selectedCell, flash, onCell
               onClick={() => onCell(cell)}
             >
               {lit.length ? <span key={flash.key} aria-hidden="true" className="blk-flash" data-kind={lit.includes("battle") ? "battle" : lit[0]} /> : null}
+              {fx ? <img key={`fx-${flash.key}`} src={fxSrc(fx)} alt="" aria-hidden="true" className="blk-fx" data-wide={fx === "ranged" ? "" : undefined} decoding="async" /> : null}
             </button>
           );
         })}
@@ -709,23 +725,27 @@ function Board({ terrain, templeOwner, units, marks, selectedCell, flash, onCell
               <Token monsterId={u.monster} level={u.level} side={u.side} className="size-full" />
             </span>
             {u.side === 0 && !u.revealed ? <span className="blk-veil" title={lang === "vi" ? "Còn úp" : "Face down"} /> : null}
-            {u.sealed ? <span className="blk-badge" data-kind="seal">封</span> : null}
-            {u.boundUntil > 0 ? <span className="blk-badge" data-kind="bind">⛓</span> : null}
+            {u.sealed ? (
+              <span className="blk-badge" data-kind="seal">
+                <img src={PIECE.seal} alt="" />
+              </span>
+            ) : null}
+            {u.boundUntil > 0 ? (
+              <span className="blk-badge" data-kind="bind">
+                <img src={PIECE.bind} alt="" />
+              </span>
+            ) : null}
           </div>
         ))}
+      </div>
       </div>
     </div>
   );
 }
 
-function MiniMap({ terrain }: { terrain: Terrain[] }) {
-  return (
-    <span aria-hidden="true" className="grid size-16 grid-cols-8 overflow-hidden rounded-md">
-      {terrain.map((kind, cell) => (
-        <span key={cell} className="blk-swatch-mini" data-terrain={kind} />
-      ))}
-    </span>
-  );
+/** A map's painting, small, for the map picker. */
+function MiniMap({ mapId }: { mapId: string }) {
+  return <img src={mapSrc(mapId)} alt="" aria-hidden="true" width={64} height={64} className="size-16 rounded-md object-cover" loading="lazy" decoding="async" />;
 }
 
 type ResultProps = { game: SavedGame; you: number; them: number; lossesToSummon: number; complete: boolean; onNew: () => void; onRematch: () => void; onSummon: () => void };
@@ -740,6 +760,7 @@ function Result({ game, you, them, lossesToSummon, complete, onNew, onRematch, o
     : game.state.turn >= MAX_TURNS && game.state.units.some((u) => u.side === 0) && game.state.units.some((u) => u.side === 1)
       ? t("games.blkByTurns", { max: MAX_TURNS, a: you, b: them })
       : t("games.blkByElimination");
+  const scene = winner === 0 ? END.win : winner === 1 ? END.loss : null;
   return (
     <div role="status" className="blk-result absolute inset-0 grid place-items-center p-3">
       <GameResultDialog
@@ -758,6 +779,7 @@ function Result({ game, you, them, lossesToSummon, complete, onNew, onRematch, o
           </>
         }
       >
+        {scene ? <img src={scene} alt="" width={960} height={540} className="mx-auto aspect-video w-full rounded-lg object-cover" decoding="async" /> : null}
         {game.summoned && !game.summonSeen ? (
           <button type="button" onClick={onSummon} className="blk-urn-button mx-auto flex flex-col items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-3 font-semibold text-primary focus-visible:ring-2 focus-visible:ring-primary">
             <span aria-hidden="true" className="blk-urn" />

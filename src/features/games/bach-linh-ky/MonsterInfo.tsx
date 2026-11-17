@@ -1,8 +1,10 @@
 "use client";
 
 import { useI18n } from "@/i18n/client";
+import { cn } from "@/lib/cn";
 import { ElementDot, Token } from "./art";
-import { ACTIVE_KINDS, ELEMENT_NAME, PARTNERS, RIVALS, monster } from "./monsters";
+import { abilityFx, fxSrc, pairSrc } from "./assets";
+import { ACTIVE_KINDS, ELEMENT_NAME, PARTNERS, RIVALS, monster, type Ability } from "./monsters";
 import type { UnitView } from "./rules";
 
 const PATH_KEY = { land: "games.blkPathLand", water: "games.blkPathWater", air: "games.blkPathAir" } as const;
@@ -31,6 +33,7 @@ export function MonsterInfo({ unit, monsterId, mine, showToken = true }: { unit?
   const level = unit?.level ?? m.level;
   const partners = PARTNERS.filter((pair) => pair.includes(id)).map((pair) => monster(pair[0] === id ? pair[1] : pair[0]).name[lang]);
   const rivals = RIVALS.filter((pair) => pair.includes(id)).map((pair) => monster(pair[0] === id ? pair[1] : pair[0]).name[lang]);
+  const pairs = [...PARTNERS, ...RIVALS].filter((pair) => pair.includes(id)).flatMap((pair) => pairSrc(pair[0], pair[1]) ?? []);
 
   return (
     <div className="space-y-3">
@@ -56,8 +59,9 @@ export function MonsterInfo({ unit, monsterId, mine, showToken = true }: { unit?
       {m.abilityText.length ? (
         <ul className="space-y-1 text-sm">
           {m.abilityText.map((text, i) => (
-            <li key={i} className={unit?.sealed ? "line-through opacity-60" : undefined}>
-              {text[lang]}
+            <li key={i} className={cn("flex items-start gap-2", unit?.sealed && "line-through opacity-60")}>
+              <AbilityFx ability={m.abilities[i]} />
+              <span>{text[lang]}</span>
               {unit?.abilityUsed && (ACTIVE_KINDS as readonly string[]).includes(m.abilities[i].kind) ? (
                 <span className="ml-1 text-xs text-muted">({t("games.blkUsed")})</span>
               ) : null}
@@ -65,6 +69,9 @@ export function MonsterInfo({ unit, monsterId, mine, showToken = true }: { unit?
           ))}
         </ul>
       ) : null}
+      {pairs.map((src) => (
+        <img key={src} src={src} alt="" width={960} height={540} className="aspect-video w-full rounded-lg object-cover" loading="lazy" decoding="async" />
+      ))}
       {partners.length || rivals.length ? (
         <p className="text-xs text-foreground-secondary">
           {partners.map((name) => t("games.blkPartner", { name })).join(" · ")}
@@ -75,6 +82,12 @@ export function MonsterInfo({ unit, monsterId, mine, showToken = true }: { unit?
       <Status unit={unit} mine={mine} />
     </div>
   );
+}
+
+/** The painted effect of an ability, small, beside its description. */
+function AbilityFx({ ability }: { ability: Ability | undefined }) {
+  const fx = ability ? abilityFx(ability) : null;
+  return fx ? <img src={fxSrc(fx)} alt="" className="size-7 shrink-0 rounded-full bg-surface-hover" loading="lazy" decoding="async" /> : null;
 }
 
 function Status({ unit, mine }: { unit?: UnitView; mine?: boolean }) {
