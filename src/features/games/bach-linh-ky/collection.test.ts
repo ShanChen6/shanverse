@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
 
+import { MONSTER_ART, figureSrc, tokenSrc } from "./art-images";
 import { LOSSES_PER_SUMMON, afterGame, canField, newCollection, sanitize, unowned } from "./collection";
 import { ELEMENTS, LEVELS, MONSTERS, STARTERS, monster } from "./monsters";
 
@@ -64,8 +67,10 @@ test("a team can only use owned monsters, one per level", () => {
   assert.ok(!canField(c, team.slice(0, 4)));
 });
 
-test("every monster has its own portrait", async () => {
-  const { PORTRAITS } = await import("./portraits");
-  for (const m of MONSTERS) assert.equal(typeof PORTRAITS[m.id], "function", m.id);
-  assert.equal(Object.keys(PORTRAITS).length, MONSTERS.length);
+test("every monster has its own art, both images on disk", () => {
+  for (const m of MONSTERS) {
+    assert.ok(MONSTER_ART[m.id], `${m.id} is not in art-images.ts`);
+    for (const src of [tokenSrc(m.id), figureSrc(m.id)]) assert.ok(existsSync(join("public", src)), `${m.id}: missing ${src}`);
+  }
+  assert.equal(Object.keys(MONSTER_ART).length, MONSTERS.length);
 });

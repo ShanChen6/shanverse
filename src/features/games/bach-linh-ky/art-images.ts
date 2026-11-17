@@ -1,8 +1,7 @@
-// Painted art for Bách Linh Kỳ monsters. A monster listed here is drawn from
-// its image instead of its vector portrait (portraits.tsx); every other
-// monster keeps the vector one, so art can be added one monster at a time.
+// Painted art for Bách Linh Kỳ monsters. Every monster needs an entry here
+// and its two images (collection.test.ts checks both).
 //
-// To add a monster:
+// To add a monster's art:
 //   1. Add a line below. `face` is the square part of the source image shown
 //      on the round piece: the centre (x, y) and the side of the square, each
 //      as a fraction of the image (0 to 1). Aim it at the head and shoulders.

@@ -1,12 +1,8 @@
 // Pieces for Bách Linh Kỳ: lacquer medallions coloured by element, each
-// with its monster's own portrait: painted art where there is some
-// (art-images.ts), the vector portrait otherwise (portraits.tsx).
+// with its monster's painted portrait (art-images.ts).
 
-import type * as React from "react";
-
-import { MONSTER_ART, figureSrc, tokenSrc } from "./art-images";
+import { figureSrc, tokenSrc } from "./art-images";
 import { ELEMENT_NAME, monster, type Element } from "./monsters";
-import { PORTRAITS, type Pal } from "./portraits";
 
 /** Ngũ hành colours, after the traditional ones: Kim white-gold, Mộc green, Thủy deep blue-black, Hỏa red, Thổ yellow-ochre. */
 export const ELEMENT_COLOR: Record<Element, { base: string; deep: string; ink: string }> = {
@@ -17,42 +13,16 @@ export const ELEMENT_COLOR: Record<Element, { base: string; deep: string; ink: s
   tho: { base: "#c9952f", deep: "#8a6118", ink: "#2d1f08" },
 };
 
-/** The bright colour of each element's light: eyes, magic, the summoning glow. */
+/** The bright colour of each element's light: magic and glows (also the colours the art prompts ask for). */
 export const ELEMENT_GLOW: Record<Element, string> = { kim: "#5fc8ff", moc: "#9dff7a", thuy: "#7fd8ff", hoa: "#ffd23f", tho: "#7dffcf" };
-
-/** Colours a portrait draws with on its element's medallion (or all one tone, for a locked silhouette). */
-export function palette(element: Element, locked = false): Pal {
-  if (locked) {
-    const d = "#18181b";
-    return { ink: d, paper: "#3f3f46", deep: "#27272a", glow: d, gold: d, red: d, white: d, dark: d, steel: d, green: d, blue: d, purple: d, skin: d, locked: true };
-  }
-  const c = ELEMENT_COLOR[element];
-  return {
-    ink: c.ink,
-    paper: c.base,
-    deep: c.deep,
-    glow: ELEMENT_GLOW[element],
-    gold: element === "tho" ? "#ffe9a3" : "#e8b23a",
-    red: element === "hoa" ? "#6e130d" : "#c8372d",
-    white: element === "kim" ? "#ffffff" : "#f6f1e6",
-    dark: "#1d1611",
-    steel: element === "kim" ? "#8d99a6" : "#b9c3cc",
-    green: element === "moc" ? "#b9f08a" : "#3fae6a",
-    blue: element === "thuy" ? "#a8dcff" : "#3d7fc4",
-    purple: "#9a5fe0",
-    skin: "#f1cf9f",
-    locked: false,
-  };
-}
 
 /** A monster's painted face (already cropped, see art-images.ts), filling the medallion. Locked: a dark silhouette. */
 function ArtImage({ id, locked }: { id: string; locked: boolean }) {
   return <image href={tokenSrc(id)} x="5" y="5" width="54" height="54" style={locked ? { filter: "brightness(0)", opacity: 0.6 } : undefined} />;
 }
 
-/** The whole painted figure of a monster, for places with room to show it (null if it has no art yet). */
+/** The whole painted figure of a monster, for places with room to show it. */
 export function MonsterFigure({ monsterId, className, title }: { monsterId: string; className?: string; title?: string }) {
-  if (!MONSTER_ART[monsterId]) return null;
   return <img src={figureSrc(monsterId)} width={448} height={448} alt={title ?? ""} className={className} loading="lazy" decoding="async" />;
 }
 
@@ -107,7 +77,7 @@ export function Token({ monsterId, level, side, locked = false, className, title
       <clipPath id="blk-clip">
         <circle cx="32" cy="32" r="26.5" />
       </clipPath>
-      <g clipPath="url(#blk-clip)">{MONSTER_ART[m.id] ? <ArtImage id={m.id} locked={locked} /> : PORTRAITS[m.id]?.(palette(m.element, locked))}</g>
+      <g clipPath="url(#blk-clip)"><ArtImage id={m.id} locked={locked} /></g>
       <circle cx="51" cy="51" r="9" fill="#111827" stroke={rim} strokeWidth="1.6" />
       <text x="51" y="55" textAnchor="middle" fontSize="11.5" fontWeight="800" fill="#fff" fontFamily="ui-sans-serif, system-ui">
         {level}
