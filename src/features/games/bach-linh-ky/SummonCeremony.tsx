@@ -5,7 +5,7 @@ import { FastForward, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/client";
-import { ELEMENT_COLOR, Token } from "./art";
+import { ELEMENT_COLOR, MonsterFigure } from "./art";
 import { MonsterInfo } from "./MonsterInfo";
 import { monster, type Element } from "./monsters";
 
@@ -107,7 +107,7 @@ export function SummonCeremony({ monsterId, onClose }: { monsterId: string; onCl
               <Sparkles aria-hidden="true" className="size-4" /> {t("games.blkSummonNew")}
             </span>
             <span className="blk-summon-token">
-              <Token monsterId={monsterId} level={m.level} side={0} className="size-28" title={m.name[lang]} />
+              <MonsterFigure monsterId={monsterId} className="h-56 w-auto drop-shadow-xl" title={m.name[lang]} />
             </span>
           </div>
           <MonsterInfo monsterId={monsterId} showToken={false} />
