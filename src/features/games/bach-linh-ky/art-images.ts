@@ -63,7 +63,12 @@ export const MONSTER_ART: Record<string, MonsterArt> = {
   "rua-con": { face: [0.54, 0.68, 0.42] },
   "lan": { face: [0.68, 0.25, 0.38] },
   "ong-dia": { face: [0.5, 0.22, 0.4] },
+  "tu-dao-hanh": { face: [0.49, 0.14, 0.36] },
+  "voi-chin-nga": { face: [0.57, 0.37, 0.45] },
+  "mau-dia": { face: [0.48, 0.18, 0.38] },
+  "nghe": { face: [0.7, 0.17, 0.38] },
   "son-tinh": { face: [0.48, 0.2, 0.46] },
+  "kim-quy": { face: [0.56, 0.22, 0.35] },
 };
 
 const DIR = "/games/bach-linh-ky/art";
