@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
     path: ROUTES.GAMES,
     title: t("metadata.gamesTitle"),
     description: t("metadata.gamesDescription"),
-    keywords: ["Shanverse", "mini game", "puzzle", "2048", "minesweeper", "sokoban", "typing test", "memory game", "snake", "browser game"],
+    keywords: ["Shanverse", "mini game", "puzzle", "2048", "minesweeper", "sokoban", "typing test", "memory game", "snake", "tower of hanoi", "browser game"],
   });
 }
 

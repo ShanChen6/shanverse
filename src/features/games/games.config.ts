@@ -48,6 +48,15 @@ export const GAMES: GameEntry[] = [
     controlKeys: ["games.tagKeyboard", "games.tagTouch"],
   },
   {
+    slug: "hanoi",
+    href: ROUTES.GAME_DETAIL("hanoi"),
+    titleKey: "games.hanoiTitle",
+    descriptionKey: "games.hanoiDescription",
+    category: "puzzle-logic",
+    extraCategories: ["math-brain"],
+    controlKeys: ["games.tagMouse", "games.tagKeyboard", "games.tagTouch"],
+  },
+  {
     slug: "2048",
     href: ROUTES.GAME_DETAIL("2048"),
     titleKey: "games.game2048Title",
