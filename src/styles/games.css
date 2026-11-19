@@ -426,7 +426,7 @@
 
 /* Chain reaction (/games/red-cliffs): three themed boards ---------------- */
 .rc-board {
-  --rc-cell: min(4rem, calc((100vw - 2.5rem) / 6));
+  --rc-cell: min(4rem, calc((100vw - 4rem) / 6));
   position: relative;
   width: calc(var(--rc-cell) * 6);
   height: calc(var(--rc-cell) * 6);
@@ -447,24 +447,33 @@
   padding: 0.15rem;
   border-radius: 0.6rem;
 }
-.rc-board[data-theme="lantern"], .rc-swatch[data-theme="lantern"] {
-  background:
-    radial-gradient(ellipse at 50% 0%, rgb(251 191 36 / 0.12), transparent 55%),
-    linear-gradient(170deg, #1b2350, #0b1028);
+/* Each theme's painted river, space or night water, under the 6×6 grid. */
+.rc-board, .rc-swatch { background: #0b1028 center / cover no-repeat; }
+.rc-board[data-theme="lantern"], .rc-swatch[data-theme="lantern"] { background-image: url("/games/red-cliffs/lantern/board.webp"); }
+.rc-board[data-theme="space"], .rc-swatch[data-theme="space"] { background-image: url("/games/red-cliffs/space/board.webp"); }
+.rc-board[data-theme="fleet"], .rc-swatch[data-theme="fleet"] { background-image: url("/games/red-cliffs/fleet/board.webp"); }
+/* Faint grid lines, so the water still reads as six by six. */
+.rc-board::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.07) 1px, transparent 1px);
+  background-size: var(--rc-cell) var(--rc-cell);
 }
-.rc-board[data-theme="space"], .rc-swatch[data-theme="space"] {
-  background:
-    radial-gradient(1px 1px at 12% 18%, #e0e7ff, transparent),
-    radial-gradient(1px 1px at 72% 34%, #e0e7ff, transparent),
-    radial-gradient(1.5px 1.5px at 40% 80%, #c7d2fe, transparent),
-    radial-gradient(1px 1px at 88% 72%, #e0e7ff, transparent),
-    radial-gradient(circle at 30% 20%, #1e1b4b, #050816 70%);
+
+/* The scene around the board: the theme's wide backdrop, board in the middle. */
+.rc-stage {
+  border-radius: 8px;
+  padding: 1rem 0.75rem 1.25rem;
+  background: #0b1028 center / cover no-repeat;
 }
-.rc-board[data-theme="fleet"], .rc-swatch[data-theme="fleet"] {
-  background:
-    radial-gradient(circle at 20% 15%, rgb(255 255 255 / 0.07), transparent 40%),
-    linear-gradient(160deg, #16506b, #0f3b52);
-}
+.rc-stage[data-theme="lantern"] { background-image: url("/games/red-cliffs/lantern/backdrop.webp"); }
+.rc-stage[data-theme="space"] { background-image: url("/games/red-cliffs/space/backdrop.webp"); }
+.rc-stage[data-theme="fleet"] { background-image: url("/games/red-cliffs/fleet/backdrop.webp"); }
+@media (min-width: 640px) { .rc-stage { padding: 1.5rem 1rem 2rem; } }
 
 .rc-grid {
   display: grid;
