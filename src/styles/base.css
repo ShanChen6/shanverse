@@ -42,16 +42,18 @@
       var(--brand-gradient-border) border-box;
   }
 
-  /* Shared card frame: 1px border, no shadow; hover only changes the border color. */
+  /* Shared card frame: 1px border and a soft shadow; hover deepens both a little. */
   .brand-card-border {
     border: 1px solid var(--border);
     background-color: var(--surface-elevated);
-    transition: border-color 150ms ease;
+    box-shadow: var(--elevation-card);
+    transition: border-color 150ms ease, box-shadow 150ms ease;
   }
 
   .brand-card-border:hover,
   .brand-card-border:focus-within {
     border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+    box-shadow: var(--elevation-card-hover);
   }
 
   .brand-active-indicator::after {

@@ -180,7 +180,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         {project.highlights.length ? (
           <dl aria-label={t("projects.highlightsLabel")} className="mx-auto grid max-w-page grid-cols-2 gap-3 sm:grid-cols-4">
             {project.highlights.map((highlight) => (
-              <div key={highlight.label} className="rounded-card border border-border bg-surface p-4 text-center sm:p-5">
+              <div key={highlight.label} className="rounded-card border border-border bg-surface shadow-card p-4 text-center sm:p-5">
                 <dd className="text-2xl font-extrabold text-primary sm:text-3xl">{highlight.value}</dd>
                 <dt className="mt-1 text-xs text-foreground-secondary sm:text-sm">{highlight.label}</dt>
               </div>
@@ -189,7 +189,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         ) : null}
 
         {toc.length >= 2 ? (
-          <details className="mx-auto max-w-3xl rounded-2xl border border-border bg-surface p-5 lg:hidden">
+          <details className="mx-auto max-w-3xl rounded-2xl border border-border bg-surface shadow-card p-5 lg:hidden">
             <summary className="cursor-pointer font-semibold">{t("blog.toc")}</summary>
             <nav aria-label={t("blog.toc")} className="mt-4"><TocList items={toc} /></nav>
           </details>
@@ -213,13 +213,13 @@ export default async function ProjectDetailPage({ params }: Props) {
 
           <aside className="space-y-5 lg:sticky lg:top-24">
             {toc.length >= 2 ? (
-              <div className="hidden rounded-2xl border border-border bg-surface p-5 lg:block">
+              <div className="hidden rounded-2xl border border-border bg-surface shadow-card p-5 lg:block">
                 <p className="mb-4 font-semibold">{t("blog.onThisPage")}</p>
                 <nav aria-label={t("blog.toc")}><TocList items={toc} /></nav>
               </div>
             ) : null}
             {project.tags.length ? (
-              <div className="rounded-2xl border border-border bg-surface p-5">
+              <div className="rounded-2xl border border-border bg-surface shadow-card p-5">
                 <h2 className="flex items-center gap-2 font-semibold"><Tags aria-hidden="true" className="size-4 text-primary" /> {t("blog.tags")}</h2>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {project.tags.map((tag) => <Badge key={tag} variant="outline">#{tag}</Badge>)}
@@ -232,13 +232,13 @@ export default async function ProjectDetailPage({ params }: Props) {
         {previous || next ? (
           <nav aria-label={t("projects.adjacentLabel")} className="mx-auto grid max-w-page gap-4 border-t border-border pt-8 sm:grid-cols-2">
             {previous ? (
-              <Link href={ROUTES.PROJECT_DETAIL(previous.slug)} rel="prev" className="group flex min-h-16 min-w-0 flex-col gap-1 rounded-card border border-border bg-surface p-4 transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary">
+              <Link href={ROUTES.PROJECT_DETAIL(previous.slug)} rel="prev" className="group flex min-h-16 min-w-0 flex-col gap-1 rounded-card border border-border bg-surface shadow-card p-4 transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary">
                 <span className="text-xs font-medium text-muted">&larr; {t("projects.previousProject")}</span>
                 <span className="line-clamp-2 font-semibold group-hover:text-primary">{previous.title}</span>
               </Link>
             ) : <span aria-hidden="true" className="hidden sm:block" />}
             {next ? (
-              <Link href={ROUTES.PROJECT_DETAIL(next.slug)} rel="next" className="group flex min-h-16 min-w-0 flex-col gap-1 rounded-card border border-border bg-surface p-4 text-left transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary sm:text-right">
+              <Link href={ROUTES.PROJECT_DETAIL(next.slug)} rel="next" className="group flex min-h-16 min-w-0 flex-col gap-1 rounded-card border border-border bg-surface shadow-card p-4 text-left transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary sm:text-right">
                 <span className="text-xs font-medium text-muted">{t("projects.nextProject")} &rarr;</span>
                 <span className="line-clamp-2 font-semibold group-hover:text-primary">{next.title}</span>
               </Link>

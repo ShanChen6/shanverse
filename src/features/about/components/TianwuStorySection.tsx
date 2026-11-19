@@ -12,7 +12,7 @@ export async function TianwuStorySection() {
   const { t } = await getTranslator();
   return (
     <section aria-labelledby="tianwu-heading" className="space-y-4">
-      <div className="grid items-center gap-8 overflow-hidden rounded-card border border-border bg-surface p-6 sm:p-8 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-12">
+      <div className="grid items-center gap-8 overflow-hidden rounded-card border border-border bg-surface shadow-card p-6 sm:p-8 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-12">
         <div className="tw-sky relative mx-auto w-56 rounded-card p-6 sm:w-64 lg:w-full">
           <Tianwu pose="wave" className="tw-sway relative h-auto w-full" title={t("mascot.artWaving")} />
         </div>
@@ -35,7 +35,7 @@ export async function TianwuStorySection() {
         </div>
       </div>
 
-      <details className="rounded-card border border-border bg-surface p-4 sm:p-5">
+      <details className="rounded-card border border-border bg-surface shadow-card p-4 sm:p-5">
         <summary id="tianwu-stickers-heading" className="flex min-h-10 cursor-pointer items-center justify-between gap-3 text-lg font-semibold tracking-tight focus-visible:ring-2 focus-visible:ring-primary">{t("mascot.stickersTitle")}</summary>
         <div className="mt-4 space-y-4">
           <p className="text-sm text-foreground-secondary">{t("mascot.stickersDescription")}</p>
@@ -48,7 +48,7 @@ export async function TianwuStorySection() {
                   href={sticker.href}
                   download
                   aria-label={t("mascot.stickerDownload", { name })}
-                  className="group flex h-full flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-4 text-sm font-medium transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary"
+                  className="group flex h-full flex-col items-center gap-3 rounded-2xl border border-border bg-surface shadow-card p-4 text-sm font-medium transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <img src={sticker.href} alt="" loading="lazy" className="h-24 w-full object-contain" />
                   <span className="inline-flex items-center gap-1.5 text-foreground-secondary group-hover:text-primary">

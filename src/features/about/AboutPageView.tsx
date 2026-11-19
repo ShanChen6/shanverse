@@ -47,7 +47,7 @@ export async function AboutPageView() {
             </div>
           </section>
         </div>
-        <aside className="space-y-8 rounded-card border border-border bg-surface p-5 lg:sticky lg:top-24">
+        <aside className="space-y-8 rounded-card border border-border bg-surface shadow-card p-5 lg:sticky lg:top-24">
           <Suspense fallback={<AboutStatsSkeleton label={t("about.statsLoading")} />}><AboutStatsData /></Suspense>
           <SkillsSection />
         </aside>

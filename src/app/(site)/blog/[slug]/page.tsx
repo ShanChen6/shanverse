@@ -298,7 +298,7 @@ export default async function BlogDetailPage({ params }: Props) {
                   locale={locale === "en" ? "en" : "vi"}
                 />
               ) : (
-                <p className="rounded-2xl border border-border bg-surface p-6 text-foreground-secondary">
+                <p className="rounded-2xl border border-border bg-surface shadow-card p-6 text-foreground-secondary">
                   This article does not have any content yet.
                 </p>
               )}

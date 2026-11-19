@@ -54,7 +54,7 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
               [String(technologies.length), t("projects.statsTechnologies")],
               [String(data.projects.filter((project) => project.featured).length), t("projects.statsFeatured")],
             ].map(([value, label]) => (
-              <div key={label} className="rounded-card border border-border bg-surface p-3 sm:p-5">
+              <div key={label} className="rounded-card border border-border bg-surface shadow-card p-3 sm:p-5">
                 <dd className="text-2xl font-bold text-primary sm:text-3xl">{value}</dd>
                 <dt className="mt-1 text-xs text-foreground-secondary sm:text-sm">{label}</dt>
               </div>
@@ -108,7 +108,7 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
         </section> : null}
 
         {data.hasError ? (
-          <section role="status" className="rounded-2xl border border-border bg-surface px-6 py-16 text-center">
+          <section role="status" className="rounded-2xl border border-border bg-surface shadow-card px-6 py-16 text-center">
             <BriefcaseBusiness aria-hidden="true" className="mx-auto mb-4 size-10 text-primary" />
             <h2 className="text-2xl font-semibold">{t("projects.loadErrorTitle")}</h2>
             <p className="mx-auto mb-6 mt-3 max-w-lg text-foreground-secondary">{t("errors.dataUnavailable")}</p>

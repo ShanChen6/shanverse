@@ -10,6 +10,10 @@
   --radius-card: 0.5rem;
   --radius-panel: 0.75rem;
 
+  /* Card depth: a soft two-layer shadow, a little stronger on hover. */
+  --elevation-card: 0 1px 3px rgb(3 18 66 / 0.08), 0 10px 24px -8px rgb(3 18 66 / 0.18);
+  --elevation-card-hover: 0 2px 6px rgb(3 18 66 / 0.10), 0 18px 36px -10px rgb(3 18 66 / 0.26);
+
   /* Shared brand gradients: decorative only, never content surfaces. */
   --brand-gradient: linear-gradient(120deg, #1D3A7D 0%, #786F70 50%, #D9AF62 100%);
   --brand-gradient-soft: linear-gradient(120deg, rgb(29 58 125 / 0.12) 0%, rgb(120 111 112 / 0.08) 52%, rgb(217 175 98 / 0.14) 100%);
@@ -64,6 +68,8 @@
 ========================================================== */
 
 .dark {
+  --elevation-card: 0 1px 3px rgb(0 0 0 / 0.40), 0 12px 28px -8px rgb(0 0 0 / 0.65);
+  --elevation-card-hover: 0 2px 6px rgb(0 0 0 / 0.45), 0 20px 40px -10px rgb(0 0 0 / 0.75);
   --brand-gradient-soft: linear-gradient(120deg, rgb(29 58 125 / 0.38) 0%, rgb(120 111 112 / 0.2) 52%, rgb(217 175 98 / 0.24) 100%);
   --brand-gradient-border: linear-gradient(120deg, rgb(86 119 190 / 0.85) 0%, rgb(139 126 119 / 0.7) 50%, rgb(217 175 98 / 0.9) 100%);
 
@@ -114,6 +120,10 @@
   --radius-xl: 0.5rem;
   --radius-2xl: 0.5rem;
   --radius-3xl: 0.75rem;
+
+  /* Card depth (see --elevation-card). */
+  --shadow-card: var(--elevation-card);
+  --shadow-card-hover: var(--elevation-card-hover);
 
   /* Content width for every page. */
   --container-page: 90rem;

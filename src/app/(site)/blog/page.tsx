@@ -119,7 +119,7 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
         {data.hasError ? (
           <section
             role="status"
-            className="rounded-2xl border border-border bg-surface px-6 py-16 text-center"
+            className="rounded-2xl border border-border bg-surface shadow-card px-6 py-16 text-center"
           >
             <BookOpen
               aria-hidden="true"
@@ -223,7 +223,7 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
 
               <aside
                 aria-labelledby="tags-heading"
-                className="min-w-0 rounded-2xl border border-border bg-surface p-5 lg:sticky lg:top-24"
+                className="min-w-0 rounded-2xl border border-border bg-surface shadow-card p-5 lg:sticky lg:top-24"
               >
                 <h2
                   id="tags-heading"
@@ -285,7 +285,7 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
     <JsonLd data={{ "@context": "https://schema.org", "@type": "Blog", name: "Shanverse Blog", description: t("metadata.blogDescription"), url: buildAbsoluteUrl(`/${locale}/blog`), inLanguage: "vi-VN", author: { "@type": "Person", name: SEO_CONFIG.author }, publisher: { "@type": "Person", name: SEO_CONFIG.author } }} />
     <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("common.blog") }]} />
     <PageHeader title={t("blog.title")} description={t("blog.description")} />
-    {locale === "en" ? <p role="note" className="rounded-card border border-border bg-surface px-4 py-3 text-sm text-foreground-secondary">{t("blog.vietnameseOnly")}</p> : null}
+    {locale === "en" ? <p role="note" className="rounded-card border border-border bg-surface shadow-card px-4 py-3 text-sm text-foreground-secondary">{t("blog.vietnameseOnly")}</p> : null}
     <Suspense fallback={<BlogDataSkeleton label={t("common.loadingArticles")} />}><BlogDataSection query={query} t={t} /></Suspense>
   </PageContainer>;
 }
