@@ -172,7 +172,7 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
               </section>
             )}
 
-            <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-10">
+            <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-10 2xl:grid-cols-[minmax(0,1fr)_18rem]">
               <div className="min-w-0 space-y-8">
                 {filteredPosts.length === 0 ? (
                   <EmptyState
@@ -202,7 +202,7 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
                         {t("blog.latest")}
                       </h2>
                     </div>
-                    <div className="grid gap-6 sm:grid-cols-2">
+                    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                       {latestPosts.map((post) => (
                         <PostCard key={post.id} post={post} />
                       ))}

@@ -43,7 +43,7 @@ async function HomeDataSections() {
     .sort(compareProjects);
   const featuredProjects = publishedProjects
     .filter((project) => project.featured)
-    .slice(0, 3);
+    .slice(0, 4);
 
   return <>
     <WritingSection lead={leadPost} posts={latestPosts} />

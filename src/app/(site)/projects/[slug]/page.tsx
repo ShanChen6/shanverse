@@ -109,7 +109,7 @@ export default async function ProjectDetailPage({ params }: Props) {
   return (
     <article className="mx-auto max-w-page space-y-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <JsonLd data={[{ "@context": "https://schema.org", "@type": "SoftwareSourceCode", name: project.title, description: project.description, image: safeMetadataImage(project.coverImage ?? project.thumbnailImage), dateCreated: project.createdAt, dateModified: project.updatedAt, author: { "@type": "Person", name: SEO_CONFIG.author }, url: canonical, codeRepository: githubUrl ?? undefined, runtimePlatform: project.techStack.join(", "), keywords: [...project.techStack, ...project.tags].join(", ") }, { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: buildAbsoluteUrl(`/${locale}`) }, { "@type": "ListItem", position: 2, name: "Projects", item: buildAbsoluteUrl(`/${locale}/projects`) }, { "@type": "ListItem", position: 3, name: project.title, item: canonical }] }]} />
-        <header className="mx-auto max-w-5xl space-y-6">
+        <header className="mx-auto max-w-[68.75rem] space-y-6">
           <Breadcrumb
             items={[
               { label: t("common.home"), href: ROUTES.HOME },
@@ -173,12 +173,12 @@ export default async function ProjectDetailPage({ params }: Props) {
           </div>
         </header>
 
-        <figure className="relative mx-auto aspect-[16/8] max-w-page overflow-hidden rounded-panel border border-border bg-surface">
+        <figure className="relative mx-auto aspect-[16/8] max-w-[68.75rem] overflow-hidden rounded-panel border border-border bg-surface">
           <Image src={cover} alt={t("projects.coverAlt", { title: project.title })} fill priority unoptimized={!cover.startsWith("/")} sizes="(min-width: 1280px) 1152px, 100vw" className="object-cover" />
         </figure>
 
         {project.highlights.length ? (
-          <dl aria-label={t("projects.highlightsLabel")} className="mx-auto grid max-w-page grid-cols-2 gap-3 sm:grid-cols-4">
+          <dl aria-label={t("projects.highlightsLabel")} className="mx-auto grid max-w-[68.75rem] grid-cols-2 gap-3 sm:grid-cols-4">
             {project.highlights.map((highlight) => (
               <div key={highlight.label} className="rounded-card border border-border bg-surface shadow-card p-4 text-center sm:p-5">
                 <dd className="text-2xl font-extrabold text-primary sm:text-3xl">{highlight.value}</dd>
@@ -189,13 +189,13 @@ export default async function ProjectDetailPage({ params }: Props) {
         ) : null}
 
         {toc.length >= 2 ? (
-          <details className="mx-auto max-w-3xl rounded-2xl border border-border bg-surface shadow-card p-5 lg:hidden">
+          <details className="mx-auto max-w-[68.75rem] rounded-2xl border border-border bg-surface shadow-card p-5 lg:hidden">
             <summary className="cursor-pointer font-semibold">{t("blog.toc")}</summary>
             <nav aria-label={t("blog.toc")} className="mt-4"><TocList items={toc} /></nav>
           </details>
         ) : null}
 
-        <div className="mx-auto grid max-w-page items-start gap-10 lg:grid-cols-[minmax(0,800px)_260px]">
+        <div className="mx-auto grid max-w-[68.75rem] items-start gap-10 lg:grid-cols-[minmax(0,800px)_260px]">
           <main className="min-w-0 space-y-8">
             {blocks.length ? (
               caseStudy ? (
@@ -249,7 +249,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         {relatedProjects.length ? (
           <section aria-labelledby="related-projects-heading" className="mx-auto max-w-page space-y-6 border-t border-border pt-10">
             <div><h2 id="related-projects-heading" className="text-2xl font-semibold tracking-tight">{t("projects.related")}</h2></div>
-            <div className="grid gap-6 md:grid-cols-3">{relatedProjects.map((related) => <ProjectCard key={related.id} project={related} />)}</div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{relatedProjects.map((related) => <ProjectCard key={related.id} project={related} />)}</div>
           </section>
         ) : null}
 

@@ -24,8 +24,8 @@ export async function FeaturedProjectsSection({
       <div className="space-y-6">
         <ProjectCard project={leadProject} variant="featured" />
         {supportingProjects.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2">
-            {supportingProjects.slice(0, 2).map((project) => (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {supportingProjects.slice(0, 3).map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
           </div>

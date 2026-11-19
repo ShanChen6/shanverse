@@ -60,7 +60,7 @@ export function GamesCatalog({ categories, items, allLabel, recentLabel, chipsLa
     }
   };
 
-  const grid = "grid gap-6 sm:grid-cols-2 lg:grid-cols-3";
+  const grid = "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4";
   const chip = (active: boolean) =>
     cn(
       "inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary",

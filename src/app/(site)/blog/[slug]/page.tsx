@@ -181,7 +181,7 @@ export default async function BlogDetailPage({ params }: Props) {
               },
             ]}
           />
-          <header className="mx-auto max-w-4xl space-y-6">
+          <header className="mx-auto max-w-[67.5rem] space-y-6">
             <Breadcrumb
               items={[
                 { label: t("common.home"), href: ROUTES.HOME },
@@ -276,7 +276,7 @@ export default async function BlogDetailPage({ params }: Props) {
           </header>
 
           {cover ? (
-            <figure className="relative mx-auto aspect-16/8 max-w-5xl overflow-hidden rounded-3xl border border-border bg-surface">
+            <figure className="relative mx-auto aspect-16/8 max-w-[67.5rem] overflow-hidden rounded-3xl border border-border bg-surface">
               <Image
                 src={cover}
                 alt={`Cover image for ${post.title}`}
@@ -288,7 +288,7 @@ export default async function BlogDetailPage({ params }: Props) {
               />
             </figure>
           ) : null}
-          <div className="mx-auto grid max-w-page items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
+          <div className="mx-auto grid max-w-[67.5rem] items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
             <BlogViewContent>
               {blocks.length ? (
                 <NotionRenderer
@@ -312,7 +312,7 @@ export default async function BlogDetailPage({ params }: Props) {
             ) : null}
           </div>
 
-          <footer className="mx-auto max-w-4xl space-y-10 border-t border-border pt-10">
+          <footer className="mx-auto max-w-[67.5rem] space-y-10 border-t border-border pt-10">
             <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
               <SharePost
                 title={post.title}
