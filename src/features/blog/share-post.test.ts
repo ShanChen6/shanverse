@@ -4,9 +4,9 @@ import test from "node:test";
 import { buildBlogPostCanonicalUrl } from "@/config/seo.config";
 import { createSocialShareUrls, sharePost } from "./share-post";
 
-test("builds the Vietnamese canonical URL and safely encodes the slug", () => {
+test("builds the canonical URL in the default locale and safely encodes the slug", () => {
   const canonical = new URL(buildBlogPostCanonicalUrl("next js/căn bản"));
-  assert.equal(canonical.pathname, "/vi/blog/next%20js%2Fc%C4%83n%20b%E1%BA%A3n");
+  assert.equal(canonical.pathname, "/en/blog/next%20js%2Fc%C4%83n%20b%E1%BA%A3n");
 });
 
 test("encodes canonical URLs and titles in social share links", () => {

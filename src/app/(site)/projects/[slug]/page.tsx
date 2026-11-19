@@ -28,7 +28,7 @@ import {
 } from "@/features/projects/project-detail-data";
 import { ROUTES } from "@/constants/routes";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { buildAbsoluteUrl, safeMetadataImage, SEO_CONFIG } from "@/config/seo.config";
+import { buildAbsoluteUrl, localizedAlternates, safeMetadataImage, SEO_CONFIG } from "@/config/seo.config";
 import { formatDate } from "@/i18n/format";
 import { getTranslator } from "@/i18n/server";
 
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: { absolute: `${project.title} | Shanverse` },
       description,
-      alternates: { canonical, languages: { vi: buildAbsoluteUrl(`/vi/projects/${encodeURIComponent(project.slug)}`), en: buildAbsoluteUrl(`/en/projects/${encodeURIComponent(project.slug)}`), "x-default": buildAbsoluteUrl(`/vi/projects/${encodeURIComponent(project.slug)}`) } },
+      alternates: localizedAlternates(locale, `/projects/${encodeURIComponent(project.slug)}`),
       keywords: [...new Set([...project.techStack, ...project.tags])],
       openGraph: {
         type: "website",

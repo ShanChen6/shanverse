@@ -34,9 +34,11 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import {
   buildBlogPostCanonicalUrl,
   buildAbsoluteUrl,
+  localePath,
   safeMetadataImage,
   SEO_CONFIG,
 } from "@/config/seo.config";
+import { defaultLocale } from "@/i18n/config";
 import { TianwuBadge } from "@/components/mascot/Tianwu";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -76,7 +78,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       alternates: {
         canonical,
-        languages: { vi: canonical, "x-default": canonical },
+        languages: { "x-default": canonical },
       },
       authors: [{ name: post.authorName ?? SEO_CONFIG.author }],
       creator: post.authorName ?? SEO_CONFIG.author,
@@ -161,13 +163,13 @@ export default async function BlogDetailPage({ params }: Props) {
                     "@type": "ListItem",
                     position: 1,
                     name: "Home",
-                    item: buildAbsoluteUrl("/vi"),
+                    item: buildAbsoluteUrl(localePath(defaultLocale)),
                   },
                   {
                     "@type": "ListItem",
                     position: 2,
                     name: "Blog",
-                    item: buildAbsoluteUrl("/vi/blog"),
+                    item: buildAbsoluteUrl(localePath(defaultLocale, "/blog")),
                   },
                   {
                     "@type": "ListItem",

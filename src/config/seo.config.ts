@@ -1,4 +1,4 @@
-import { defaultLocale, locales, type Locale } from "@/i18n/config";
+import { defaultLocale, enabledLocales, type Locale } from "@/i18n/config";
 import { getSocialLinks } from "@/config/social.config";
 import type { Metadata } from "next";
 
@@ -26,7 +26,7 @@ export const SEO_CONFIG = {
   titleTemplate: "%s | Shanverse",
   defaultDescription: "A space to learn, build and share practical knowledge about software development.",
   defaultLocale,
-  supportedLocales: locales,
+  supportedLocales: enabledLocales,
   author: "Shanverse",
   twitterUsername: undefined,
   logoPath: "/logo/logo_shanverse.png",
@@ -39,7 +39,7 @@ export function buildAbsoluteUrl(path = "/") {
 }
 
 export function buildBlogPostCanonicalUrl(slug: string) {
-  return buildAbsoluteUrl(`/vi/blog/${encodeURIComponent(slug)}`);
+  return buildAbsoluteUrl(localePath(defaultLocale, `/blog/${encodeURIComponent(slug)}`));
 }
 
 export function localePath(locale: Locale, path = "") {
@@ -50,8 +50,7 @@ export function localizedAlternates(locale: Locale, path = "") {
   return {
     canonical: buildAbsoluteUrl(localePath(locale, path)),
     languages: {
-      vi: buildAbsoluteUrl(localePath("vi", path)),
-      en: buildAbsoluteUrl(localePath("en", path)),
+      ...Object.fromEntries(enabledLocales.map((code) => [code, buildAbsoluteUrl(localePath(code, path))])),
       "x-default": buildAbsoluteUrl(localePath(defaultLocale, path)),
     },
   };
@@ -70,13 +69,13 @@ export function safeMetadataImage(value?: string | null) {
 }
 
 export function buildPageMetadata({ locale, path, title, description, keywords, blogOnly = false }: { locale: Locale; path: string; title: string; description: string; keywords?: string[]; blogOnly?: boolean }): Metadata {
-  const canonicalPath = blogOnly ? localePath("vi", path) : localePath(locale, path);
+  const canonicalPath = blogOnly ? localePath(defaultLocale, path) : localePath(locale, path);
   const canonical = buildAbsoluteUrl(canonicalPath);
   const image = safeMetadataImage();
   const resolvedTitle = title.includes(SEO_CONFIG.siteName) ? title : `${title} | ${SEO_CONFIG.siteName}`;
   return {
     title: { absolute: resolvedTitle }, description, keywords,
-    alternates: blogOnly ? { canonical, languages: { vi: canonical, "x-default": canonical } } : localizedAlternates(locale, path),
+    alternates: blogOnly ? { canonical, languages: { "x-default": canonical } } : localizedAlternates(locale, path),
     robots: { index: true, follow: true },
     openGraph: { title: resolvedTitle, description, url: canonical, siteName: SEO_CONFIG.siteName, locale: locale === "vi" ? "vi_VN" : "en_US", type: "website", images: [{ url: image, width: 1200, height: 630, alt: resolvedTitle }] },
     twitter: { card: "summary_large_image", title: resolvedTitle, description, images: [image], creator: SEO_CONFIG.twitterUsername },

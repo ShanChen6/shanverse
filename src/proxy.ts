@@ -2,7 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   defaultLocale,
   getPathnameLocale,
-  isLocale,
+  isEnabledLocale,
+  localizeHref,
   localeCookie,
   localeHeader,
   stripLocale,
@@ -12,9 +13,15 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const pathnameLocale = getPathnameLocale(pathname);
 
+  if (pathnameLocale && !isEnabledLocale(pathnameLocale)) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = localizeHref(pathname, defaultLocale);
+    return NextResponse.redirect(redirectUrl);
+  }
+
   if (!pathnameLocale) {
     const savedLocale = request.cookies.get(localeCookie)?.value;
-    const locale = isLocale(savedLocale) ? savedLocale : defaultLocale;
+    const locale = isEnabledLocale(savedLocale) ? savedLocale : defaultLocale;
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
     return NextResponse.redirect(redirectUrl);
