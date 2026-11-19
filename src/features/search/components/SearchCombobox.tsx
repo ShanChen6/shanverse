@@ -134,7 +134,7 @@ export function SearchCombobox({ documents, value, onValueChange, onSelect, onSu
           const selected = index === activeIndex;
           return <button key={result.item.id} ref={(node) => { if (node) optionRefs.current.set(index, node); else optionRefs.current.delete(index); }} id={`${id}-option-${index}`} type="button" role="option" aria-selected={selected} onMouseEnter={() => setActiveIndex(index)} onMouseDown={(event) => event.preventDefault()} onClick={() => choose(result.item)} className={cn("flex min-h-14 w-full min-w-0 items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-primary", selected ? "bg-primary/10" : "hover:bg-surface") }>
             <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold"><HighlightedText text={result.item.title} matches={result.matches?.filter((match) => match.key === "title")} /></span>{result.item.description ? <span className="mt-0.5 block line-clamp-1 text-xs text-foreground-secondary"><HighlightedText text={result.item.description} matches={result.matches?.filter((match) => match.key === "description")} /></span> : null}</span>
-            <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-[10px] font-medium text-muted">{typeLabels[result.item.type]}</span>
+            <span className="shrink-0 rounded-control border border-border px-2 py-0.5 text-[10px] font-medium text-muted">{typeLabels[result.item.type]}</span>
           </button>;
         }) : <div className="flex flex-col items-center gap-2 px-4 py-5 text-center"><TianwuBadge className="tw-sway size-12" /><p className="text-sm text-foreground-secondary">{emptyLabel}</p></div>}
       </div>

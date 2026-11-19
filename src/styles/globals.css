@@ -52,7 +52,7 @@
 }
 
 .dark .hero-space-content::before {
-  background: radial-gradient(ellipse at center, rgb(3 18 66 / 0.72), transparent 72%);
+  background: radial-gradient(ellipse at center, rgb(11 16 32 / 0.72), transparent 72%);
 }
 
 @media (prefers-reduced-motion: reduce) {

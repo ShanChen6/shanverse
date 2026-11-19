@@ -8,7 +8,8 @@ import { cn } from "@/lib/cn";
 
 /** Page frame. Reserves room for the mobile bottom bar, except on game pages where that bar is hidden. */
 export function LayoutFrame({ children }: { children: React.ReactNode }) {
-  const inGame = isGamePlayRoute(usePathname());
+  const pathname = usePathname();
+  const inGame = isGamePlayRoute(pathname);
   return (
     <div
       className={cn(

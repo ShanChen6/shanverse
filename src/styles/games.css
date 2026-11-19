@@ -852,3 +852,115 @@
 @media (prefers-reduced-motion: reduce) {
   .blk-ceremony, .blk-summon-card, .blk-summon-token, .blk-urn, .blk-summon-array { animation: none; }
 }
+
+/* Tower of Hanoi. Each peg is a button; disks stack from the bottom. */
+
+.hn-board {
+  --hn-disk-h: clamp(16px, 4.2vw, 26px);
+  --hn-wood: #d8cdb7;
+  --hn-rod: #b9a888;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(4px, 1.5vw, 12px);
+  width: 100%;
+  max-width: 44rem;
+  padding: clamp(8px, 2vw, 16px);
+  border-radius: 1rem;
+  background: rgb(216 205 183 / 0.25);
+}
+
+.dark .hn-board {
+  --hn-wood: #254276;
+  --hn-rod: #3a5a94;
+  background: rgb(10 28 69 / 0.45);
+}
+
+.hn-peg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: calc(var(--hn-disk-h) * (var(--hn-disks) + 2.5) + 1.75rem);
+  padding: 0 2px 1.75rem;
+  border-radius: 0.75rem;
+  border: 2px solid transparent;
+  transition: background-color 150ms, border-color 150ms;
+  touch-action: manipulation;
+}
+
+button.hn-peg:hover:not(:disabled) { background: rgb(217 175 98 / 0.12); }
+button.hn-peg:focus-visible { outline: none; border-color: var(--color-primary, #d9af62); }
+.hn-peg[data-selected] { background: rgb(217 175 98 / 0.18); border-color: rgb(217 175 98 / 0.6); }
+.hn-peg[data-droppable] { border-style: dashed; border-color: rgb(217 175 98 / 0.55); }
+.hn-peg[data-hint="from"] { border-color: #e2873a; background: rgb(226 135 58 / 0.14); }
+.hn-peg[data-hint="to"] { border-style: dashed; border-color: #e2873a; }
+.hn-peg[data-rejected] { animation: hn-shake 300ms ease-in-out; }
+
+.hn-rod {
+  position: absolute;
+  bottom: calc(1.75rem + 6px);
+  left: 50%;
+  width: clamp(5px, 1.2vw, 8px);
+  height: calc(var(--hn-disk-h) * (var(--hn-disks) + 1.5));
+  transform: translateX(-50%);
+  border-radius: 999px 999px 0 0;
+  background: var(--hn-rod);
+}
+
+.hn-stack {
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  width: 100%;
+}
+
+.hn-base {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--hn-wood);
+}
+
+.hn-label {
+  position: absolute;
+  bottom: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-muted, #8a8a8a);
+}
+
+.hn-disk {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(22% + 78% * var(--hn-size) / var(--hn-disks));
+  height: var(--hn-disk-h);
+  margin-top: 2px;
+  border-radius: 999px;
+  font-size: clamp(0.6rem, 2vw, 0.8rem);
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.35);
+  background: color-mix(in oklab, #ebcb8b, #1d3a7d calc(var(--hn-hue) * 100%));
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.18), inset 0 2px 0 rgb(255 255 255 / 0.25);
+  transition: transform 150ms ease-out;
+}
+
+.hn-disk[data-lifted] { transform: translateY(calc(var(--hn-disk-h) * -0.9)); }
+
+.hn-preview { --hn-disk-h: 14px; width: 14rem; padding: 8px; gap: 6px; }
+.hn-preview .hn-peg { padding-bottom: 4px; }
+.hn-preview .hn-rod { bottom: 10px; }
+
+@keyframes hn-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hn-disk { transition: none; }
+  .hn-peg[data-rejected] { animation: none; }
+}

@@ -34,7 +34,7 @@ export function BlogSearchPanel({ query, categories, documents, totalPosts }: Pr
   const hasActiveFilters = Boolean(query.q || query.category || query.tag);
 
   return (
-    <section aria-labelledby="blog-search-heading" className="space-y-5 rounded-3xl border border-border bg-surface p-4 sm:p-6">
+    <section aria-labelledby="blog-search-heading" className="space-y-5 rounded-panel border border-border bg-surface p-4 shadow-card sm:p-6">
       <div>
         <p className="text-xs font-semibold uppercase tracking-widest text-primary">{t("blog.searchEyebrow")}</p>
         <h2 id="blog-search-heading" className="mt-1 text-xl font-semibold">{t("blog.searchTitle")}</h2>

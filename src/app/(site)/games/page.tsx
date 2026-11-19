@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { Metadata } from "next";
-import { ArrowRight, Gamepad2, Hand, Keyboard, Lightbulb, MousePointer2 } from "lucide-react";
+import { ArrowRight, Hand, Keyboard, Lightbulb, MousePointer2 } from "lucide-react";
 
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
     path: ROUTES.GAMES,
     title: t("metadata.gamesTitle"),
     description: t("metadata.gamesDescription"),
-    keywords: ["Shanverse", "mini game", "puzzle", "2048", "minesweeper", "sokoban", "typing test", "memory game", "snake", "browser game"],
+    keywords: ["Shanverse", "mini game", "puzzle", "2048", "minesweeper", "sokoban", "typing test", "memory game", "snake", "tower of hanoi", "browser game"],
   });
 }
 
@@ -39,9 +39,6 @@ export default async function GamesPage() {
       <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("common.games") }]} />
 
       <PageHeader
-        compact
-        eyebrow={t("games.eyebrow")}
-        icon={<Gamepad2 />}
         title={t("games.title")}
         description={t("games.description")}
         actions={<span className="text-sm font-medium text-muted">{t("games.catCount", { n: GAMES.length })}</span>}

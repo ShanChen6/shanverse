@@ -146,7 +146,7 @@ export function ContactForm() {
           {CONTACT_TYPES.map((value) => (
             <label key={value} className="relative">
               <input type="radio" name="contactType" value={value} required disabled={pending} aria-invalid={Boolean(fieldErrors?.contactType)} className="peer sr-only" />
-              <span className={cn("inline-flex min-h-11 cursor-pointer items-center rounded-full border bg-background px-4 text-sm font-medium transition-colors hover:border-primary/50 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-disabled:opacity-60", fieldErrors?.contactType ? "border-danger" : "border-border")}>{t(`contact.types.${value}`)}</span>
+              <span className={cn("inline-flex min-h-11 cursor-pointer items-center rounded-control border bg-background px-4 text-sm font-medium transition-colors hover:border-primary/50 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-disabled:opacity-60", fieldErrors?.contactType ? "border-danger" : "border-border")}>{t(`contact.types.${value}`)}</span>
             </label>
           ))}
         </div>
@@ -164,7 +164,7 @@ export function ContactForm() {
       </div>
       <input type="hidden" name="startedAt" value={startedAt} readOnly />
 
-      <Button type="submit" size="lg" disabled={pending || !startedAt} className="w-full border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:w-auto" aria-disabled={pending || !startedAt}>
+      <Button type="submit" size="lg" disabled={pending || !startedAt} className="w-full focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:w-auto" aria-disabled={pending || !startedAt}>
         {pending ? <><LoaderCircle aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> {t("contact.sending")}</> : <><Send aria-hidden="true" className="size-4" /> {t("contact.submit")}</>}
       </Button>
       <p className="text-xs leading-5 text-muted">{t("contact.privacy")}</p>

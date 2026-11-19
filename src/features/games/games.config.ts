@@ -48,6 +48,15 @@ export const GAMES: GameEntry[] = [
     controlKeys: ["games.tagKeyboard", "games.tagTouch"],
   },
   {
+    slug: "hanoi",
+    href: ROUTES.GAME_DETAIL("hanoi"),
+    titleKey: "games.hanoiTitle",
+    descriptionKey: "games.hanoiDescription",
+    category: "puzzle-logic",
+    extraCategories: ["math-brain"],
+    controlKeys: ["games.tagMouse", "games.tagKeyboard", "games.tagTouch"],
+  },
+  {
     slug: "2048",
     href: ROUTES.GAME_DETAIL("2048"),
     titleKey: "games.game2048Title",
@@ -71,6 +80,7 @@ export const GAMES: GameEntry[] = [
     descriptionKey: "games.bachLinhKyDescription",
     category: "strategy-board",
     controlKeys: ["games.tagMouse", "games.tagTouch"],
+    featured: true,
   },
   {
     slug: "co-lau",
@@ -80,6 +90,7 @@ export const GAMES: GameEntry[] = [
     category: "strategy-board",
     extraCategories: ["puzzle-logic"],
     controlKeys: ["games.tagMouse", "games.tagKeyboard", "games.tagTouch"],
+    featured: true,
   },
   {
     slug: "go",
@@ -88,6 +99,7 @@ export const GAMES: GameEntry[] = [
     descriptionKey: "games.goDescription",
     category: "strategy-board",
     controlKeys: ["games.tagMouse", "games.tagTouch"],
+    featured: true,
   },
   {
     slug: "snake",
@@ -97,7 +109,6 @@ export const GAMES: GameEntry[] = [
     category: "arcade",
     extraCategories: ["action-reflex"],
     controlKeys: ["games.tagKeyboard", "games.tagTouch"],
-    featured: true,
   },
   {
     slug: "memory",
@@ -107,7 +118,6 @@ export const GAMES: GameEntry[] = [
     category: "memory",
     extraCategories: ["developer"],
     controlKeys: ["games.tagTouch", "games.tagMouse"],
-    featured: true,
   },
   {
     slug: "word-guess",
@@ -126,7 +136,6 @@ export const GAMES: GameEntry[] = [
     category: "typing-speed",
     extraCategories: ["developer"],
     controlKeys: ["games.tagKeyboard"],
-    featured: true,
   },
 ];
 

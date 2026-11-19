@@ -7,7 +7,6 @@ import {
   ArrowRight,
   CalendarDays,
   Clock,
-  Sparkles,
 } from "lucide-react";
 
 import Badge from "@/components/ui/badge";
@@ -74,7 +73,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
       role="article"
       aria-label={post.title}
       className={cn(
-        "brand-card-border group flex h-full min-w-0 flex-col overflow-hidden transition-[border-color,box-shadow] hover:shadow-md",
+        "brand-card-border group flex h-full min-w-0 flex-col overflow-hidden",
         variant === "featured" && "md:grid md:grid-cols-12 md:items-stretch",
       )}
     >
@@ -91,7 +90,6 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
           src={thumbnailImage}
           alt={`Thumbnail for ${post.title}`}
           className={cn(
-            "transition-transform duration-300 group-hover:scale-[1.02]",
             isFallbackThumbnail ? "object-contain p-[12%]" : "object-cover",
           )}
           fill
@@ -121,7 +119,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">
             {variant === "featured" && post.featured ? (
               <Badge className="gap-1 bg-primary/10 text-primary">
-                <Sparkles className="size-3" aria-hidden="true" /> Featured
+                Featured
               </Badge>
             ) : null}
             {visibleTags.map((tag) => (

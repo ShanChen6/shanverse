@@ -2,14 +2,12 @@ import * as React from "react";
 import { Suspense } from "react";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/constants/routes";
 import { getTranslator } from "@/i18n/server";
 import { getAboutStats } from "./about-data";
-import { AboutCTASection } from "./components/AboutCTASection";
-import { AboutHeroSection } from "./components/AboutHeroSection";
 import { AboutStatsSection } from "./components/AboutStatsSection";
-import { AboutStorySection } from "./components/AboutStorySection";
 import { JourneySection } from "./components/JourneySection";
 import { SkillsSection } from "./components/SkillsSection";
 import { TianwuStorySection } from "./components/TianwuStorySection";
@@ -24,8 +22,8 @@ function AboutStatsSkeleton({ label }: { label: string }) {
   return (
     <div role="status" aria-busy="true">
       <span className="sr-only">{label}</span>
-      <div aria-hidden="true" className="grid gap-3 sm:grid-cols-3">
-        {Array.from({ length: 3 }, (_, index) => <div key={index} className="space-y-3 rounded-2xl border border-border bg-surface p-5"><Skeleton className="h-9 w-16" /><Skeleton className="h-4 w-32 max-w-full" /></div>)}
+      <div aria-hidden="true" className="grid grid-cols-3 gap-3">
+        {Array.from({ length: 3 }, (_, index) => <div key={index} className="space-y-2"><Skeleton className="h-7 w-12" /><Skeleton className="h-3 w-20 max-w-full" /></div>)}
       </div>
     </div>
   );
@@ -36,18 +34,27 @@ export async function AboutPageView() {
   return (
     <PageContainer rhythm="loose">
       <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("about.breadcrumb") }]} />
-      {/* 1. Intro: who I am, my story and a few numbers, kept together as one block. */}
-      <div className="space-y-6">
-        <AboutHeroSection />
-        <AboutStorySection />
-        <Suspense fallback={<AboutStatsSkeleton label={t("about.statsLoading")} />}><AboutStatsData /></Suspense>
+      {/* Intro and story on the left; numbers and tools in a sidebar on the right. */}
+      <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-16 xl:grid-cols-[minmax(0,1fr)_24rem] 2xl:grid-cols-[minmax(0,1fr)_28rem]">
+        <div className="space-y-6">
+          <PageHeader titleId="about-title" title={t("about.heroTitle")} description={t("about.heroDescription")} />
+          <section aria-labelledby="story-heading" className="max-w-3xl space-y-4 2xl:max-w-4xl">
+            <h2 id="story-heading" className="text-xl font-bold tracking-tight sm:text-2xl">{t("about.storyTitle")}</h2>
+            <div className="space-y-4 leading-8 text-foreground-secondary">
+              <p>{t("about.story.first")}</p>
+              <p>{t("about.story.second")}</p>
+              <p>{t("about.story.third")}</p>
+            </div>
+          </section>
+        </div>
+        <aside className="space-y-8 rounded-card border border-border bg-surface shadow-card p-5 lg:sticky lg:top-24">
+          <Suspense fallback={<AboutStatsSkeleton label={t("about.statsLoading")} />}><AboutStatsData /></Suspense>
+          <SkillsSection />
+        </aside>
       </div>
-      {/* 2. Skills  3. Journey  4. Values and approach  then Tianwu, and the call to action. */}
-      <SkillsSection />
       <JourneySection />
       <ValuesSection />
       <TianwuStorySection />
-      <AboutCTASection />
     </PageContainer>
   );
 }

@@ -1,11 +1,21 @@
 export const locales = ["vi", "en"] as const;
 export type Locale = (typeof locales)[number];
-export const defaultLocale: Locale = "vi";
+/**
+ * Locales visitors can use right now. Vietnamese is paused while the site focuses on English:
+ * its messages stay in the repo, /vi URLs redirect to /en and the switcher shows VI as unavailable.
+ * Add "vi" back here to turn it on again.
+ */
+export const enabledLocales: readonly Locale[] = ["en"];
+export const defaultLocale: Locale = "en";
 export const localeCookie = "shanverse-locale";
 export const localeHeader = "x-shanverse-locale";
 
 export function isLocale(value: string | null | undefined): value is Locale {
   return locales.includes(value as Locale);
+}
+
+export function isEnabledLocale(value: string | null | undefined): value is Locale {
+  return enabledLocales.includes(value as Locale);
 }
 
 export function getPathnameLocale(pathname: string): Locale | null {

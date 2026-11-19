@@ -3,7 +3,7 @@ import { PageContainer, PageHeader } from "@/components/layout";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import * as React from "react";
 import { Suspense } from "react";
-import { ArrowRight, ArrowUpRight, BriefcaseBusiness, Layers3, Search, Sparkles, X } from "lucide-react";
+import { ArrowUpRight, BriefcaseBusiness, Layers3, Search, Sparkles, X } from "lucide-react";
 
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata({ locale, path: "/projects", title: t("metadata.projectsTitle"), description: t("projects.description"), keywords: ["software projects", "web development", "case studies"] });
 }
 
-const filterClass = "inline-flex min-w-0 items-center rounded-full border px-3.5 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+const filterClass = "inline-flex min-w-0 items-center rounded-control border px-3.5 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 const activeClass = "border-primary/30 bg-primary/10 text-primary";
 const idleClass = "border-border bg-surface text-foreground-secondary hover:border-primary/40 hover:text-primary";
 const textLinkClass = "rounded-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-primary";
@@ -54,7 +54,7 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
               [String(technologies.length), t("projects.statsTechnologies")],
               [String(data.projects.filter((project) => project.featured).length), t("projects.statsFeatured")],
             ].map(([value, label]) => (
-              <div key={label} className="rounded-card border border-border bg-surface p-3 sm:p-5">
+              <div key={label} className="rounded-card border border-border bg-surface shadow-card p-3 sm:p-5">
                 <dd className="text-2xl font-bold text-primary sm:text-3xl">{value}</dd>
                 <dt className="mt-1 text-xs text-foreground-secondary sm:text-sm">{label}</dt>
               </div>
@@ -108,7 +108,7 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
         </section> : null}
 
         {data.hasError ? (
-          <section role="status" className="rounded-2xl border border-border bg-surface px-6 py-16 text-center">
+          <section role="status" className="rounded-2xl border border-border bg-surface shadow-card px-6 py-16 text-center">
             <BriefcaseBusiness aria-hidden="true" className="mx-auto mb-4 size-10 text-primary" />
             <h2 className="text-2xl font-semibold">{t("projects.loadErrorTitle")}</h2>
             <p className="mx-auto mb-6 mt-3 max-w-lg text-foreground-secondary">{t("errors.dataUnavailable")}</p>
@@ -159,8 +159,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   const { t } = await getTranslator();
   return <PageContainer>
     <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("common.projects") }]} />
-    <PageHeader eyebrow={t("home.featuredProjectsEyebrow")} icon={<Sparkles />} title={t("projects.title")} description={t("projects.description")} />
+    <PageHeader title={t("projects.title")} description={t("projects.description")} />
     <Suspense fallback={<ProjectsDataSkeleton label={t("common.loadingProjects")} />}><ProjectsDataSection query={query} /></Suspense>
-    <section className="rounded-3xl border border-primary/20 bg-linear-to-br from-primary/10 via-surface to-background px-6 py-10 text-center sm:px-10 sm:py-14"><h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("projects.ctaTitle")}</h2><p className="mx-auto mt-3 max-w-2xl leading-relaxed text-foreground-secondary">{t("projects.ctaDescription")}</p><Link href={ROUTES.CONTACT} className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">{t("common.contactMe")} <ArrowRight aria-hidden="true" className="size-4" /></Link></section>
   </PageContainer>;
 }

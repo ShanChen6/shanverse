@@ -34,9 +34,11 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import {
   buildBlogPostCanonicalUrl,
   buildAbsoluteUrl,
+  localePath,
   safeMetadataImage,
   SEO_CONFIG,
 } from "@/config/seo.config";
+import { defaultLocale } from "@/i18n/config";
 import { TianwuBadge } from "@/components/mascot/Tianwu";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -76,7 +78,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       alternates: {
         canonical,
-        languages: { vi: canonical, "x-default": canonical },
+        languages: { "x-default": canonical },
       },
       authors: [{ name: post.authorName ?? SEO_CONFIG.author }],
       creator: post.authorName ?? SEO_CONFIG.author,
@@ -129,7 +131,7 @@ export default async function BlogDetailPage({ params }: Props) {
 
   return (
     <BlogViewProvider slug={post.slug}>
-      <div className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
+      <div className="mx-auto max-w-page space-y-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <ReadingProgress key={`reading-progress-${post.slug}`} />
         <article lang="vi" className="space-y-10">
           <JsonLd
@@ -161,13 +163,13 @@ export default async function BlogDetailPage({ params }: Props) {
                     "@type": "ListItem",
                     position: 1,
                     name: "Home",
-                    item: buildAbsoluteUrl("/vi"),
+                    item: buildAbsoluteUrl(localePath(defaultLocale)),
                   },
                   {
                     "@type": "ListItem",
                     position: 2,
                     name: "Blog",
-                    item: buildAbsoluteUrl("/vi/blog"),
+                    item: buildAbsoluteUrl(localePath(defaultLocale, "/blog")),
                   },
                   {
                     "@type": "ListItem",
@@ -179,7 +181,7 @@ export default async function BlogDetailPage({ params }: Props) {
               },
             ]}
           />
-          <header className="mx-auto max-w-4xl space-y-6">
+          <header className="mx-auto max-w-[67.5rem] space-y-6">
             <Breadcrumb
               items={[
                 { label: t("common.home"), href: ROUTES.HOME },
@@ -274,7 +276,7 @@ export default async function BlogDetailPage({ params }: Props) {
           </header>
 
           {cover ? (
-            <figure className="relative mx-auto aspect-16/8 max-w-5xl overflow-hidden rounded-3xl border border-border bg-surface">
+            <figure className="relative mx-auto aspect-16/8 max-w-[67.5rem] overflow-hidden rounded-3xl border border-border bg-surface">
               <Image
                 src={cover}
                 alt={`Cover image for ${post.title}`}
@@ -286,7 +288,7 @@ export default async function BlogDetailPage({ params }: Props) {
               />
             </figure>
           ) : null}
-          <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
+          <div className="mx-auto grid max-w-[67.5rem] items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
             <BlogViewContent>
               {blocks.length ? (
                 <NotionRenderer
@@ -296,7 +298,7 @@ export default async function BlogDetailPage({ params }: Props) {
                   locale={locale === "en" ? "en" : "vi"}
                 />
               ) : (
-                <p className="rounded-2xl border border-border bg-surface p-6 text-foreground-secondary">
+                <p className="rounded-2xl border border-border bg-surface shadow-card p-6 text-foreground-secondary">
                   This article does not have any content yet.
                 </p>
               )}
@@ -310,7 +312,7 @@ export default async function BlogDetailPage({ params }: Props) {
             ) : null}
           </div>
 
-          <footer className="mx-auto max-w-4xl space-y-10 border-t border-border pt-10">
+          <footer className="mx-auto max-w-[67.5rem] space-y-10 border-t border-border pt-10">
             <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
               <SharePost
                 title={post.title}

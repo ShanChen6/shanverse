@@ -18,7 +18,7 @@ function Token({ tone, children }: { tone: "keyword" | "property" | "string" | "
 export function CodeEditorMock({ label, className }: { label: string; className?: string }) {
   const profile = HOME_HERO_CODE_PROFILE;
   return (
-    <figure aria-label={label} className={cn("min-w-0 overflow-hidden rounded-2xl border border-border bg-surface-elevated shadow-lg", className)}>
+    <figure aria-label={label} className={cn("min-w-0 overflow-hidden rounded-card border border-border bg-surface-elevated shadow-card", className)}>
       <figcaption className="flex items-center gap-2 border-b border-border bg-surface px-4 py-3 text-xs font-medium text-foreground-secondary">
         <Code2 aria-hidden="true" className="size-4 text-primary" /> developer.ts
       </figcaption>

@@ -3,34 +3,28 @@
 /* Notched bottom tab bar based on Lucian UX/UI Prompt #041 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#041 */
 
 import * as React from "react";
-import { Ellipsis } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { isActiveRoute, isGamePlayRoute, MOBILE_MORE_ITEMS, MOBILE_TAB_ITEMS } from "@/constants/navigation";
+import { isActiveRoute, isGamePlayRoute, NAVIGATION_ITEMS } from "@/constants/navigation";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 
 import styles from "./MobileBottomNavigation.module.css";
 
-const TAB_COUNT = MOBILE_TAB_ITEMS.length + 1;
-const MORE_INDEX = MOBILE_TAB_ITEMS.length;
+const TAB_COUNT = NAVIGATION_ITEMS.length;
 
 export function MobileBottomNavigation() {
   const pathname = usePathname();
   const { t } = useI18n();
   const hidden = isGamePlayRoute(pathname);
-  const [moreOpen, setMoreOpen] = React.useState(false);
 
   const rootRef = React.useRef<HTMLElement>(null);
   const itemRefs = React.useRef<(HTMLLIElement | null)[]>([]);
   const tabRefs = React.useRef<(HTMLElement | null)[]>([]);
   const motion = React.useRef({ x: 0, v: 0, raf: 0, ready: false });
 
-  const tabIndex = MOBILE_TAB_ITEMS.findIndex((item) => isActiveRoute(pathname, item.href));
-  const moreActive = MOBILE_MORE_ITEMS.some((item) => isActiveRoute(pathname, item.href));
-  const activeIndex = tabIndex >= 0 ? tabIndex : moreActive ? MORE_INDEX : -1;
+  const activeIndex = NAVIGATION_ITEMS.findIndex((item) => isActiveRoute(pathname, item.href));
 
   // Slide the notch and bubble to the active tab with the same spring as the original.
   React.useEffect(() => {
@@ -105,7 +99,7 @@ export function MobileBottomNavigation() {
       <span className={styles.bar} aria-hidden="true" />
       <span className={styles.bubble} aria-hidden="true" />
       <ul className={styles.tabs}>
-        {MOBILE_TAB_ITEMS.map((item, index) => {
+        {NAVIGATION_ITEMS.map((item, index) => {
           const active = index === activeIndex;
           const Icon = item.icon;
           return (
@@ -124,52 +118,6 @@ export function MobileBottomNavigation() {
             </li>
           );
         })}
-        <li ref={(el) => { itemRefs.current[MORE_INDEX] = el; }}>
-          <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-            <SheetTrigger asChild>
-              <button
-                ref={(el) => { tabRefs.current[MORE_INDEX] = el; }}
-                type="button"
-                aria-haspopup="dialog"
-                aria-expanded={moreOpen}
-                aria-current={moreActive ? "page" : undefined}
-                data-active={moreActive}
-                className={styles.tab}
-                onKeyDown={(event) => onKeyDown(event, MORE_INDEX)}
-              >
-                <span className={styles.icon} aria-hidden="true"><Ellipsis {...iconProps} /></span>
-                <span className={styles.label}>{t("navigation.more")}</span>
-              </button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="rounded-t-3xl pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
-              <SheetTitle>{t("navigation.moreTitle")}</SheetTitle>
-              <SheetDescription className="sr-only">{t("navigation.moreDescription")}</SheetDescription>
-              <ul className="mt-4 grid gap-2">
-                {MOBILE_MORE_ITEMS.map((item) => {
-                  const Icon = item.icon;
-                  const active = isActiveRoute(pathname, item.href);
-                  return (
-                    <li key={item.href}>
-                      <SheetClose asChild>
-                        <Link
-                          href={item.href}
-                          aria-current={active ? "page" : undefined}
-                          className={cn(
-                            "flex min-h-12 items-center gap-3 rounded-xl border border-border px-4 text-base font-medium transition-colors hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-primary",
-                            active && "bg-surface-selected font-semibold text-primary",
-                          )}
-                        >
-                          <Icon aria-hidden="true" className="size-5" />
-                          {t(item.labelKey)}
-                        </Link>
-                      </SheetClose>
-                    </li>
-                  );
-                })}
-              </ul>
-            </SheetContent>
-          </Sheet>
-        </li>
       </ul>
     </nav>
   );

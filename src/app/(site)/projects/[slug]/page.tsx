@@ -5,7 +5,6 @@ import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
-  ArrowRight,
   CalendarDays,
   Code2,
   ExternalLink,
@@ -28,7 +27,7 @@ import {
 } from "@/features/projects/project-detail-data";
 import { ROUTES } from "@/constants/routes";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { buildAbsoluteUrl, safeMetadataImage, SEO_CONFIG } from "@/config/seo.config";
+import { buildAbsoluteUrl, localizedAlternates, safeMetadataImage, SEO_CONFIG } from "@/config/seo.config";
 import { formatDate } from "@/i18n/format";
 import { getTranslator } from "@/i18n/server";
 
@@ -65,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: { absolute: `${project.title} | Shanverse` },
       description,
-      alternates: { canonical, languages: { vi: buildAbsoluteUrl(`/vi/projects/${encodeURIComponent(project.slug)}`), en: buildAbsoluteUrl(`/en/projects/${encodeURIComponent(project.slug)}`), "x-default": buildAbsoluteUrl(`/vi/projects/${encodeURIComponent(project.slug)}`) } },
+      alternates: localizedAlternates(locale, `/projects/${encodeURIComponent(project.slug)}`),
       keywords: [...new Set([...project.techStack, ...project.tags])],
       openGraph: {
         type: "website",
@@ -108,9 +107,9 @@ export default async function ProjectDetailPage({ params }: Props) {
   const canonical = buildAbsoluteUrl(`/${locale}/projects/${encodeURIComponent(project.slug)}`);
 
   return (
-    <article className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
+    <article className="mx-auto max-w-page space-y-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <JsonLd data={[{ "@context": "https://schema.org", "@type": "SoftwareSourceCode", name: project.title, description: project.description, image: safeMetadataImage(project.coverImage ?? project.thumbnailImage), dateCreated: project.createdAt, dateModified: project.updatedAt, author: { "@type": "Person", name: SEO_CONFIG.author }, url: canonical, codeRepository: githubUrl ?? undefined, runtimePlatform: project.techStack.join(", "), keywords: [...project.techStack, ...project.tags].join(", ") }, { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: buildAbsoluteUrl(`/${locale}`) }, { "@type": "ListItem", position: 2, name: "Projects", item: buildAbsoluteUrl(`/${locale}/projects`) }, { "@type": "ListItem", position: 3, name: project.title, item: canonical }] }]} />
-        <header className="mx-auto max-w-5xl space-y-6">
+        <header className="mx-auto max-w-[68.75rem] space-y-6">
           <Breadcrumb
             items={[
               { label: t("common.home"), href: ROUTES.HOME },
@@ -174,14 +173,14 @@ export default async function ProjectDetailPage({ params }: Props) {
           </div>
         </header>
 
-        <figure className="relative mx-auto aspect-[16/8] max-w-6xl overflow-hidden rounded-3xl border border-border bg-surface">
+        <figure className="relative mx-auto aspect-[16/8] max-w-[68.75rem] overflow-hidden rounded-panel border border-border bg-surface">
           <Image src={cover} alt={t("projects.coverAlt", { title: project.title })} fill priority unoptimized={!cover.startsWith("/")} sizes="(min-width: 1280px) 1152px, 100vw" className="object-cover" />
         </figure>
 
         {project.highlights.length ? (
-          <dl aria-label={t("projects.highlightsLabel")} className="mx-auto grid max-w-6xl grid-cols-2 gap-3 sm:grid-cols-4">
+          <dl aria-label={t("projects.highlightsLabel")} className="mx-auto grid max-w-[68.75rem] grid-cols-2 gap-3 sm:grid-cols-4">
             {project.highlights.map((highlight) => (
-              <div key={highlight.label} className="rounded-card border border-border bg-surface p-4 text-center sm:p-5">
+              <div key={highlight.label} className="rounded-card border border-border bg-surface shadow-card p-4 text-center sm:p-5">
                 <dd className="text-2xl font-extrabold text-primary sm:text-3xl">{highlight.value}</dd>
                 <dt className="mt-1 text-xs text-foreground-secondary sm:text-sm">{highlight.label}</dt>
               </div>
@@ -190,13 +189,13 @@ export default async function ProjectDetailPage({ params }: Props) {
         ) : null}
 
         {toc.length >= 2 ? (
-          <details className="mx-auto max-w-3xl rounded-2xl border border-border bg-surface p-5 lg:hidden">
+          <details className="mx-auto max-w-[68.75rem] rounded-2xl border border-border bg-surface shadow-card p-5 lg:hidden">
             <summary className="cursor-pointer font-semibold">{t("blog.toc")}</summary>
             <nav aria-label={t("blog.toc")} className="mt-4"><TocList items={toc} /></nav>
           </details>
         ) : null}
 
-        <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,800px)_260px]">
+        <div className="mx-auto grid max-w-[68.75rem] items-start gap-10 lg:grid-cols-[minmax(0,800px)_260px]">
           <main className="min-w-0 space-y-8">
             {blocks.length ? (
               caseStudy ? (
@@ -214,13 +213,13 @@ export default async function ProjectDetailPage({ params }: Props) {
 
           <aside className="space-y-5 lg:sticky lg:top-24">
             {toc.length >= 2 ? (
-              <div className="hidden rounded-2xl border border-border bg-surface p-5 lg:block">
+              <div className="hidden rounded-2xl border border-border bg-surface shadow-card p-5 lg:block">
                 <p className="mb-4 font-semibold">{t("blog.onThisPage")}</p>
                 <nav aria-label={t("blog.toc")}><TocList items={toc} /></nav>
               </div>
             ) : null}
             {project.tags.length ? (
-              <div className="rounded-2xl border border-border bg-surface p-5">
+              <div className="rounded-2xl border border-border bg-surface shadow-card p-5">
                 <h2 className="flex items-center gap-2 font-semibold"><Tags aria-hidden="true" className="size-4 text-primary" /> {t("blog.tags")}</h2>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {project.tags.map((tag) => <Badge key={tag} variant="outline">#{tag}</Badge>)}
@@ -231,15 +230,15 @@ export default async function ProjectDetailPage({ params }: Props) {
         </div>
 
         {previous || next ? (
-          <nav aria-label={t("projects.adjacentLabel")} className="mx-auto grid max-w-6xl gap-4 border-t border-border pt-8 sm:grid-cols-2">
+          <nav aria-label={t("projects.adjacentLabel")} className="mx-auto grid max-w-page gap-4 border-t border-border pt-8 sm:grid-cols-2">
             {previous ? (
-              <Link href={ROUTES.PROJECT_DETAIL(previous.slug)} rel="prev" className="group flex min-h-16 min-w-0 flex-col gap-1 rounded-card border border-border bg-surface p-4 transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary">
+              <Link href={ROUTES.PROJECT_DETAIL(previous.slug)} rel="prev" className="group flex min-h-16 min-w-0 flex-col gap-1 rounded-card border border-border bg-surface shadow-card p-4 transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary">
                 <span className="text-xs font-medium text-muted">&larr; {t("projects.previousProject")}</span>
                 <span className="line-clamp-2 font-semibold group-hover:text-primary">{previous.title}</span>
               </Link>
             ) : <span aria-hidden="true" className="hidden sm:block" />}
             {next ? (
-              <Link href={ROUTES.PROJECT_DETAIL(next.slug)} rel="next" className="group flex min-h-16 min-w-0 flex-col gap-1 rounded-card border border-border bg-surface p-4 text-left transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary sm:text-right">
+              <Link href={ROUTES.PROJECT_DETAIL(next.slug)} rel="next" className="group flex min-h-16 min-w-0 flex-col gap-1 rounded-card border border-border bg-surface shadow-card p-4 text-left transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary sm:text-right">
                 <span className="text-xs font-medium text-muted">{t("projects.nextProject")} &rarr;</span>
                 <span className="line-clamp-2 font-semibold group-hover:text-primary">{next.title}</span>
               </Link>
@@ -248,20 +247,12 @@ export default async function ProjectDetailPage({ params }: Props) {
         ) : null}
 
         {relatedProjects.length ? (
-          <section aria-labelledby="related-projects-heading" className="mx-auto max-w-6xl space-y-6 border-t border-border pt-10">
-            <div><p className="text-sm font-medium text-primary">{t("projects.exploreMore")}</p><h2 id="related-projects-heading" className="text-2xl font-semibold tracking-tight">{t("projects.related")}</h2></div>
-            <div className="grid gap-6 md:grid-cols-3">{relatedProjects.map((related) => <ProjectCard key={related.id} project={related} />)}</div>
+          <section aria-labelledby="related-projects-heading" className="mx-auto max-w-page space-y-6 border-t border-border pt-10">
+            <div><h2 id="related-projects-heading" className="text-2xl font-semibold tracking-tight">{t("projects.related")}</h2></div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{relatedProjects.map((related) => <ProjectCard key={related.id} project={related} />)}</div>
           </section>
         ) : null}
 
-        <section className="mx-auto max-w-6xl rounded-3xl border border-primary/20 bg-linear-to-br from-primary/10 via-surface to-background px-6 py-10 text-center sm:px-10 sm:py-14">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("projects.ctaTitle")}</h2>
-          <p className="mx-auto mt-3 max-w-2xl leading-relaxed text-foreground-secondary">{t("projects.ctaDescription")}</p>
-          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href={ROUTES.CONTACT} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary">{t("common.contactMe")} <ArrowRight aria-hidden="true" className="size-4" /></Link>
-            <Link href={ROUTES.PROJECTS} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-semibold hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"><ArrowLeft aria-hidden="true" className="size-4" /> {t("projects.back")}</Link>
-          </div>
-        </section>
         {liveUrl || githubUrl ? (
           <ProjectActionBar
             targetId="project-actions"

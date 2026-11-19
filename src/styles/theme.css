@@ -5,10 +5,14 @@
 :root {
   --mobile-bottom-nav-height: 5.25rem;
 
-  /* Radius scale: controls, cards, hero/panel surfaces. */
-  --radius-control: 0.5rem;
-  --radius-card: 1rem;
-  --radius-panel: 1.5rem;
+  /* Radius scale, three steps only: controls 6px, cards 8px, panels 12px. */
+  --radius-control: 0.375rem;
+  --radius-card: 0.5rem;
+  --radius-panel: 0.75rem;
+
+  /* Card depth: a soft two-layer shadow, a little stronger on hover. */
+  --elevation-card: 0 1px 3px rgb(3 18 66 / 0.08), 0 10px 24px -8px rgb(3 18 66 / 0.18);
+  --elevation-card-hover: 0 2px 6px rgb(3 18 66 / 0.10), 0 18px 36px -10px rgb(3 18 66 / 0.26);
 
   /* Shared brand gradients: decorative only, never content surfaces. */
   --brand-gradient: linear-gradient(120deg, #1D3A7D 0%, #786F70 50%, #D9AF62 100%);
@@ -64,6 +68,8 @@
 ========================================================== */
 
 .dark {
+  --elevation-card: 0 1px 3px rgb(0 0 0 / 0.40), 0 12px 28px -8px rgb(0 0 0 / 0.65);
+  --elevation-card-hover: 0 2px 6px rgb(0 0 0 / 0.45), 0 20px 40px -10px rgb(0 0 0 / 0.75);
   --brand-gradient-soft: linear-gradient(120deg, rgb(29 58 125 / 0.38) 0%, rgb(120 111 112 / 0.2) 52%, rgb(217 175 98 / 0.24) 100%);
   --brand-gradient-border: linear-gradient(120deg, rgb(86 119 190 / 0.85) 0%, rgb(139 126 119 / 0.7) 50%, rgb(217 175 98 / 0.9) 100%);
 
@@ -78,20 +84,21 @@
   --accent-foreground: var(--color-brand-deep);
   --accent-hover: #E49A69;
 
-  --background: var(--color-brand-deep);
-  --surface: #0A1C45;
-  --surface-elevated: #102653;
-  --surface-hover: #1A356A;
-  --surface-selected: #254276;
+  /* Deep Ink: a desaturated near-black navy, used across the whole site. */
+  --background: #0B1020;
+  --surface: #111829;
+  --surface-elevated: #172034;
+  --surface-hover: #1F2A42;
+  --surface-selected: #28354F;
 
-  --foreground: var(--color-brand-cream);
-  --foreground-secondary: #E0E6F1;
-  --muted: #B7C2D7;
+  --foreground: #F1EEE6;
+  --foreground-secondary: #C9D0DD;
+  --muted: #98A3B8;
   --foreground-disabled: #AAB7D0;
   --ring: var(--color-brand-gold);
 
-  --border: #6077A2;
-  --disabled: #1A2D54;
+  --border: #2C3A56;
+  --disabled: #1A2236;
 
   --success: #56B986;
   --success-foreground: var(--color-brand-deep);
@@ -106,6 +113,19 @@
 /* ==========================================================
     TAILWIND TOKENS
 ========================================================== */
+
+@theme {
+  /* Tailwind's own radius names collapse onto the same three steps. */
+  --radius-md: 0.375rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.5rem;
+  --radius-3xl: 0.75rem;
+
+  /* Card depth (see --elevation-card). */
+  --shadow-card: var(--elevation-card);
+  --shadow-card-hover: var(--elevation-card-hover);
+}
 
 @theme inline {
   /* Semantic colors */
