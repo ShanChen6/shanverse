@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { ROUTES } from "@/constants/routes";
-import { GamePreview } from "@/features/games/components/GamePreview";
+import { GameThumbnail } from "@/features/games/components/GameThumbnail";
 import { homeGames } from "@/features/games/games.config";
 import { getTranslator } from "@/i18n/server";
 
@@ -31,10 +31,8 @@ export async function HomeGamesSection() {
               aria-label={t("games.playGame", { title })}
               className="brand-card-border group flex items-center gap-4 overflow-hidden rounded-card p-3 focus-visible:ring-2 focus-visible:ring-primary sm:flex-col sm:items-stretch sm:gap-0 sm:p-0"
             >
-              <div className="home-game-preview flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-control bg-surface sm:size-auto sm:h-44 sm:rounded-none sm:border-b sm:border-border sm:p-4">
-                <div className="w-60 shrink-0 origin-center scale-[0.4] sm:scale-[0.58]">
-                  <GamePreview slug={game.slug} />
-                </div>
+              <div className="relative aspect-video w-32 shrink-0 overflow-hidden rounded-control bg-surface sm:w-auto sm:rounded-none sm:border-b sm:border-border">
+                <GameThumbnail slug={game.slug} sizes="(min-width: 640px) 480px, 128px" />
               </div>
               <div className="min-w-0 flex-1 sm:p-4">
                 <p className="font-semibold tracking-tight">{title}</p>
