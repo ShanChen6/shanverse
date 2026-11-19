@@ -29,10 +29,10 @@ export async function HomeGamesSection() {
               key={game.slug}
               href={game.href}
               aria-label={t("games.playGame", { title })}
-              className="brand-card-border group flex items-center gap-4 overflow-hidden rounded-2xl border border-border bg-surface-elevated p-3 transition-shadow hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary sm:flex-col sm:items-stretch sm:gap-0 sm:p-0"
+              className="brand-card-border group flex items-center gap-4 overflow-hidden rounded-card p-3 focus-visible:ring-2 focus-visible:ring-primary sm:flex-col sm:items-stretch sm:gap-0 sm:p-0"
             >
-              <div className="home-game-preview flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-linear-to-br from-primary/15 via-surface to-background sm:size-auto sm:h-44 sm:rounded-none sm:border-b sm:border-border sm:p-4">
-                <div className="w-60 shrink-0 origin-center scale-[0.4] transition-transform duration-300 group-hover:scale-[0.42] sm:scale-[0.58] sm:group-hover:scale-[0.61] motion-reduce:transition-none">
+              <div className="home-game-preview flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-control bg-surface sm:size-auto sm:h-44 sm:rounded-none sm:border-b sm:border-border sm:p-4">
+                <div className="w-60 shrink-0 origin-center scale-[0.4] sm:scale-[0.58]">
                   <GamePreview slug={game.slug} />
                 </div>
               </div>

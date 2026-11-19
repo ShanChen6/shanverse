@@ -34,13 +34,13 @@ export function ListPageSkeleton({ label }: { label: string }) {
 
 export function DetailPageSkeleton({ label }: { label: string }) {
   return (
-    <div role="status" aria-busy="true" className="mx-auto w-full max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
+    <div role="status" aria-busy="true" className="mx-auto w-full max-w-page space-y-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <span className="sr-only">{label}</span>
       <TianwuLoader className="mx-auto max-w-xl" />
       <div aria-hidden="true" className="space-y-10">
         <header className="mx-auto max-w-5xl space-y-5"><Skeleton className="h-5 w-64 max-w-full" /><Skeleton className="h-8 w-28 rounded-full" /><Skeleton className="h-14 w-4/5" /><Skeleton className="h-6 w-full max-w-3xl" /><Skeleton className="h-12 w-full" /></header>
-        <Skeleton className="mx-auto aspect-video w-full max-w-6xl rounded-3xl" />
-        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,800px)_260px]"><div className="min-w-0 space-y-5"><Skeleton className="h-8 w-2/3" /><Skeleton className="h-28 w-full" /><Skeleton className="h-8 w-1/2" /><Skeleton className="h-40 w-full" /></div><Skeleton className="hidden h-72 rounded-2xl lg:block" /></div>
+        <Skeleton className="mx-auto aspect-video w-full max-w-page rounded-3xl" />
+        <div className="mx-auto grid max-w-page gap-10 lg:grid-cols-[minmax(0,800px)_260px]"><div className="min-w-0 space-y-5"><Skeleton className="h-8 w-2/3" /><Skeleton className="h-28 w-full" /><Skeleton className="h-8 w-1/2" /><Skeleton className="h-40 w-full" /></div><Skeleton className="hidden h-72 rounded-2xl lg:block" /></div>
       </div>
     </div>
   );

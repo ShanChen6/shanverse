@@ -1,1 +1,1 @@
-export default { navigation: "Navigation", explore: "Explore", connect: "Connect", rights: "All rights reserved.", builtWith: "Built with Next.js and Notion.", tagline: "A space to learn, build and share knowledge about software development." } as const;
+export default { navigation: "Navigation", connect: "Connect", rights: "All rights reserved.", builtWith: "Built with Next.js and Notion.", tagline: "A space to learn, build and share knowledge about software development.", contactLine: "Have a question or an idea? Send me a message:" } as const;

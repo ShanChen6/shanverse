@@ -32,7 +32,7 @@ export function CaseStudyView({ study, headingIds, title, locale }: { study: Cas
             className={section.kind === "result" ? "rounded-card border border-primary/30 bg-primary/5 p-6" : "rounded-card border border-border bg-surface p-6"}
           >
             <h2 id={id} className="flex scroll-mt-24 items-center gap-3 text-xl font-semibold text-foreground">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon aria-hidden={true} className="size-5" /></span>
+              <span className="flex size-5 shrink-0 items-center justify-center text-primary"><Icon aria-hidden={true} className="size-5" /></span>
               {richTextValue(section.heading)}
             </h2>
             <div className="mt-4">{render(section.blocks)}</div>

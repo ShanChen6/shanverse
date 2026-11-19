@@ -5,7 +5,6 @@ import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import {
   BookOpen,
   Sparkles,
-  Sprout,
   Tags,
 } from "lucide-react";
 
@@ -253,7 +252,7 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
                         })}
                         aria-current={active ? "true" : undefined}
                         className={cn(
-                          "inline-flex min-h-9 max-w-full items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary",
+                          "inline-flex min-h-9 max-w-full items-center gap-1 rounded-control border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary",
                           active
                             ? "border-primary/30 bg-primary/10 text-primary"
                             : "border-border bg-background text-foreground-secondary hover:border-primary/40 hover:text-primary",
@@ -285,8 +284,8 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
   return <PageContainer>
     <JsonLd data={{ "@context": "https://schema.org", "@type": "Blog", name: "Shanverse Blog", description: t("metadata.blogDescription"), url: buildAbsoluteUrl(`/${locale}/blog`), inLanguage: "vi-VN", author: { "@type": "Person", name: SEO_CONFIG.author }, publisher: { "@type": "Person", name: SEO_CONFIG.author } }} />
     <Breadcrumb items={[{ label: t("common.home"), href: ROUTES.HOME }, { label: t("common.blog") }]} />
-    <PageHeader eyebrow={t("blog.gardenBadge")} icon={<Sprout />} title={t("blog.title")} description={t("blog.description")} />
-    {locale === "en" ? <p role="note" className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground-secondary">{t("blog.vietnameseOnly")}</p> : null}
+    <PageHeader title={t("blog.title")} description={t("blog.description")} />
+    {locale === "en" ? <p role="note" className="rounded-card border border-border bg-surface px-4 py-3 text-sm text-foreground-secondary">{t("blog.vietnameseOnly")}</p> : null}
     <Suspense fallback={<BlogDataSkeleton label={t("common.loadingArticles")} />}><BlogDataSection query={query} t={t} /></Suspense>
   </PageContainer>;
 }

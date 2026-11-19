@@ -131,7 +131,7 @@ export function SearchDialog() {
                     <Link
                       href={`${ROUTES.BLOG}?category=${encodeURIComponent(category.slug)}`}
                       onClick={() => setOpen(false)}
-                      className="inline-flex min-h-10 items-center rounded-full border border-border px-4 text-sm font-medium text-foreground-secondary hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
+                      className="inline-flex min-h-10 items-center rounded-control border border-border px-4 text-sm font-medium text-foreground-secondary hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
                     >
                       {category.name}
                     </Link>

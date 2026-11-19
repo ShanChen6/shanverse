@@ -15,7 +15,6 @@ export default async function NotFound() {
       <div className="container mx-auto grid min-h-[60vh] max-w-5xl items-center gap-10 px-4 py-16 sm:py-20 md:grid-cols-2">
         <TianwuLost className="order-first md:order-last" />
         <div className="space-y-5 text-center md:text-left">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary">{t("mascot.lostEyebrow")}</p>
           <h1 className="text-balance text-3xl font-extrabold tracking-tight sm:text-4xl">{t("mascot.lostTitle")}</h1>
           <p className="text-pretty text-xl font-medium leading-relaxed">“{t("mascot.lostLine")}”</p>
           <p className="text-pretty leading-relaxed text-foreground-secondary">{t("mascot.lostHint")}</p>

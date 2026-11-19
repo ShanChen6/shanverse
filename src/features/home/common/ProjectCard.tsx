@@ -3,7 +3,7 @@
 import * as React from "react";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import Image from "next/image";
-import { ArrowUpRight, Code2, ExternalLink, Sparkles } from "lucide-react";
+import { ArrowUpRight, Code2, ExternalLink } from "lucide-react";
 
 import Badge from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,7 +70,7 @@ export function ProjectCard({
       role="article"
       aria-label={project.title}
       className={cn(
-        "brand-card-border group flex h-full min-w-0 flex-col overflow-hidden transition-[border-color,box-shadow] hover:shadow-md",
+        "brand-card-border group flex h-full min-w-0 flex-col overflow-hidden",
         featured && "md:grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]",
       )}
     >
@@ -78,7 +78,7 @@ export function ProjectCard({
         href={ROUTES.PROJECT_DETAIL(project.slug)}
         aria-label={t("projects.viewProject", { title: project.title })}
         className={cn(
-          "relative block aspect-video overflow-hidden border-b border-border bg-linear-to-br from-primary/20 via-primary/10 to-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
+          "relative block aspect-video overflow-hidden border-b border-border bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
           featured && "md:aspect-auto md:min-h-80 md:border-b-0 md:border-r",
         )}
       >
@@ -86,7 +86,6 @@ export function ProjectCard({
           src={thumbnailImage}
           alt={t("projects.thumbnailAlt", { title: project.title })}
           className={cn(
-            "transition-transform duration-500 group-hover:scale-[1.02]",
             isPlaceholder ? "object-contain p-[12%]" : "object-cover",
           )}
           fill
@@ -105,7 +104,6 @@ export function ProjectCard({
             ) : null}
             {featured && project.featured ? (
               <Badge className="gap-1 bg-primary/10 text-primary">
-                <Sparkles className="size-3" aria-hidden="true" />{" "}
                 {t("projects.featured")}
               </Badge>
             ) : null}

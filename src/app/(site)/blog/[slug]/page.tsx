@@ -131,7 +131,7 @@ export default async function BlogDetailPage({ params }: Props) {
 
   return (
     <BlogViewProvider slug={post.slug}>
-      <div className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
+      <div className="mx-auto max-w-page space-y-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <ReadingProgress key={`reading-progress-${post.slug}`} />
         <article lang="vi" className="space-y-10">
           <JsonLd
@@ -288,7 +288,7 @@ export default async function BlogDetailPage({ params }: Props) {
               />
             </figure>
           ) : null}
-          <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
+          <div className="mx-auto grid max-w-page items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
             <BlogViewContent>
               {blocks.length ? (
                 <NotionRenderer

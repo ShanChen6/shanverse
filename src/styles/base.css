@@ -42,18 +42,16 @@
       var(--brand-gradient-border) border-box;
   }
 
+  /* Shared card frame: 1px border, no shadow; hover only changes the border color. */
   .brand-card-border {
-    background:
-      linear-gradient(var(--surface-elevated), var(--surface-elevated)) padding-box,
-      linear-gradient(var(--border), var(--border)) border-box;
-    border-color: transparent;
+    border: 1px solid var(--border);
+    background-color: var(--surface-elevated);
+    transition: border-color 150ms ease;
   }
 
   .brand-card-border:hover,
   .brand-card-border:focus-within {
-    background:
-      linear-gradient(var(--surface-elevated), var(--surface-elevated)) padding-box,
-      var(--brand-gradient-border) border-box;
+    border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
   }
 
   .brand-active-indicator::after {

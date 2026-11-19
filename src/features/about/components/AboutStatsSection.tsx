@@ -15,8 +15,13 @@ export async function AboutStatsSection({ stats }: { stats: AboutStats | null })
   return (
     <section aria-labelledby="stats-heading">
       <h2 id="stats-heading" className="sr-only">{t("about.statsHeading")}</h2>
-      <dl className="grid gap-3 sm:grid-cols-3">
-        {items.map((item) => <div key={item.label} className="rounded-2xl border border-border bg-surface p-5"><dd className="text-3xl font-bold text-primary">{item.value}</dd><dt className="mt-1 text-sm text-foreground-secondary">{item.label}</dt></div>)}
+      <dl className="grid grid-cols-3 gap-3">
+        {items.map((item) => (
+          <div key={item.label} className="flex flex-col-reverse">
+            <dt className="text-xs text-foreground-secondary">{item.label}</dt>
+            <dd className="text-2xl font-bold text-foreground">{item.value}</dd>
+          </div>
+        ))}
       </dl>
     </section>
   );
