@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { HomeContentSkeleton } from "@/components/common/PageSkeletons";
 import { HeroSection } from "./components/HeroSection";
 import { HeroProfileCard } from "./components/HeroProfileCard";
+import { TechTicker } from "./components/TechTicker";
 import { WritingSection } from "./components/WritingSection";
 import { FeaturedProjectsSection } from "./components/FeaturedProjectsSection";
 import { HomeGamesSection } from "./components/HomeGamesSection";
@@ -65,6 +66,7 @@ export async function HomePageView() {
         <HeroProfileCard codeLabel={t("home.codeProfileLabel")} />
       </div>
     </section>
+    <TechTicker label={t("home.techStackLabel")} />
     <div className="mx-auto max-w-page space-y-12 px-4 py-10 sm:px-6 lg:space-y-14 lg:px-8 lg:py-12">
       <Suspense fallback={<HomeContentSkeleton label={t("common.loadingContent")} />}><HomeDataSections /></Suspense>
       <HomeGamesSection />

@@ -30,3 +30,18 @@ export const HOME_HERO_CODE_PROFILE: HeroCodeProfile = {
   coffee: true,
   available: true,
 };
+
+export const HOME_TECH_STACK = [
+  "HTML",
+  "CSS",
+  "JavaScript",
+  "TypeScript",
+  "React",
+  "Next.js",
+  "Tailwind CSS",
+  "Node.js",
+  "NestJS",
+  "Git",
+  "GitHub",
+  "Notion API",
+] as const;
