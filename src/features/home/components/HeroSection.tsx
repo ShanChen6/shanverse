@@ -3,13 +3,13 @@ import { ArrowRight } from "lucide-react";
 
 import { SocialIcon } from "@/components/common/icons/SocialIcon";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
-import { Tianwu } from "@/components/mascot/Tianwu";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 import type { SocialLink } from "@/constants/social";
 import { getTranslator } from "@/i18n/server";
+import { HeroProfileCard } from "./HeroProfileCard";
 
-/** Compact home intro: who I am in two lines, two links, and Tianwu on the right. */
+/** Compact home intro: who I am, two links, and the developer.ts card on the right. */
 export async function HeroSection({ socialLinks }: { socialLinks: SocialLink[] }) {
   const { t } = await getTranslator();
   const visibleSocials = socialLinks.filter((link) => link.label !== "Email");
@@ -53,7 +53,7 @@ export async function HeroSection({ socialLinks }: { socialLinks: SocialLink[] }
         </div>
       </div>
 
-      <Tianwu pose="wave" title={t("home.heroMascotAlt")} className="mx-auto hidden w-48 md:block lg:w-60" />
+      <HeroProfileCard codeLabel={t("home.codeProfileLabel")} />
     </div>
   );
 }
