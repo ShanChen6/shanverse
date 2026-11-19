@@ -5,10 +5,10 @@
 :root {
   --mobile-bottom-nav-height: 5.25rem;
 
-  /* Radius scale: controls, cards, hero/panel surfaces. */
-  --radius-control: 0.5rem;
-  --radius-card: 1rem;
-  --radius-panel: 1.5rem;
+  /* Radius scale, three steps only: controls 6px, cards 8px, panels 12px. */
+  --radius-control: 0.375rem;
+  --radius-card: 0.5rem;
+  --radius-panel: 0.75rem;
 
   /* Shared brand gradients: decorative only, never content surfaces. */
   --brand-gradient: linear-gradient(120deg, #1D3A7D 0%, #786F70 50%, #D9AF62 100%);
@@ -106,6 +106,18 @@
 /* ==========================================================
     TAILWIND TOKENS
 ========================================================== */
+
+@theme {
+  /* Tailwind's own radius names collapse onto the same three steps. */
+  --radius-md: 0.375rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.5rem;
+  --radius-3xl: 0.75rem;
+
+  /* Content width for every page. */
+  --container-page: 90rem;
+}
 
 @theme inline {
   /* Semantic colors */

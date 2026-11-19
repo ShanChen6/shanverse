@@ -62,13 +62,13 @@ export async function HomePageView() {
     >
       <HeroSpaceBackdrop />
       <div aria-hidden="true" className="brand-gradient-soft pointer-events-none absolute -right-32 -top-40 hidden size-96 rounded-full blur-3xl sm:block" />
-      <div className="hero-space-content relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-12 lg:items-center lg:gap-14 lg:py-20">
+      <div className="hero-space-content relative mx-auto grid max-w-page gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-12 lg:items-center lg:gap-14 lg:px-8 lg:py-20">
         <HeroSection socialLinks={socialLinks} />
         <HeroProfileCard codeLabel={t("home.codeProfileLabel")} />
       </div>
     </section>
     <TechTicker label={t("home.techStackLabel")} />
-    <div className="mx-auto max-w-6xl space-y-16 px-4 py-16 sm:px-6 lg:space-y-24 lg:py-24">
+    <div className="mx-auto max-w-page space-y-12 px-4 py-10 sm:px-6 lg:space-y-14 lg:px-8 lg:py-12">
       <Suspense fallback={<HomeContentSkeleton label={t("common.loadingContent")} />}><HomeDataSections /></Suspense>
       <HomeGamesSection />
       <ContactSection socialLinks={socialLinks} />

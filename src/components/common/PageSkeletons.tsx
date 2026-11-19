@@ -18,7 +18,7 @@ function CardSkeleton() {
 
 export function ListPageSkeleton({ label }: { label: string }) {
   return (
-    <div role="status" aria-busy="true" className="mx-auto w-full max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-12">
+    <div role="status" aria-busy="true" className="mx-auto w-full max-w-page space-y-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <span className="sr-only">{label}</span>
       <TianwuLoader className="mx-auto max-w-xl" />
       <div aria-hidden="true" className="space-y-10">

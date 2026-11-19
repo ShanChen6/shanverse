@@ -1,5 +1,6 @@
 import * as React from "react";
-import { ArrowRight, Gamepad2 } from "lucide-react";
+import { SectionHeader } from "@/components/layout/SectionHeader";
+import { ArrowRight } from "lucide-react";
 
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { ROUTES } from "@/constants/routes";
@@ -18,23 +19,7 @@ export async function HomeGamesSection() {
 
   return (
     <section aria-labelledby="home-games-heading" className="space-y-6">
-      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
-            <Gamepad2 aria-hidden="true" className="size-3.5" /> {t("games.homeEyebrow")}
-          </p>
-          <h2 id="home-games-heading" className="text-2xl font-bold tracking-tight">
-            {t("games.homeTitle")}
-          </h2>
-          <p className="mt-1 text-sm text-foreground-secondary">{t("games.homeDescription")}</p>
-        </div>
-        <Link
-          href={ROUTES.GAMES}
-          className="inline-flex items-center gap-1 rounded-sm text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
-        >
-          {t("games.viewAll")} <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
-        </Link>
-      </div>
+      <SectionHeader titleId="home-games-heading" title={t("games.homeTitle")} link={{ href: ROUTES.GAMES, label: t("games.viewAll") }} />
 
       <div className="grid gap-4 sm:grid-cols-3">
         {games.map((game) => {

@@ -11,3 +11,4 @@ export * from "./PageContainer";
 export * from "./PageHeader";
 export * from "./LayoutFrame";
 export * from "./MobileTopBar";
+export * from "./SectionHeader";

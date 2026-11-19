@@ -20,7 +20,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border bg-surface">
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+      <div className="mx-auto max-w-page px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div className="space-y-4">
             <BrandLogo large />

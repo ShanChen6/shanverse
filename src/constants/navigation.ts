@@ -1,4 +1,4 @@
-import { FolderKanban, Gamepad2, Home, Mail, Newspaper, UserRound } from "lucide-react";
+import { FolderKanban, Gamepad2, Home, Newspaper, UserRound } from "lucide-react";
 
 import { ROUTES } from "./routes";
 
@@ -8,7 +8,6 @@ export const NAVIGATION_ITEMS = [
   { href: ROUTES.PROJECTS, labelKey: "common.projects", icon: FolderKanban },
   { href: ROUTES.GAMES, labelKey: "common.games", icon: Gamepad2 },
   { href: ROUTES.ABOUT, labelKey: "common.about", icon: UserRound },
-  { href: ROUTES.CONTACT, labelKey: "common.contact", icon: Mail },
 ] as const;
 
 export const FOOTER_EXPLORE_ITEMS = [
@@ -18,9 +17,6 @@ export const FOOTER_EXPLORE_ITEMS = [
   { href: ROUTES.CONTACT, labelKey: "common.contact" },
 ] as const;
 
-/** Mobile bottom bar: first four items are tabs, the rest live behind the "More" tab. */
-export const MOBILE_TAB_ITEMS = NAVIGATION_ITEMS.slice(0, 4);
-export const MOBILE_MORE_ITEMS = NAVIGATION_ITEMS.slice(4);
 
 /** A single game page (/games/<slug>), where the site chrome gives way to the game's own top bar on mobile. */
 export function isGamePlayRoute(pathname: string): boolean {

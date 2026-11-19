@@ -18,7 +18,7 @@ export function Header() {
       </MobileTopBar>
 
       <header className="sticky top-0 z-40 hidden border-b border-border bg-background/90 backdrop-blur-md md:block">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6">
+        <div className="mx-auto flex h-16 max-w-page items-center justify-between gap-4 px-6 lg:px-8">
           <BrandLogo priority />
           <DesktopNavigation />
           <div className="flex items-center gap-1"><SearchDialog /><Suspense fallback={null}><LanguageSwitcher /></Suspense><ThemeToggle /></div>
