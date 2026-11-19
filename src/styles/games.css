@@ -234,11 +234,21 @@
 
 /* Memory match */
 
+/* The scene: a wide tech backdrop, and the cards on a dark table. */
+.mem-stage {
+  border-radius: 8px;
+  padding: clamp(0.75rem, 3vw, 2rem);
+  background: #1b0b45 url("/games/memory/backdrop.webp") center / cover no-repeat;
+}
+
 .mem-grid {
   display: grid;
   width: 100%;
   max-width: 30rem;
   gap: clamp(0.5rem, 2vw, 0.85rem);
+  padding: clamp(0.6rem, 2.5vw, 1.25rem);
+  border-radius: 8px;
+  background: #261e47 url("/games/memory/table.webp") center / cover no-repeat;
   grid-template-columns: repeat(var(--mem-mobile-cols), minmax(0, 1fr));
 }
 
@@ -249,14 +259,15 @@
 }
 
 .mem-card {
-  aspect-ratio: 4 / 5;
+  position: relative;
+  aspect-ratio: 1;
   perspective: 900px;
-  border-radius: 0.9rem;
+  border-radius: 12%;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
-.mem-card:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.mem-card:focus-visible { outline: 2px solid #3ff5e4; outline-offset: 3px; }
 .mem-card:disabled { cursor: default; }
 
 .mem-inner {
@@ -274,39 +285,44 @@
 .mem-face {
   position: absolute;
   inset: 0;
+  display: block;
+  background: center / 100% 100% no-repeat;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.mem-back { background-image: url("/games/memory/back.webp"); transition: filter 150ms ease-out; }
+.mem-card:not(:disabled):hover .mem-back { filter: brightness(1.15); }
+
+/* The face is a framed blank card; the tech's own colour fills the inside. */
+.mem-face { transform: rotateY(180deg); background-image: url("/games/memory/face.webp"); }
+.mem-panel {
+  position: absolute;
+  inset: 7%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
-  border-radius: 0.9rem;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  border-radius: 9%;
 }
 
-.mem-back {
-  background:
-    radial-gradient(circle at 30% 25%, rgb(217 175 98 / 0.35), transparent 55%),
-    linear-gradient(145deg, #1d3a7d 0%, #031242 100%);
-  box-shadow: inset 0 0 0 1px rgb(217 175 98 / 0.4), 0 4px 10px rgb(3 18 66 / 0.18);
+.mem-mark { font-weight: 800; font-size: clamp(1.2rem, 6vw, 2rem); line-height: 1; letter-spacing: -0.02em; }
+.mem-name { font-size: clamp(0.55rem, 2.2vw, 0.75rem); font-weight: 600; text-align: center; padding: 0 0.25rem; line-height: 1.15; }
+
+.mem-grid[data-level="hard"] .mem-mark { font-size: clamp(1.1rem, 5vw, 1.6rem); }
+
+/* Glowing frames over the card: cyan for a pair, pink glitch for a miss. */
+.mem-glow {
+  position: absolute;
+  inset: -4%;
+  pointer-events: none;
+  opacity: 0;
+  background: center / 100% 100% no-repeat;
 }
+.mem-card[data-matched] .mem-glow { background-image: url("/games/memory/matched.webp"); opacity: 1; transition: opacity 300ms ease-out 200ms; }
+.mem-card[data-wrong] .mem-glow { background-image: url("/games/memory/wrong.webp"); inset: -14%; animation: mem-glitch 700ms ease-out 380ms both; }
 
-.dark .mem-back { box-shadow: inset 0 0 0 1px rgb(217 175 98 / 0.6), 0 4px 14px rgb(0 0 0 / 0.35); }
-.mem-card:not(:disabled):hover .mem-back { box-shadow: inset 0 0 0 2px rgb(217 175 98 / 0.75), 0 6px 14px rgb(3 18 66 / 0.22); }
-
-.mem-back-logo { width: 42%; height: auto; opacity: 0.9; pointer-events: none; user-select: none; }
-
-.mem-face {
-  transform: rotateY(180deg);
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08), 0 4px 10px rgb(3 18 66 / 0.18);
-}
-
-.mem-mark { font-weight: 800; font-size: clamp(1.4rem, 7vw, 2.2rem); line-height: 1; letter-spacing: -0.02em; }
-.mem-name { font-size: clamp(0.6rem, 2.4vw, 0.78rem); font-weight: 600; text-align: center; padding: 0 0.25rem; }
-
-.mem-grid[data-level="hard"] .mem-mark { font-size: clamp(1.2rem, 6vw, 1.8rem); }
-
-.mem-card[data-matched] .mem-face { box-shadow: inset 0 0 0 3px #d9af62, 0 0 18px rgb(217 175 98 / 0.45); }
 .mem-card[data-matched] { animation: mem-match 420ms ease-out; }
 .mem-card[data-wrong] .mem-face { animation: mem-shake 360ms ease-in-out 380ms; }
 
@@ -319,10 +335,19 @@
   75% { transform: rotateY(180deg) translateX(4px); }
 }
 
+@keyframes mem-glitch {
+  0% { opacity: 0; }
+  15%, 35% { opacity: 1; transform: translateX(-2px); }
+  25% { opacity: 0.4; transform: translateX(2px); }
+  60% { opacity: 1; transform: none; }
+  100% { opacity: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mem-inner { transition: none; }
   .mem-card[data-matched],
-  .mem-card[data-wrong] .mem-face { animation: none; }
+  .mem-card[data-wrong] .mem-face,
+  .mem-card[data-wrong] .mem-glow { animation: none; }
 }
 
 /* Snake */
@@ -426,7 +451,7 @@
 
 /* Chain reaction (/games/red-cliffs): three themed boards ---------------- */
 .rc-board {
-  --rc-cell: min(4rem, calc((100vw - 2.5rem) / 6));
+  --rc-cell: min(4rem, calc((100vw - 4rem) / 6));
   position: relative;
   width: calc(var(--rc-cell) * 6);
   height: calc(var(--rc-cell) * 6);
@@ -447,24 +472,33 @@
   padding: 0.15rem;
   border-radius: 0.6rem;
 }
-.rc-board[data-theme="lantern"], .rc-swatch[data-theme="lantern"] {
-  background:
-    radial-gradient(ellipse at 50% 0%, rgb(251 191 36 / 0.12), transparent 55%),
-    linear-gradient(170deg, #1b2350, #0b1028);
+/* Each theme's painted river, space or night water, under the 6×6 grid. */
+.rc-board, .rc-swatch { background: #0b1028 center / cover no-repeat; }
+.rc-board[data-theme="lantern"], .rc-swatch[data-theme="lantern"] { background-image: url("/games/red-cliffs/lantern/board.webp"); }
+.rc-board[data-theme="space"], .rc-swatch[data-theme="space"] { background-image: url("/games/red-cliffs/space/board.webp"); }
+.rc-board[data-theme="fleet"], .rc-swatch[data-theme="fleet"] { background-image: url("/games/red-cliffs/fleet/board.webp"); }
+/* Faint grid lines, so the water still reads as six by six. */
+.rc-board::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.07) 1px, transparent 1px);
+  background-size: var(--rc-cell) var(--rc-cell);
 }
-.rc-board[data-theme="space"], .rc-swatch[data-theme="space"] {
-  background:
-    radial-gradient(1px 1px at 12% 18%, #e0e7ff, transparent),
-    radial-gradient(1px 1px at 72% 34%, #e0e7ff, transparent),
-    radial-gradient(1.5px 1.5px at 40% 80%, #c7d2fe, transparent),
-    radial-gradient(1px 1px at 88% 72%, #e0e7ff, transparent),
-    radial-gradient(circle at 30% 20%, #1e1b4b, #050816 70%);
+
+/* The scene around the board: the theme's wide backdrop, board in the middle. */
+.rc-stage {
+  border-radius: 8px;
+  padding: 1rem 0.75rem 1.25rem;
+  background: #0b1028 center / cover no-repeat;
 }
-.rc-board[data-theme="fleet"], .rc-swatch[data-theme="fleet"] {
-  background:
-    radial-gradient(circle at 20% 15%, rgb(255 255 255 / 0.07), transparent 40%),
-    linear-gradient(160deg, #16506b, #0f3b52);
-}
+.rc-stage[data-theme="lantern"] { background-image: url("/games/red-cliffs/lantern/backdrop.webp"); }
+.rc-stage[data-theme="space"] { background-image: url("/games/red-cliffs/space/backdrop.webp"); }
+.rc-stage[data-theme="fleet"] { background-image: url("/games/red-cliffs/fleet/backdrop.webp"); }
+@media (min-width: 640px) { .rc-stage { padding: 1.5rem 1rem 2rem; } }
 
 .rc-grid {
   display: grid;

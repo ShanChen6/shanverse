@@ -12,7 +12,7 @@ import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 import { randomSeed } from "./generator";
 import { CELLS, SIZE, TORCHES, fire, isCleared, shipsLeft, type Frame } from "./logic";
-import { AmmoIcon, Burst, Piece, Projectile } from "./pieces";
+import { AmmoIcon, Burst, Piece, Projectile, preloadThemeArt } from "./pieces";
 import { DEFAULT_THEME, PREFS_KEY, THEMES, THEME_EVENT, THEME_IDS, fill, isThemeId, stateText, type ThemeId } from "./themes";
 import { useRedCliffsEngine } from "./use-engine";
 
@@ -134,6 +134,7 @@ export function RedCliffs() {
   const reducedMotion = React.useRef(false);
 
   const theme = THEMES[prefs.theme];
+  preloadThemeArt(prefs.theme);
   const tick = SPEEDS[prefs.speed];
   const pause = Math.round(tick * 0.9);
 
@@ -392,9 +393,10 @@ export function RedCliffs() {
         </Button>
       </GameToolbar>
 
+      <div className="rc-stage" data-theme={prefs.theme}>
       <div className="mx-auto w-fit max-w-full">
         <div className="mb-2 flex min-h-7 items-center justify-between gap-3">
-          <p className="text-xs text-muted">{t("games.rcBoardNumber", { seed: game.seed.toString(36).toUpperCase() })}</p>
+          <p className="text-xs text-white/75">{t("games.rcBoardNumber", { seed: game.seed.toString(36).toUpperCase() })}</p>
           {chain >= 2 ? (
             <span key={chain} className="rc-chain rounded-full bg-[#f97316] px-2.5 py-0.5 text-xs font-extrabold text-white shadow">
               {t("games.rcChain", { n: chain })}
@@ -468,6 +470,7 @@ export function RedCliffs() {
               ))
             : null}
         </div>
+      </div>
       </div>
 
       <div aria-live="polite" className="mx-auto max-w-xl">
