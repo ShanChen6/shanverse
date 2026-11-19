@@ -2,6 +2,7 @@ import * as React from "react";
 import { Suspense } from "react";
 import { HomeContentSkeleton } from "@/components/common/PageSkeletons";
 import { HeroSection } from "./components/HeroSection";
+import { HeroProfileCard } from "./components/HeroProfileCard";
 import { WritingSection } from "./components/WritingSection";
 import { FeaturedProjectsSection } from "./components/FeaturedProjectsSection";
 import { HomeGamesSection } from "./components/HomeGamesSection";
@@ -58,8 +59,10 @@ export async function HomePageView() {
       className="relative overflow-hidden border-b border-border bg-surface/30"
     >
       <HeroSpaceBackdrop />
-      <div className="hero-space-content relative mx-auto max-w-page px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+      <div aria-hidden="true" className="brand-gradient-soft pointer-events-none absolute -right-32 -top-40 hidden size-96 rounded-full blur-3xl sm:block" />
+      <div className="hero-space-content relative mx-auto grid max-w-page gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-12 lg:items-center lg:gap-14 lg:px-8 lg:py-20">
         <HeroSection socialLinks={socialLinks} />
+        <HeroProfileCard codeLabel={t("home.codeProfileLabel")} />
       </div>
     </section>
     <div className="mx-auto max-w-page space-y-12 px-4 py-10 sm:px-6 lg:space-y-14 lg:px-8 lg:py-12">

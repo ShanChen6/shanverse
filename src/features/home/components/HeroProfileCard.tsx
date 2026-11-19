@@ -4,7 +4,7 @@ import { CodeEditorMock } from "@/features/home/components/CodeEditorMock";
 
 export function HeroProfileCard({ codeLabel }: { codeLabel: string }) {
   return (
-    <div className="hidden w-full min-w-0 md:block md:w-[26rem] lg:w-[30rem]">
+    <div className="min-w-0 lg:col-span-5">
       <CodeEditorMock label={codeLabel} />
     </div>
   );

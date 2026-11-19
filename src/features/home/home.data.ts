@@ -1,4 +1,16 @@
-// Data for the developer.ts card in the home hero.
+// Visible hero copy is localized in i18n/messages/*/home.ts (keys `home.hero*`).
+export type HeroData = {
+  name: string;
+  primaryCta: { href: string };
+  secondaryCta: { href: string };
+};
+
+export const HOME_HERO: HeroData = {
+  name: "ShanDev",
+  primaryCta: { href: "/about" },
+  secondaryCta: { href: "/contact" },
+};
+
 export type HeroCodeProfile = {
   name: string;
   role: string;
