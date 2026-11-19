@@ -67,20 +67,6 @@
     DARK
 ========================================================== */
 
-/* Blog pages in dark mode: a neutral graphite instead of navy, easier on long reading. */
-.dark [data-surface="reading"] {
-  --background: #121417;
-  --surface: #181B20;
-  --surface-elevated: #1E2228;
-  --surface-hover: #272C33;
-  --surface-selected: #30363F;
-  --border: #3B424D;
-  --foreground: #ECE8E0;
-  --foreground-secondary: #CDD0D5;
-  --muted: #A3A8B0;
-  --disabled: #23272D;
-}
-
 .dark {
   --elevation-card: 0 1px 3px rgb(0 0 0 / 0.40), 0 12px 28px -8px rgb(0 0 0 / 0.65);
   --elevation-card-hover: 0 2px 6px rgb(0 0 0 / 0.45), 0 20px 40px -10px rgb(0 0 0 / 0.75);
@@ -98,20 +84,21 @@
   --accent-foreground: var(--color-brand-deep);
   --accent-hover: #E49A69;
 
-  --background: var(--color-brand-deep);
-  --surface: #0A1C45;
-  --surface-elevated: #102653;
-  --surface-hover: #1A356A;
-  --surface-selected: #254276;
+  /* Deep Ink: a desaturated near-black navy, used across the whole site. */
+  --background: #0B1020;
+  --surface: #111829;
+  --surface-elevated: #172034;
+  --surface-hover: #1F2A42;
+  --surface-selected: #28354F;
 
-  --foreground: var(--color-brand-cream);
-  --foreground-secondary: #E0E6F1;
-  --muted: #B7C2D7;
+  --foreground: #F1EEE6;
+  --foreground-secondary: #C9D0DD;
+  --muted: #98A3B8;
   --foreground-disabled: #AAB7D0;
   --ring: var(--color-brand-gold);
 
-  --border: #6077A2;
-  --disabled: #1A2D54;
+  --border: #2C3A56;
+  --disabled: #1A2236;
 
   --success: #56B986;
   --success-foreground: var(--color-brand-deep);
