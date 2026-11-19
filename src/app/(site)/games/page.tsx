@@ -9,7 +9,7 @@ import Badge from "@/components/ui/badge";
 import { buildPageMetadata } from "@/config/seo.config";
 import { ROUTES } from "@/constants/routes";
 import { CATEGORIES, categoriesOf, usedCategories } from "@/features/games/categories";
-import { GamePreview } from "@/features/games/components/GamePreview";
+import { GameThumbnail } from "@/features/games/components/GameThumbnail";
 import { GamesCatalog } from "@/features/games/components/GamesCatalog";
 import { GAMES } from "@/features/games/games.config";
 import { getTranslator } from "@/i18n/server";
@@ -59,10 +59,8 @@ export default async function GamesPage() {
             categories: categoriesOf(game),
             card: (
               <article className="brand-card-border group relative flex h-full flex-col overflow-hidden rounded-card border border-border bg-surface-elevated transition-shadow focus-within:ring-2 focus-within:ring-primary hover:shadow-md">
-                <div aria-hidden="true" className="border-b border-border bg-linear-to-br from-primary/15 via-surface to-background p-4 sm:p-5">
-                  <div className="flex h-40 items-center justify-center transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none sm:h-48">
-                    <GamePreview slug={game.slug} />
-                  </div>
+                <div aria-hidden="true" className="relative aspect-video overflow-hidden border-b border-border bg-surface">
+                  <GameThumbnail slug={game.slug} sizes="(min-width: 1024px) 480px, (min-width: 640px) 50vw, 100vw" />
                 </div>
                 <div className="flex flex-1 flex-col gap-2 p-4 sm:p-5">
                   <h3 className="text-lg font-semibold tracking-tight">
