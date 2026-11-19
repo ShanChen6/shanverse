@@ -19,7 +19,7 @@ export async function FeaturedProjectsSection({
 
   return (
     <section aria-labelledby="home-projects-heading" className="space-y-6">
-      <SectionHeader titleId="home-projects-heading" title={t("home.featuredProjects")} link={{ href: ROUTES.PROJECTS, label: t("home.viewAllProjects") }} />
+      <SectionHeader titleId="home-projects-heading" title={t("home.featuredProjects")} description={t("home.featuredProjectsDescription")} link={{ href: ROUTES.PROJECTS, label: t("home.viewAllProjects") }} />
 
       <div className="space-y-6">
         <ProjectCard project={leadProject} variant="featured" />

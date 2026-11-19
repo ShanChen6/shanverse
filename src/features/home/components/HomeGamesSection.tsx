@@ -19,7 +19,7 @@ export async function HomeGamesSection() {
 
   return (
     <section aria-labelledby="home-games-heading" className="space-y-6">
-      <SectionHeader titleId="home-games-heading" title={t("games.homeTitle")} link={{ href: ROUTES.GAMES, label: t("games.viewAll") }} />
+      <SectionHeader titleId="home-games-heading" title={t("games.homeTitle")} description={t("games.homeDescription")} link={{ href: ROUTES.GAMES, label: t("games.viewAll") }} />
 
       <div className="grid gap-4 sm:grid-cols-3">
         {games.map((game) => {

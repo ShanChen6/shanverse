@@ -9,7 +9,7 @@ export async function ValuesSection() {
   return (
     <section aria-labelledby="values-heading" className="space-y-10">
       <div className="space-y-5">
-        <SectionHeader titleId="values-heading" title={t("about.valuesTitle")} />
+        <SectionHeader titleId="values-heading" title={t("about.valuesTitle")} description={t("about.valuesDescription")} />
         <ul className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
           {values.map((key) => (
             <li key={key} className="border-t border-border pt-4">
@@ -20,7 +20,7 @@ export async function ValuesSection() {
         </ul>
       </div>
       <div className="space-y-5">
-        <SectionHeader titleId="approach-heading" title={t("about.approachTitle")} />
+        <SectionHeader titleId="approach-heading" title={t("about.approachTitle")} description={t("about.approachDescription")} />
         <ul aria-labelledby="approach-heading" className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
           {productPrinciples.map((key) => (
             <li key={key} className="border-t border-border pt-4">

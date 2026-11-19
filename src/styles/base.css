@@ -271,6 +271,17 @@
   }
 }
 
+/* Site content width: 1440px, then wider on large monitors so the side margins stay small. */
+@utility max-w-page {
+  max-width: 90rem;
+  @media (min-width: 1680px) {
+    max-width: 100rem;
+  }
+  @media (min-width: 1880px) {
+    max-width: 110rem;
+  }
+}
+
 @utility rounded-control {
   border-radius: var(--radius-control);
 }

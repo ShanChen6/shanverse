@@ -7,16 +7,21 @@ import { cn } from "@/lib/cn";
 type SectionHeaderProps = {
   title: React.ReactNode;
   titleId?: string;
+  /** One short line under the title. */
+  description?: React.ReactNode;
   /** Optional "view all" link on the right of the title. */
   link?: { href: string; label: React.ReactNode };
   className?: string;
 };
 
-/** Shared section heading: one row with the H2 on the left and an optional link on the right. */
-export function SectionHeader({ title, titleId, link, className }: SectionHeaderProps) {
+/** Shared section heading: the H2 and a one-line description on the left, an optional link on the right. */
+export function SectionHeader({ title, titleId, description, link, className }: SectionHeaderProps) {
   return (
-    <div className={cn("flex items-baseline justify-between gap-4", className)}>
-      <h2 id={titleId} className="text-xl font-bold tracking-tight sm:text-2xl">{title}</h2>
+    <div className={cn("flex items-end justify-between gap-4", className)}>
+      <div className="min-w-0 space-y-1">
+        <h2 id={titleId} className="text-xl font-bold tracking-tight sm:text-2xl">{title}</h2>
+        {description ? <p className="text-sm text-foreground-secondary sm:text-base">{description}</p> : null}
+      </div>
       {link ? (
         <Link
           href={link.href}

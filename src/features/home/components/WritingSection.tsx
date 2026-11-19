@@ -20,7 +20,7 @@ export async function WritingSection({ lead, posts }: WritingSectionProps) {
 
   return (
     <section aria-labelledby="home-writing-heading" className="space-y-6">
-      <SectionHeader titleId="home-writing-heading" title={t("home.latestPosts")} link={{ href: ROUTES.BLOG, label: t("home.viewAllPosts") }} />
+      <SectionHeader titleId="home-writing-heading" title={t("home.latestPosts")} description={t("home.latestPostsDescription")} link={{ href: ROUTES.BLOG, label: t("home.viewAllPosts") }} />
 
       <PostCard post={lead} variant="featured" />
 

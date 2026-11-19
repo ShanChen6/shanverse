@@ -7,7 +7,7 @@ export async function JourneySection() {
   const { t } = await getTranslator();
   return (
     <section aria-labelledby="journey-heading" className="space-y-5">
-      <SectionHeader titleId="journey-heading" title={t("about.journeyTitle")} />
+      <SectionHeader titleId="journey-heading" title={t("about.journeyTitle")} description={t("about.journeyDescription")} />
       <ol className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
         {journey.map((item, index) => (
           <li key={item.key} className="border-t border-border pt-4">

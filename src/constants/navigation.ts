@@ -17,6 +17,12 @@ export function isGamePlayRoute(pathname: string): boolean {
   return /^\/games\/[^/]+\/?$/u.test(route);
 }
 
+/** Blog list and articles, which use the reading surface in dark mode. */
+export function isBlogRoute(pathname: string): boolean {
+  const route = pathname.replace(/^\/(vi|en)(?=\/|$)/u, "") || "/";
+  return route === "/blog" || route.startsWith("/blog/");
+}
+
 export type NavigationItem = (typeof NAVIGATION_ITEMS)[number];
 
 export function isActiveRoute(pathname: string, href: string): boolean {
