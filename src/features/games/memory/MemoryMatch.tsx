@@ -166,6 +166,7 @@ export function MemoryMatch() {
         />
       ) : null}
 
+      <div className="mem-stage">
       <div
         className="mem-grid mx-auto"
         style={{ "--mem-cols": config.cols, "--mem-mobile-cols": config.mobileCols } as React.CSSProperties}
@@ -187,22 +188,23 @@ export function MemoryMatch() {
               onClick={() => onFlip(card.id)}
             >
               <span className="mem-inner">
-                <span className="mem-back" aria-hidden="true">
-                  {/* Small static PNG already used across the site, so no image optimisation needed. */}
-                  <img src="/logo/logo_shanverse.png" alt="" width={150} height={160} draggable={false} className="mem-back-logo" />
-                </span>
-                <span className="mem-face" aria-hidden="true" style={tech ? { background: tech.background, color: tech.foreground } : undefined}>
-                  {tech ? (
-                    <>
-                      <span className="mem-mark">{tech.mark}</span>
-                      <span className="mem-name">{tech.name}</span>
-                    </>
-                  ) : null}
+                <span className="mem-back" aria-hidden="true" />
+                <span className="mem-face" aria-hidden="true">
+                  <span className="mem-panel" style={tech ? { background: tech.background, color: tech.foreground } : undefined}>
+                    {tech ? (
+                      <>
+                        <span className="mem-mark">{tech.mark}</span>
+                        <span className="mem-name">{tech.name}</span>
+                      </>
+                    ) : null}
+                  </span>
                 </span>
               </span>
+              <span className="mem-glow" aria-hidden="true" />
             </button>
           );
         })}
+      </div>
       </div>
     </div>
   );
