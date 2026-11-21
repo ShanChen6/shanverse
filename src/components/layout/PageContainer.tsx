@@ -2,9 +2,10 @@ import * as React from "react";
 
 import { cn } from "@/lib/cn";
 
-/** `default` is the 1440px site width; `narrow` is for long-form reading. */
+/** `default` is the 1440px site width; `medium` (1152px) suits a form page; `narrow` is for long-form reading. */
 const WIDTH = {
   default: "max-w-page",
+  medium: "max-w-6xl",
   narrow: "max-w-4xl",
 } as const;
 
