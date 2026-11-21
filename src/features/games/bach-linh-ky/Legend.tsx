@@ -10,7 +10,7 @@ export function Legend() {
   const { t, locale } = useI18n();
   const lang = locale === "en" ? "en" : "vi";
   return (
-    <div className="mt-4 grid gap-4 text-sm sm:grid-cols-3">
+    <div className="mt-4 grid gap-4 text-sm @2xl:grid-cols-3">
       <section className="space-y-1.5">
         <h3 className="font-semibold">{t("games.blkLegendElements")}</h3>
         <p className="flex flex-wrap gap-x-3 gap-y-1">
