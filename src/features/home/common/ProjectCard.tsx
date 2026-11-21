@@ -3,15 +3,12 @@
 import * as React from "react";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import Image from "next/image";
-import { ArrowUpRight, Code2, ExternalLink } from "lucide-react";
 
 import Badge from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -29,19 +26,6 @@ interface ProjectCardProps {
 
 const PLACEHOLDER_IMAGE = "/logo/logo_shanverse_horizontal.png";
 
-function safeExternalUrl(value: string | null) {
-  if (!value) return null;
-
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:"
-      ? url.toString()
-      : null;
-  } catch {
-    return null;
-  }
-}
-
 export function ProjectCard({
   project,
   variant = "default",
@@ -52,12 +36,10 @@ export function ProjectCard({
     safeImageSource(project.coverImage) ??
     PLACEHOLDER_IMAGE;
   const isPlaceholder = thumbnailImage === PLACEHOLDER_IMAGE;
-  const githubUrl = safeExternalUrl(project.githubUrl);
-  const liveUrl = safeExternalUrl(project.liveUrl);
   const technologies = [
     ...new Set(project.techStack.map((item) => item.trim()).filter(Boolean)),
   ];
-  const displayedTech = technologies.slice(0, 4);
+  const displayedTech = technologies.slice(0, 3);
   const remainingTech = technologies.length - displayedTech.length;
   const hasProjectDate = Boolean(project.date);
   const dateValue = project.date || project.updatedAt || project.createdAt;
@@ -70,15 +52,13 @@ export function ProjectCard({
       role="article"
       aria-label={project.title}
       className={cn(
-        "brand-card-border group flex h-full min-w-0 flex-col overflow-hidden",
+        "brand-card-border group relative flex h-full min-w-0 flex-col overflow-hidden",
         featured && "md:grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]",
       )}
     >
-      <Link
-        href={ROUTES.PROJECT_DETAIL(project.slug)}
-        aria-label={t("projects.viewProject", { title: project.title })}
+      <div
         className={cn(
-          "relative block aspect-video overflow-hidden border-b border-border bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
+          "relative aspect-[2/1] overflow-hidden border-b border-border bg-surface sm:aspect-video",
           featured && "md:aspect-auto md:min-h-80 md:border-b-0 md:border-r",
         )}
       >
@@ -95,12 +75,12 @@ export function ProjectCard({
               : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           }
         />
-      </Link>
+      </div>
       <div className="flex min-w-0 flex-1 flex-col">
         <CardHeader className="flex flex-1 flex-col gap-3 border-b-0 p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
             {project.status ? (
-              <Badge variant="outline" className="bg-surface text-[11px]">{project.status}</Badge>
+              <Badge variant="outline" className="bg-surface">{project.status}</Badge>
             ) : null}
             {featured && project.featured ? (
               <Badge className="gap-1 bg-primary/10 text-primary">
@@ -117,89 +97,45 @@ export function ProjectCard({
           <CardTitle
             className={`${featured ? "text-2xl" : "text-xl"} line-clamp-2 p-0 leading-snug wrap-anywhere`}
           >
+            {/* The title link covers the whole card, so the card opens the project page. */}
             <Link
               href={ROUTES.PROJECT_DETAIL(project.slug)}
-              className="block rounded-sm transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
+              aria-label={t("projects.viewProject", { title: project.title })}
+              className="rounded-sm transition-colors after:absolute after:inset-0 after:rounded-card group-hover:text-primary focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-primary"
             >
               {project.title}
             </Link>
           </CardTitle>
           {cardText ? (
             <CardDescription
-              className={`${featured ? "line-clamp-4" : "line-clamp-3"} p-0 leading-relaxed text-foreground-secondary wrap-anywhere`}
+              className={`${featured ? "line-clamp-3 sm:line-clamp-4" : "line-clamp-2 sm:line-clamp-3"} p-0 leading-relaxed text-foreground-secondary wrap-anywhere`}
             >
               {cardText}
             </CardDescription>
           ) : null}
-          {project.highlights.length ? (
-            <dl aria-label={t("projects.highlightsLabel")} className="flex flex-wrap gap-x-5 gap-y-2">
-              {project.highlights.slice(0, 3).map((highlight) => (
-                <div key={highlight.label} className="min-w-0">
-                  <dt className="sr-only">{highlight.label}</dt>
-                  <dd className="text-sm text-foreground-secondary">
-                    <span className="text-base font-bold text-primary">{highlight.value}</span>{" "}
-                    <span aria-hidden="true">{highlight.label}</span>
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          ) : null}
         </CardHeader>
-        <CardContent className="flex min-h-10 flex-wrap items-center gap-1.5 px-5 pb-4 pt-0 sm:px-6">
-          {displayedTech.map((technology) => (
-            <Badge
-              key={technology}
-              variant="outline"
-              className="max-w-full bg-surface text-[10px] text-foreground-secondary"
-            >
-              <span className="truncate">{technology}</span>
-            </Badge>
-          ))}
-          {remainingTech > 0 ? (
-            <Badge
-              variant="outline"
-              aria-label={t("projects.moreTechnologies", { count: remainingTech })}
-              className="bg-surface text-[10px] text-foreground-secondary"
-            >
-              +{remainingTech}
-            </Badge>
-          ) : null}
-        </CardContent>
-        <CardFooter className="mt-auto flex flex-wrap items-center justify-between gap-2 px-5 py-3 sm:px-6">
-          <div className="flex flex-wrap items-center gap-1">
-            {githubUrl ? (
-              <Button asChild size="sm" variant="ghost">
-                <a
-                  href={githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={t("projects.sourceOnGitHub", { title: project.title })}
-                >
-                  <Code2 className="size-4" aria-hidden="true" /> {t("projects.code")}
-                </a>
-              </Button>
+        {displayedTech.length ? (
+          <CardContent className="flex flex-wrap items-center gap-1.5 px-5 pb-5 pt-0 sm:px-6 sm:pb-6">
+            {displayedTech.map((technology) => (
+              <Badge
+                key={technology}
+                variant="outline"
+                className="max-w-full bg-surface text-foreground-secondary"
+              >
+                <span className="truncate">{technology}</span>
+              </Badge>
+            ))}
+            {remainingTech > 0 ? (
+              <Badge
+                variant="outline"
+                aria-label={t("projects.moreTechnologies", { count: remainingTech })}
+                className="bg-surface text-foreground-secondary"
+              >
+                +{remainingTech}
+              </Badge>
             ) : null}
-            {liveUrl ? (
-              <Button asChild size="sm" variant="ghost">
-                <a
-                  href={liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={t("projects.liveDemoOf", { title: project.title })}
-                >
-                  <ExternalLink className="size-4" aria-hidden="true" /> {t("projects.demo")}
-                </a>
-              </Button>
-            ) : null}
-          </div>
-          <Link
-            href={ROUTES.PROJECT_DETAIL(project.slug)}
-            aria-label={t("projects.viewDetailsOf", { title: project.title })}
-            className="ml-auto inline-flex min-h-11 items-center gap-1 rounded-sm text-sm font-semibold text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            {t("projects.details")} <ArrowUpRight aria-hidden="true" className="size-4" />
-          </Link>
-        </CardFooter>
+          </CardContent>
+        ) : null}
       </div>
     </Card>
   );

@@ -332,7 +332,7 @@ export function RedCliffs() {
 
   if (!game) {
     return (
-      <div className="mx-auto max-w-md space-y-3 rounded-2xl border border-border bg-surface p-6 text-center">
+      <div className="mx-auto max-w-md space-y-3 rounded-card border border-border bg-surface p-6 text-center">
         <p className="text-foreground-secondary">{error ? t("games.rcError") : fill(theme.dealing, lang)}</p>
         <Button type="button" onClick={onNew} disabled={busy !== null}>
           {t("games.rcNew")}
@@ -363,7 +363,7 @@ export function RedCliffs() {
       </div>
 
       <div className="flex flex-wrap items-stretch justify-center gap-2 sm:gap-3">
-        <div className="flex min-w-[9rem] items-center gap-2 rounded-xl border border-primary/40 bg-surface px-3 py-1.5">
+        <div className="flex min-w-[9rem] items-center gap-2 rounded-card border border-primary/40 bg-surface px-3 py-1.5">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">{theme.ammo[lang]}</span>
           <span aria-label={fill(theme.ammoLeft, lang, { n: torchesLeft })} className="flex gap-0.5">
             {Array.from({ length: TORCHES }, (_, i) => (

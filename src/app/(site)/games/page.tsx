@@ -93,7 +93,7 @@ export default async function GamesPage() {
           };
         })}
         trailing={
-          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border bg-surface p-6 text-center text-sm text-foreground-secondary">
+          <div className="flex flex-col items-center justify-center gap-3 rounded-card border border-dashed border-border bg-surface p-6 text-center text-sm text-foreground-secondary">
             <Lightbulb aria-hidden="true" className="size-6 text-primary" />
             <p className="max-w-56">{t("games.comingSoon")}</p>
             <Link href={ROUTES.CONTACT} className="font-semibold text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary">

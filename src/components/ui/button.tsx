@@ -8,7 +8,7 @@ const buttonVariants = cva(
   [
     "inline-flex items-center justify-center gap-2",
     "whitespace-nowrap",
-    "rounded-lg",
+    "rounded-control",
     "font-medium",
     "transition-colors",
     "disabled:pointer-events-none",

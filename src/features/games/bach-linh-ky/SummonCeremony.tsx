@@ -103,7 +103,7 @@ export function SummonCeremony({ monsterId, onClose }: { monsterId: string; onCl
           </button>
         </div>
       ) : (
-        <div className="blk-summon-card relative w-full max-w-sm space-y-4 rounded-2xl border border-border bg-surface p-5 text-left shadow-2xl">
+        <div className="blk-summon-card relative w-full max-w-sm space-y-4 rounded-card border border-border bg-surface p-5 text-left shadow-2xl">
           <div className="flex flex-col items-center gap-2 text-center">
             <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.2em] text-primary">
               <Sparkles aria-hidden="true" className="size-4" /> {t("games.blkSummonNew")}

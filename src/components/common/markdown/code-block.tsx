@@ -36,7 +36,7 @@ export function CodeBlock({
   return (
     <figure
       className={cn(
-        "overflow-hidden rounded-xl border border-border bg-zinc-950 text-zinc-100",
+        "overflow-hidden rounded-card border border-border bg-zinc-950 text-zinc-100",
         className,
       )}
     >
@@ -51,7 +51,7 @@ export function CodeBlock({
         <button
           type="button"
           onClick={copyCode}
-          className="rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
+          className="rounded-control border border-zinc-700 px-2 py-1 text-xs text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
           aria-label={`${copyLabel} code`}
         >
           {copied ? copiedLabel : copyLabel}

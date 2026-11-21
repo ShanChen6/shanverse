@@ -63,7 +63,7 @@ export function Legend() {
             const names = `${monster(a).name[lang]} · ${monster(b).name[lang]}`;
             return src ? (
               <li key={`${a}-${b}`} className="space-y-1">
-                <img src={src} alt={names} width={960} height={540} className="aspect-video w-full rounded-lg object-cover" loading="lazy" decoding="async" />
+                <img src={src} alt={names} width={960} height={540} className="aspect-video w-full rounded-control object-cover" loading="lazy" decoding="async" />
                 <p className="text-[11px] leading-tight text-muted">{names}</p>
               </li>
             ) : null;

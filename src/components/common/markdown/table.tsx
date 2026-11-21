@@ -8,7 +8,7 @@ export function Table({
   return (
     <div
       className={cn(
-        "w-full overflow-x-auto rounded-xl border border-border",
+        "w-full overflow-x-auto rounded-card border border-border",
         className,
       )}
       {...props}

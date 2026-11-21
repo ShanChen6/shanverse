@@ -96,7 +96,7 @@ export function HeroSection({ socialLinks }: { socialLinks: SocialLink[] }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="inline-flex size-10 items-center justify-center rounded-lg text-foreground-secondary hover:bg-surface hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
+                className="inline-flex size-11 items-center justify-center rounded-control text-foreground-secondary hover:bg-surface hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
               >
                 <SocialIcon label={label} className="size-5" />
               </a>

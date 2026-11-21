@@ -54,7 +54,7 @@ export function CollectionGrid({ collection }: { collection: CollectionData }) {
                     {t("games.blkLevel", { n: level })}
                   </th>
                   {ELEMENTS.map((element) => (
-                    <td key={element} className="rounded-xl bg-surface-hover/50 p-1">
+                    <td key={element} className="rounded-card bg-surface-hover/50 p-1">
                       <div className="flex justify-center gap-1">
                         {MONSTERS.filter((m) => m.level === level && m.element === element).map((m) => {
                           const has = owned.has(m.id);
@@ -83,7 +83,7 @@ export function CollectionGrid({ collection }: { collection: CollectionData }) {
           </table>
         </div>
       </div>
-      <aside className="rounded-2xl border border-border bg-surface p-4" aria-live="polite">
+      <aside className="rounded-card border border-border bg-surface p-4" aria-live="polite">
         {picked === null ? (
           <p className="text-sm text-muted">{t("games.blkCollectionHint")}</p>
         ) : pickedOwned ? (

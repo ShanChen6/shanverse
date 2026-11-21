@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { cn } from "@/lib/cn";
+import { Chip } from "@/components/ui/chip";
 import { isCategoryId, type CategoryId } from "../categories";
 import { recentSlugs } from "../play-history";
 
@@ -60,26 +60,19 @@ export function GamesCatalog({ categories, items, allLabel, recentLabel, chipsLa
     }
   };
 
-  const grid = "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4";
-  const chip = (active: boolean) =>
-    cn(
-      "inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary",
-      active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface text-foreground-secondary hover:border-primary/50 hover:text-foreground",
-    );
+  const grid = "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 wide:grid-cols-4";
   const countIn = (id: CategoryId) => items.filter((item) => item.categories.includes(id)).length;
 
   return (
     <div className="space-y-8">
       <div role="group" aria-label={chipsLabel} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
-        <button type="button" aria-pressed={picked === null} onClick={() => pick(null)} className={chip(picked === null)}>
+        <Chip selected={picked === null} count={items.length} onClick={() => pick(null)}>
           {allLabel}
-          <span className="text-xs opacity-70">{items.length}</span>
-        </button>
+        </Chip>
         {categories.map((category) => (
-          <button key={category.id} type="button" aria-pressed={picked === category.id} onClick={() => pick(category.id)} className={chip(picked === category.id)}>
+          <Chip key={category.id} selected={picked === category.id} count={countIn(category.id)} onClick={() => pick(category.id)}>
             {category.label}
-            <span className="text-xs opacity-70">{countIn(category.id)}</span>
-          </button>
+          </Chip>
         ))}
       </div>
 

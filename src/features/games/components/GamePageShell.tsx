@@ -32,7 +32,7 @@ type GamePageShellProps = {
  */
 export async function GamePageShell({ path, title, intro, description, genre, steps, savedNote, rulesExtra, children }: GamePageShellProps) {
   const { locale, t } = await getTranslator();
-  const backClass = "inline-flex min-h-10 items-center gap-2 rounded-md text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary";
+  const backClass = "inline-flex min-h-10 items-center gap-2 rounded-control text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary";
 
   return (
     <>

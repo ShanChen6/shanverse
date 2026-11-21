@@ -317,7 +317,7 @@ export function Sokoban() {
               aria-label={shell ? `${label}, ${t("games.skShellBadge")}` : label}
               onClick={() => openLevel(i, progress)}
               className={cn(
-                "relative flex size-11 items-center justify-center rounded-xl border text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:ring-primary",
+                "relative flex size-11 items-center justify-center rounded-card border text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:ring-primary",
                 i === index ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface text-foreground-secondary hover:border-primary/50",
                 !open && "cursor-not-allowed opacity-50 hover:border-border",
               )}
@@ -443,7 +443,7 @@ export function Sokoban() {
             {allDone ? <p className="text-sm text-foreground-secondary">{t("games.skAllDone", { name: MASCOT_NAME })}</p> : null}
           </GameResultDialog>
         ) : stuck ? (
-          <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-[#D9AF62] bg-[#102653] p-4 text-[#FAF7F0] sm:flex-nowrap sm:p-5">
+          <div className="flex flex-wrap items-center gap-4 rounded-card border border-[#D9AF62] bg-[#102653] p-4 text-[#FAF7F0] sm:flex-nowrap sm:p-5">
             <TianwuBadge className="size-16 shrink-0" />
             <div className="min-w-0 flex-1">
               <p className="font-bold">{t("games.skStuckTitle", { name: MASCOT_NAME })}</p>
@@ -457,7 +457,7 @@ export function Sokoban() {
               <button
                 type="button"
                 onClick={() => undo(stepsBack)}
-                className="min-h-11 shrink-0 rounded-xl bg-[#D9AF62] px-4 text-sm font-bold text-[#031242] hover:bg-[#F0C27B] focus-visible:ring-2 focus-visible:ring-[#FAF7F0]"
+                className="min-h-11 shrink-0 rounded-card bg-[#D9AF62] px-4 text-sm font-bold text-[#031242] hover:bg-[#F0C27B] focus-visible:ring-2 focus-visible:ring-[#FAF7F0]"
               >
                 {t("games.skStuckUndoButton", { n: stepsBack })}
               </button>
@@ -465,14 +465,14 @@ export function Sokoban() {
               <button
                 type="button"
                 onClick={restart}
-                className="min-h-11 shrink-0 rounded-xl bg-[#D9AF62] px-4 text-sm font-bold text-[#031242] hover:bg-[#F0C27B] focus-visible:ring-2 focus-visible:ring-[#FAF7F0]"
+                className="min-h-11 shrink-0 rounded-card bg-[#D9AF62] px-4 text-sm font-bold text-[#031242] hover:bg-[#F0C27B] focus-visible:ring-2 focus-visible:ring-[#FAF7F0]"
               >
                 {t("games.skRestart")}
               </button>
             )}
           </div>
         ) : attempt.showHint ? (
-          <div className="flex gap-3 rounded-2xl border border-[#D9AF62]/60 bg-surface p-4">
+          <div className="flex gap-3 rounded-card border border-[#D9AF62]/60 bg-surface p-4">
             <Lightbulb aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-[#D9AF62]" />
             <div className="min-w-0 space-y-1 text-sm">
               <p className="font-semibold">{t("games.skHintTitle")}</p>
@@ -599,7 +599,7 @@ function PadButton({ label, onPress, rotate }: { label: string; onPress: () => v
       onKeyDown={(event) => {
         if (event.key === "Enter") onPress();
       }}
-      className="flex aspect-square touch-manipulation items-center justify-center rounded-xl border border-border bg-surface text-foreground-secondary shadow-sm active:bg-primary active:text-primary-foreground focus-visible:ring-2 focus-visible:ring-primary"
+      className="flex aspect-square touch-manipulation items-center justify-center rounded-card border border-border bg-surface text-foreground-secondary shadow-sm active:bg-primary active:text-primary-foreground focus-visible:ring-2 focus-visible:ring-primary"
     >
       <svg viewBox="0 0 24 24" aria-hidden="true" className="size-6" style={{ transform: `rotate(${rotate}deg)` }}>
         <path d="M12 6l7 9H5z" fill="currentColor" />

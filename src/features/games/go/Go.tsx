@@ -385,7 +385,7 @@ export function Go() {
           </div>
 
           <aside className="space-y-4">
-            <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4">
+            <div className="flex items-center gap-3 rounded-card border border-border bg-surface p-4">
               <TianwuBadge className={cn("size-14 shrink-0", thinking && "tw-sway")} />
               <div className="min-w-0">
                 <p className="font-bold">{MASCOT_NAME}</p>
@@ -405,7 +405,7 @@ export function Go() {
             </div>
 
             {brain === "net" && net.status === "loading" ? (
-              <div className="space-y-1.5 rounded-2xl border border-border bg-surface p-4" role="status">
+              <div className="space-y-1.5 rounded-card border border-border bg-surface p-4" role="status">
                 <p className="text-sm">{t("games.goBrainDownload", { mb: NET_SIZE_MB })}</p>
                 <div className="h-2 overflow-hidden rounded-full bg-border">
                   <div
@@ -425,7 +425,7 @@ export function Go() {
             </div>
             {settings.mode === "full" ? <p className="text-center text-xs text-muted">{t("games.goKomiNote", { komi: KOMI })}</p> : null}
 
-            {notice ? <p className="rounded-xl border border-[#D9AF62]/60 bg-[#D9AF62]/10 p-3 text-sm">{notice}</p> : null}
+            {notice ? <p className="rounded-card border border-[#D9AF62]/60 bg-[#D9AF62]/10 p-3 text-sm">{notice}</p> : null}
 
             {phase === "playing" ? (
               <div className="flex flex-wrap gap-2">
@@ -452,7 +452,7 @@ export function Go() {
             ) : null}
 
             {phase === "scoring" ? (
-              <div className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+              <div className="space-y-3 rounded-card border border-primary/30 bg-primary/5 p-4">
                 <p className="font-bold">{t("games.goScoringTitle")}</p>
                 <p className="text-sm text-foreground-secondary">{deadReady ? t("games.goScoringHelp") : t("games.goScoringWorking")}</p>
                 {score ? <ScoreLines score={score} t={t} /> : null}
@@ -506,7 +506,7 @@ export function Go() {
 
 function ConfirmRow({ text, yes, no, onYes, onNo }: { text: string; yes: string; no: string; onYes: () => void; onNo: () => void }) {
   return (
-    <div className="flex w-full flex-wrap items-center gap-2 rounded-xl border border-border p-2 text-sm">
+    <div className="flex w-full flex-wrap items-center gap-2 rounded-card border border-border p-2 text-sm">
       <span className="flex-1">{text}</span>
       <Button type="button" size="sm" onClick={onYes} autoFocus>
         {yes}
@@ -529,7 +529,7 @@ function StoneIcon({ color, className }: { color: Color; className?: string }) {
 
 function PlayerCard(props: { name: string; color: Color; captured: number; active: boolean; capturedLabel: string; colorLabel: string }) {
   return (
-    <div className={cn("rounded-xl border bg-surface p-3", props.active ? "border-primary" : "border-border")}>
+    <div className={cn("rounded-card border bg-surface p-3", props.active ? "border-primary" : "border-border")}>
       <p className="flex items-center gap-2 text-sm font-semibold">
         <StoneIcon color={props.color} className="size-4 shrink-0" />
         <span className="truncate">{props.name}</span>
@@ -581,7 +581,7 @@ function Segmented<T extends string | number>({
           <label
             key={String(option.value)}
             className={cn(
-              "flex min-h-11 cursor-pointer flex-col justify-center rounded-xl border px-4 py-2 text-sm transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary",
+              "flex min-h-11 cursor-pointer flex-col justify-center rounded-card border px-4 py-2 text-sm transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary",
               value === option.value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface hover:border-primary/50",
               option.disabled && "cursor-not-allowed opacity-45 hover:border-border",
             )}
@@ -612,7 +612,7 @@ function SetupPanel({ initial, maxSize, onStart, record }: { initial: Settings; 
   const update = <K extends keyof Settings>(key: K, value: Settings[K]) => setDraft((current) => ({ ...current, [key]: value }));
   return (
     <form
-      className="mx-auto max-w-2xl space-y-6 rounded-3xl border border-border bg-surface p-5 sm:p-8"
+      className="mx-auto max-w-2xl space-y-6 rounded-panel border border-border bg-surface p-5 sm:p-8"
       onSubmit={(event) => {
         event.preventDefault();
         onStart(draft);
@@ -773,7 +773,7 @@ function GoBoard({ position, size, interactive, scoring, dead, owner, humanColor
         aria-label={label}
         onKeyDown={onKeyDown}
         onBlur={() => setCursor(null)}
-        className="go-board relative rounded-2xl p-1 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+        className="go-board relative rounded-card p-1 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background"
       >
         <svg
           ref={svgRef}

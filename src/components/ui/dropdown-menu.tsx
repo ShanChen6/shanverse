@@ -21,7 +21,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-44 overflow-hidden rounded-lg border border-border",
+        "z-50 min-w-44 overflow-hidden rounded-control border border-border",
         "bg-surface-elevated p-1 text-foreground shadow-xl",
         "data-[state=open]:opacity-100 data-[state=closed]:opacity-0",
         "transition-opacity duration-150",
@@ -42,7 +42,7 @@ const DropdownMenuSubContent = React.forwardRef<
     <DropdownMenuPrimitive.SubContent
       ref={ref}
       className={cn(
-        "z-50 min-w-44 overflow-hidden rounded-lg border border-border",
+        "z-50 min-w-44 overflow-hidden rounded-control border border-border",
         "bg-surface-elevated p-1 text-foreground shadow-xl",
         "data-[state=open]:opacity-100 data-[state=closed]:opacity-0",
         "transition-opacity duration-150",
@@ -64,7 +64,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-md px-2 py-1.5 text-sm outline-none",
+      "relative flex cursor-default select-none items-center rounded-control px-2 py-1.5 text-sm outline-none",
       "focus:bg-surface focus:text-foreground",
       "data-disabled:pointer-events-none data-disabled:opacity-50",
       inset && "pl-8",
@@ -85,7 +85,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center rounded-md px-2 py-1.5 text-sm outline-none",
+      "flex cursor-default select-none items-center rounded-control px-2 py-1.5 text-sm outline-none",
       "focus:bg-surface",
       inset && "pl-8",
       className,

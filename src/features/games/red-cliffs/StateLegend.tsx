@@ -35,7 +35,7 @@ export function StateLegend() {
         {[4, 3, 2, 1].map((strength) => {
           const name = states[strength - 1][lang];
           return (
-            <li key={strength} className="flex items-center gap-2.5 rounded-xl border border-border bg-background/40 p-2">
+            <li key={strength} className="flex items-center gap-2.5 rounded-card border border-border bg-background/40 p-2">
               <span aria-hidden="true" className="rc-swatch" data-theme={theme}>
                 <Piece theme={theme} strength={strength} />
               </span>

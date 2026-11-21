@@ -25,7 +25,7 @@ export function SectionHeader({ title, titleId, description, link, className }: 
       {link ? (
         <Link
           href={link.href}
-          className="inline-flex shrink-0 items-center gap-1 rounded-sm text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
+          className="tap-area inline-flex shrink-0 items-center gap-1 rounded-sm text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
         >
           {link.label} <ArrowRight aria-hidden="true" className="size-3.5" />
         </Link>

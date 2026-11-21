@@ -119,7 +119,7 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
         {data.hasError ? (
           <section
             role="status"
-            className="rounded-2xl border border-border bg-surface shadow-card px-6 py-16 text-center"
+            className="rounded-card border border-border bg-surface shadow-card px-6 py-16 text-center"
           >
             <BookOpen
               aria-hidden="true"
@@ -223,7 +223,7 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
 
               <aside
                 aria-labelledby="tags-heading"
-                className="min-w-0 rounded-2xl border border-border bg-surface shadow-card p-5 lg:sticky lg:top-24"
+                className="min-w-0 rounded-card border border-border bg-surface shadow-card p-5 lg:sticky lg:top-24"
               >
                 <h2
                   id="tags-heading"
@@ -261,7 +261,7 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
                         <span className="break-words [overflow-wrap:anywhere]">
                           #{tag.name}
                         </span>
-                        <span className="text-[10px] opacity-70">{tag.count}</span>
+                        <span className="text-xs opacity-70">{tag.count}</span>
                       </Link>
                     )})}
                   </nav>

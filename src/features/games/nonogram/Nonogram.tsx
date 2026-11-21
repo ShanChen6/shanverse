@@ -149,7 +149,7 @@ export function Nonogram() {
     commit({ ...saved, random: { ...saved.random, [`${missingSeed}`]: { seed: newSeed() } } });
   }, [saved, missingSeed, commit]);
 
-  if (!saved || missingSeed !== null) return <div aria-busy="true" className="mx-auto h-96 max-w-3xl animate-pulse rounded-2xl border border-border bg-surface" />;
+  if (!saved || missingSeed !== null) return <div aria-busy="true" className="mx-auto h-96 max-w-3xl animate-pulse rounded-card border border-border bg-surface" />;
 
   const setMode = (mode: Mode) => {
     commit({ ...saved, mode });
@@ -211,7 +211,7 @@ export function Nonogram() {
       ) : null}
 
       {saved.mode === "random" && open?.kind === "random" && open.size === 15 && !wide ? (
-        <p className="mx-auto max-w-md rounded-2xl border border-border bg-surface p-4 text-center text-sm text-foreground-secondary">{t("games.ngWideOnly")}</p>
+        <p className="mx-auto max-w-md rounded-card border border-border bg-surface p-4 text-center text-sm text-foreground-secondary">{t("games.ngWideOnly")}</p>
       ) : open ? (
         <Board key={open.kind === "picture" ? open.id : `random-${open.size}-${saved.random[`${open.size}`]?.seed}`} open={open} saved={saved} commit={commit} lang={lang} onBack={() => setOpen(null)} />
       ) : null}
@@ -245,9 +245,9 @@ function Gallery({ saved, wide, lang, onOpen }: { saved: Saved; wide: boolean; l
                 disabled={locked}
                 onClick={() => onOpen(entry.id)}
                 aria-label={`${name}, ${picture.width}×${picture.height}${solved ? `, ${t("games.ngSolved")}` : ""}${locked ? `, ${t("games.ngWideOnly")}` : ""}`}
-                className="group flex w-full flex-col gap-2 rounded-2xl border border-border bg-surface p-3 text-left transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:border-border"
+                className="group flex w-full flex-col gap-2 rounded-card border border-border bg-surface p-3 text-left transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:border-border"
               >
-                <span className="flex aspect-square items-center justify-center rounded-xl bg-background/60 p-3">
+                <span className="flex aspect-square items-center justify-center rounded-card bg-background/60 p-3">
                   {solved ? (
                     <Thumbnail picture={picture} />
                   ) : (

@@ -14,12 +14,12 @@ export function GameRulesSheet({ steps, savedNote, extra, className }: { steps: 
       <SheetTrigger asChild>
         <button
           type="button"
-          className={className ?? "inline-flex min-h-10 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-primary focus-visible:ring-2 focus-visible:ring-primary"}
+          className={className ?? "inline-flex min-h-10 items-center gap-1.5 rounded-control px-2 text-sm font-medium text-primary focus-visible:ring-2 focus-visible:ring-primary"}
         >
           <CircleHelp aria-hidden="true" className="size-4" /> {t("games.rulesButton")}
         </button>
       </SheetTrigger>
-      <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto rounded-t-3xl pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+      <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto rounded-t-panel pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
         <SheetTitle>{t("games.howToPlay")}</SheetTitle>
         <SheetDescription className="sr-only">{t("games.rulesDescription")}</SheetDescription>
         <ol className="mt-4 space-y-3 text-sm leading-relaxed text-foreground-secondary">
@@ -36,7 +36,7 @@ export function GameRulesSheet({ steps, savedNote, extra, className }: { steps: 
           {savedNote}
         </p>
         <SheetClose asChild>
-          <button type="button" className="mt-5 min-h-11 w-full rounded-xl border border-border font-medium focus-visible:ring-2 focus-visible:ring-primary">{t("common.close")}</button>
+          <button type="button" className="mt-5 min-h-11 w-full rounded-card border border-border font-medium focus-visible:ring-2 focus-visible:ring-primary">{t("common.close")}</button>
         </SheetClose>
       </SheetContent>
     </Sheet>

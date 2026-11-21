@@ -370,7 +370,7 @@ export function BachLinhKy() {
                       onClick={() => setTeam(team.map((id, j) => (j === i ? m.id : id)))}
                       title={has ? m.name[lang] : `${m.name[lang]} (${t("games.blkLevel", { n: level })})`}
                       className={cn(
-                        "flex w-[4.6rem] shrink-0 flex-col items-center gap-1 rounded-xl border p-1.5 text-center transition-colors focus-visible:ring-2 focus-visible:ring-primary",
+                        "flex w-[4.6rem] shrink-0 flex-col items-center gap-1 rounded-card border p-1.5 text-center transition-colors focus-visible:ring-2 focus-visible:ring-primary",
                         on ? "border-primary bg-primary/10" : "border-border bg-surface hover:border-primary/50",
                         !has && "cursor-not-allowed opacity-45",
                       )}
@@ -399,11 +399,11 @@ export function BachLinhKy() {
                   aria-checked={on}
                   onClick={() => updatePrefs({ map: id as MapChoice })}
                   className={cn(
-                    "flex flex-col items-center gap-1.5 rounded-xl border p-2 text-center text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary",
+                    "flex flex-col items-center gap-1.5 rounded-card border p-2 text-center text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary",
                     on ? "border-primary bg-primary/10" : "border-border bg-surface hover:border-primary/50",
                   )}
                 >
-                  {map ? <MiniMap mapId={map.id} /> : <span aria-hidden="true" className="grid size-16 place-items-center rounded-md bg-surface-hover text-2xl">?</span>}
+                  {map ? <MiniMap mapId={map.id} /> : <span aria-hidden="true" className="grid size-16 place-items-center rounded-control bg-surface-hover text-2xl">?</span>}
                   <span className="inline-flex items-center gap-1">
                     {map?.element ? <ElementDot element={map.element} lang={lang} /> : null}
                     {map ? map.name[lang] : t("games.blkMapRandom")}
@@ -484,7 +484,7 @@ export function BachLinhKy() {
                 aria-pressed={tray === id}
                 onClick={() => setTray(id)}
                 className={cn(
-                  "flex w-20 flex-col items-center gap-1 rounded-xl border p-1.5 text-center transition-colors focus-visible:ring-2 focus-visible:ring-primary",
+                  "flex w-20 flex-col items-center gap-1 rounded-card border p-1.5 text-center transition-colors focus-visible:ring-2 focus-visible:ring-primary",
                   tray === id ? "border-primary bg-primary/10" : "border-border bg-surface",
                   placed && tray !== id && "opacity-50",
                 )}
@@ -630,10 +630,10 @@ export function BachLinhKy() {
       </div>
 
       <aside className="space-y-4">
-        <div className="rounded-2xl border border-border bg-surface p-4">
+        <div className="rounded-card border border-border bg-surface p-4">
           {inspected ? <MonsterInfo unit={inspected} mine={inspected.side === 0} /> : <p className="text-sm text-muted">{t("games.blkSelectHint")}</p>}
         </div>
-        <div className="rounded-2xl border border-border bg-surface p-4">
+        <div className="rounded-card border border-border bg-surface p-4">
           <h3 className="mb-2 text-sm font-semibold">{t("games.blkLog")}</h3>
           <ol aria-live="polite" className="max-h-64 space-y-1 overflow-y-auto text-sm">
             {log.map((line) => (
@@ -745,7 +745,7 @@ function Board({ mapId, terrain, templeOwner, units, marks, selectedCell, flash,
 
 /** A map's painting, small, for the map picker. */
 function MiniMap({ mapId }: { mapId: string }) {
-  return <img src={mapSrc(mapId)} alt="" aria-hidden="true" width={64} height={64} className="size-16 rounded-md object-cover" loading="lazy" decoding="async" />;
+  return <img src={mapSrc(mapId)} alt="" aria-hidden="true" width={64} height={64} className="size-16 rounded-control object-cover" loading="lazy" decoding="async" />;
 }
 
 type ResultProps = { game: SavedGame; you: number; them: number; lossesToSummon: number; complete: boolean; onNew: () => void; onRematch: () => void; onSummon: () => void };
@@ -779,14 +779,14 @@ function Result({ game, you, them, lossesToSummon, complete, onNew, onRematch, o
           </>
         }
       >
-        {scene ? <img src={scene} alt="" width={960} height={540} className="mx-auto aspect-video w-full rounded-lg object-cover" decoding="async" /> : null}
+        {scene ? <img src={scene} alt="" width={960} height={540} className="mx-auto aspect-video w-full rounded-control object-cover" decoding="async" /> : null}
         {game.summoned && !game.summonSeen ? (
-          <button type="button" onClick={onSummon} className="blk-urn-button mx-auto flex flex-col items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-3 font-semibold text-primary focus-visible:ring-2 focus-visible:ring-primary">
+          <button type="button" onClick={onSummon} className="blk-urn-button mx-auto flex flex-col items-center gap-1.5 rounded-card bg-primary/10 px-4 py-3 font-semibold text-primary focus-visible:ring-2 focus-visible:ring-primary">
             <span aria-hidden="true" className="blk-urn" />
             {t("games.blkSummonOpen")}
           </button>
         ) : game.summoned ? (
-          <div className="blk-summon flex flex-col items-center gap-1.5 rounded-xl bg-primary/10 p-3">
+          <div className="blk-summon flex flex-col items-center gap-1.5 rounded-card bg-primary/10 p-3">
             <Sparkles aria-hidden="true" className="size-5 text-primary" />
             <Token monsterId={game.summoned} level={monster(game.summoned).level} side={0} className="size-16" />
             <p className="text-sm font-semibold">{t("games.blkSummoned", { name: monster(game.summoned).name[lang] })}</p>

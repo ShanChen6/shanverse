@@ -21,7 +21,7 @@ export function SocialLinks({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={openLabel(label)}
-            className="inline-flex size-11 items-center justify-center rounded-xl border border-border bg-background text-foreground-secondary transition-colors hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex size-11 items-center justify-center rounded-card border border-border bg-background text-foreground-secondary transition-colors hover:border-primary/50 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
           >
             <SocialIcon label={label} className="size-5" />
           </a>

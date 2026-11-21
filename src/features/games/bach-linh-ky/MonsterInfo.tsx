@@ -70,7 +70,7 @@ export function MonsterInfo({ unit, monsterId, mine, showToken = true }: { unit?
         </ul>
       ) : null}
       {pairs.map((src) => (
-        <img key={src} src={src} alt="" width={960} height={540} className="aspect-video w-full rounded-lg object-cover" loading="lazy" decoding="async" />
+        <img key={src} src={src} alt="" width={960} height={540} className="aspect-video w-full rounded-control object-cover" loading="lazy" decoding="async" />
       ))}
       {partners.length || rivals.length ? (
         <p className="text-xs text-foreground-secondary">

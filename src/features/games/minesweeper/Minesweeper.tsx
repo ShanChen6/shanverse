@@ -233,7 +233,7 @@ export function Minesweeper() {
             { label: t("games.best"), value: best[difficulty] !== undefined ? `${best[difficulty]}s` : "—", icon: <Trophy aria-hidden="true" className="size-3.5" /> },
           ]}
         />
-        <div role="group" aria-label={t("games.msModeLabel")} className="inline-flex items-center rounded-xl border border-border bg-surface p-1">
+        <div role="group" aria-label={t("games.msModeLabel")} className="inline-flex items-center rounded-card border border-border bg-surface p-1">
           {(["reveal", "flag"] as const).map((value) => (
             <button
               key={value}
@@ -241,7 +241,7 @@ export function Minesweeper() {
               aria-pressed={mode === value}
               onClick={() => setMode(value)}
               className={cn(
-                "inline-flex h-full items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-foreground-secondary transition-colors focus-visible:ring-2 focus-visible:ring-primary",
+                "inline-flex h-full items-center gap-1.5 rounded-control px-3 text-sm font-semibold text-foreground-secondary transition-colors focus-visible:ring-2 focus-visible:ring-primary",
                 mode === value && "bg-primary text-primary-foreground",
               )}
             >
@@ -255,7 +255,7 @@ export function Minesweeper() {
       <div
         aria-live="polite"
         className={cn(
-          "mx-auto max-w-md rounded-xl border px-4 py-3 text-center text-sm",
+          "mx-auto max-w-md rounded-card border px-4 py-3 text-center text-sm",
           game.status === "won" && "border-success/40 bg-success/10",
           game.status === "lost" && "border-danger/40 bg-danger/10",
           !finished && "sr-only",

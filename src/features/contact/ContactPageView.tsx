@@ -19,7 +19,7 @@ export async function ContactPageView({ config, providerConfigured }: { config: 
           <section aria-labelledby="contact-form-heading" className="rounded-card border border-border bg-surface shadow-card p-5 sm:p-8">
             <h2 id="contact-form-heading" className="text-2xl font-semibold">{t("contact.sendMessage")}</h2>
             <p className="mt-2 text-sm leading-6 text-foreground-secondary">{t("contact.formDescription")}</p>
-            {!providerConfigured ? <p role="note" className="mt-5 rounded-xl border border-border bg-background p-4 text-sm leading-6 text-foreground-secondary">{t("contact.notConfigured")}</p> : null}
+            {!providerConfigured ? <p role="note" className="mt-5 rounded-card border border-border bg-background p-4 text-sm leading-6 text-foreground-secondary">{t("contact.notConfigured")}</p> : null}
             <div className="mt-6"><ContactForm /></div>
           </section>
           <ContactMethods config={config} />

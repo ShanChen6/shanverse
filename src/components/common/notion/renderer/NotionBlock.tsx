@@ -64,10 +64,10 @@ export function NotionBlock({ block, headingIds, renderChildren, articleTitle, l
       return <hr className="my-8 border-border" />;
     case "bookmark": {
       const url = safeWebUrl(block.url);
-      return url ? <a href={url} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-xl border border-border bg-surface p-4 font-medium text-primary hover:border-primary/40"><span className="break-all">{block.caption?.length ? <NotionRichText items={block.caption} /> : url}</span> ↗</a> : null;
+      return url ? <a href={url} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-card border border-border bg-surface p-4 font-medium text-primary hover:border-primary/40"><span className="break-all">{block.caption?.length ? <NotionRichText items={block.caption} /> : url}</span> ↗</a> : null;
     }
     case "toggle":
-      return <details className="rounded-xl border border-border bg-surface px-4 py-3"><summary className="cursor-pointer font-medium">{text}</summary>{children}</details>;
+      return <details className="rounded-card border border-border bg-surface px-4 py-3"><summary className="cursor-pointer font-medium">{text}</summary>{children}</details>;
     default:
       return children;
   }

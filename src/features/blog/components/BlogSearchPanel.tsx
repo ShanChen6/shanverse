@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 
-import { cn } from "@/lib/cn";
+import { Chip } from "@/components/ui/chip";
 import { useI18n } from "@/i18n/client";
 import { localizeHref } from "@/i18n/config";
 import { normalizeSearchText } from "@/features/search/search-text";
@@ -59,14 +59,14 @@ export function BlogSearchPanel({ query, categories, documents, totalPosts }: Pr
       <div>
         <p id="blog-category-label" className="mb-2 text-xs font-medium text-muted">{t("blog.categories")}</p>
         <div role="group" aria-labelledby="blog-category-label" className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
-          <button type="button" aria-pressed={!query.category} onClick={() => navigate({ category: "" })} className={cn("min-h-11 shrink-0 rounded-full border px-4 py-2 text-sm font-medium focus-visible:ring-2 focus-visible:ring-primary", !query.category ? "border-primary/30 bg-primary/10 text-primary" : "border-border bg-background text-foreground-secondary hover:border-primary/40 hover:text-primary")}>
-            {t("blog.allPosts")} <span className="ml-1 text-xs opacity-70">{totalPosts}</span>
-          </button>
+          <Chip selected={!query.category} count={totalPosts} onClick={() => navigate({ category: "" })}>
+            {t("blog.allPosts")}
+          </Chip>
           {categories.map((category) => {
             const active = normalizeSearchText(query.category) === normalizeSearchText(category.slug) || normalizeSearchText(query.category) === normalizeSearchText(category.name);
-            return <button key={category.slug} type="button" aria-pressed={active} onClick={() => navigate({ category: active ? "" : category.slug })} className={cn("min-h-11 shrink-0 rounded-full border px-4 py-2 text-sm font-medium focus-visible:ring-2 focus-visible:ring-primary", active ? "border-primary/30 bg-primary/10 text-primary" : "border-border bg-background text-foreground-secondary hover:border-primary/40 hover:text-primary")}>
-              {category.name}<span className="ml-1 text-xs opacity-70">{category.count}</span>
-            </button>;
+            return <Chip key={category.slug} selected={active} count={category.count} onClick={() => navigate({ category: active ? "" : category.slug })}>
+              {category.name}
+            </Chip>;
           })}
         </div>
       </div>

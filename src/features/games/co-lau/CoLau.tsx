@@ -51,25 +51,25 @@ export function CoLau() {
   }, []);
 
   if (!BASE_URL) {
-    return <p className="mx-auto max-w-xl rounded-2xl border border-border bg-surface p-6 text-center text-sm text-foreground-secondary">{t("games.clUnavailable")}</p>;
+    return <p className="mx-auto max-w-xl rounded-card border border-border bg-surface p-6 text-center text-sm text-foreground-secondary">{t("games.clUnavailable")}</p>;
   }
 
   const src = theme ? buildEmbedSrc(BASE_URL, theme) : null;
 
   return (
     <div className="space-y-3">
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-surface" style={{ height }}>
+      <div className="relative overflow-hidden rounded-card border border-border bg-surface" style={{ height }}>
         {src && <iframe ref={frameRef} src={src} title={t("games.clFrameTitle")} onLoad={() => setLoaded(true)} className="block size-full border-0" loading="lazy" referrerPolicy="strict-origin-when-cross-origin" />}
         {!loaded ? (
           <div role="status" className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-surface p-6 text-center">
-            <Skeleton aria-hidden="true" className="h-40 w-full max-w-sm rounded-2xl" />
+            <Skeleton aria-hidden="true" className="h-40 w-full max-w-sm rounded-card" />
             <p className="text-sm text-foreground-secondary">{slow ? t("games.clSlow") : t("games.clLoading")}</p>
           </div>
         ) : null}
       </div>
       {src && (
         <GameToolbar className="justify-center">
-          <a href={src} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary">
+          <a href={src} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center gap-1.5 rounded-control px-3 text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary">
             {t("games.clOpenNewTab")} <ExternalLink aria-hidden="true" className="size-3.5" />
           </a>
         </GameToolbar>

@@ -81,7 +81,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
         href={postHref}
         aria-label={`Read ${post.title}`}
         className={cn(
-          "relative block aspect-video shrink-0 overflow-hidden border-b border-border bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
+          "relative block aspect-[2/1] shrink-0 overflow-hidden sm:aspect-video border-b border-border bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
           variant === "featured" &&
             "md:col-span-5 md:aspect-auto md:h-full md:min-h-80 md:border-b-0 md:border-r",
         )}
@@ -126,7 +126,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
               <Badge
                 key={tag}
                 variant="outline"
-                className="min-w-0 max-w-full bg-surface text-[10px] text-foreground-secondary"
+                className="min-w-0 max-w-full bg-surface text-xs text-foreground-secondary"
               >
                 <span className="truncate">#{tag}</span>
               </Badge>
@@ -135,7 +135,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
               <Badge
                 variant="outline"
                 aria-label={`${tags.length - visibleTags.length} more tags`}
-                className="bg-surface text-[10px] text-foreground-secondary"
+                className="bg-surface text-xs text-foreground-secondary"
               >
                 +{tags.length - visibleTags.length}
               </Badge>
@@ -158,7 +158,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
             </Link>
           </h3>
           {post.excerpt.trim() ? (
-            <CardDescription className="line-clamp-3 p-0 leading-6 text-foreground-secondary wrap-anywhere">
+            <CardDescription className="line-clamp-2 p-0 sm:line-clamp-3 leading-6 text-foreground-secondary wrap-anywhere">
               {post.excerpt.trim()}
             </CardDescription>
           ) : null}
