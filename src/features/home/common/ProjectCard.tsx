@@ -57,6 +57,7 @@ export function ProjectCard({
       )}
     >
       <div
+        data-card-media
         className={cn(
           "relative aspect-[2/1] overflow-hidden border-b border-border bg-surface sm:aspect-video",
           featured && "md:aspect-auto md:min-h-80 md:border-b-0 md:border-r",

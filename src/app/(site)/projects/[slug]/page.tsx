@@ -230,7 +230,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         </div>
 
         {previous || next ? (
-          <nav aria-label={t("projects.adjacentLabel")} className="mx-auto grid max-w-page gap-4 border-t border-border pt-8 sm:grid-cols-2">
+          <nav aria-label={t("projects.adjacentLabel")} className="mx-auto grid max-w-reading gap-4 border-t border-border pt-8 sm:grid-cols-2">
             {previous ? (
               <Link href={ROUTES.PROJECT_DETAIL(previous.slug)} rel="prev" className="group flex min-h-16 min-w-0 flex-col gap-1 rounded-card border border-border bg-surface shadow-card p-4 transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary">
                 <span className="text-xs font-medium text-muted">&larr; {t("projects.previousProject")}</span>
@@ -249,7 +249,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         {relatedProjects.length ? (
           <section aria-labelledby="related-projects-heading" className="mx-auto max-w-page space-y-6 border-t border-border pt-10">
             <div><h2 id="related-projects-heading" className="text-2xl font-semibold tracking-tight">{t("projects.related")}</h2></div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{relatedProjects.map((related) => <ProjectCard key={related.id} project={related} />)}</div>
+            <div className="grid grid-fill-last gap-6 sm:grid-cols-2 lg:grid-cols-3">{relatedProjects.map((related) => <ProjectCard key={related.id} project={related} />)}</div>
           </section>
         ) : null}
 

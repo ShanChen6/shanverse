@@ -78,6 +78,7 @@ export function PostCard({ post, variant = "default" }: PostCardProps) {
       )}
     >
       <Link
+        data-card-media
         href={postHref}
         aria-label={`Read ${post.title}`}
         className={cn(

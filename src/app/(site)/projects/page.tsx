@@ -141,7 +141,7 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
                 ) : pageProjects.length > 0 ? (
                   <section aria-labelledby="project-grid-heading" className="space-y-5">
                     <h2 id="project-grid-heading" className="flex items-center gap-2 text-2xl font-semibold tracking-tight"><Layers3 aria-hidden="true" className="size-5 text-primary" /> {t("projects.otherProjects")}</h2>
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{pageProjects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
+                    <div className="grid grid-fill-last gap-6 sm:grid-cols-2 lg:grid-cols-3">{pageProjects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
                   </section>
                 ) : null}
                 <Pagination currentPage={currentPage} totalPages={totalPages} hrefBuilder={(page) => projectHref(query, { page })} labels={paginationLabels(t)} className="justify-center border-t border-border pt-6" />
