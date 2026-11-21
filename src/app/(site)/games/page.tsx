@@ -49,7 +49,6 @@ export default async function GamesPage() {
         allLabel={t("games.catAll")}
         recentLabel={t("games.recent")}
         chipsLabel={t("games.catChips")}
-        countTemplate={t("games.catCount", { n: "{n}" })}
         items={GAMES.map((game) => {
           const title = t(game.titleKey);
           const [main] = categoriesOf(game);
@@ -59,7 +58,7 @@ export default async function GamesPage() {
             categories: categoriesOf(game),
             card: (
               <article className="brand-card-border group relative flex h-full flex-col overflow-hidden rounded-card border border-border bg-surface-elevated transition-shadow focus-within:ring-2 focus-within:ring-primary hover:shadow-md">
-                <div aria-hidden="true" className="relative aspect-video overflow-hidden border-b border-border bg-surface">
+                <div aria-hidden="true" className="relative aspect-[2/1] overflow-hidden border-b sm:aspect-video border-border bg-surface">
                   <GameThumbnail slug={game.slug} sizes="(min-width: 1024px) 480px, (min-width: 640px) 50vw, 100vw" />
                 </div>
                 <div className="flex flex-1 flex-col gap-2 p-4 sm:p-5">

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 
 import { SocialIcon } from "@/components/common/icons/SocialIcon";
@@ -8,6 +9,7 @@ import { SITE_CONFIG } from "@/config/site.config";
 import { NAVIGATION_ITEMS } from "@/constants/navigation";
 import { ROUTES } from "@/constants/routes";
 import { BrandLogo } from "./BrandLogo";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { useI18n } from "@/i18n/client";
 import { useRuntimeConfig } from "@/providers/RuntimeConfigProvider";
 
@@ -86,6 +88,10 @@ export function Footer() {
             © {currentYear} {SITE_CONFIG.name}. {t("footer.rights")}
           </p>
           <p>{t("footer.builtWith")}</p>
+          {/* Phones only: the header has no room for the language switch. */}
+          <div className="self-start md:hidden">
+            <Suspense fallback={null}><LanguageSwitcher /></Suspense>
+          </div>
         </div>
       </div>
     </footer>

@@ -22,19 +22,17 @@ type Props = {
   /** Heading of the "recently played" row. */
   recentLabel: string;
   chipsLabel: string;
-  /** Section count, with {n} for the number, e.g. "{n} games". */
-  countTemplate: string;
   /** Shown after the games in every view (the "more games coming" card). */
   trailing?: React.ReactNode;
 };
 
 /**
- * The game list on /games: "All" shows a section per main category; a picked
- * category shows every game in it, main or extra. Cards are rendered on the
+ * The game list on /games: one grid of every game, filtered by the category chips
+ * (a picked category shows every game in it, main or extra). Cards are rendered on the
  * server and the first paint is "All", so every game is in the HTML search
  * engines see; picking only filters, and is kept in ?category= for sharing.
  */
-export function GamesCatalog({ categories, items, allLabel, recentLabel, chipsLabel, countTemplate, trailing }: Props) {
+export function GamesCatalog({ categories, items, allLabel, recentLabel, chipsLabel, trailing }: Props) {
   const [picked, setPicked] = React.useState<CategoryId | null>(null);
   const [recent, setRecent] = React.useState<string[]>([]);
 
@@ -88,26 +86,16 @@ export function GamesCatalog({ categories, items, allLabel, recentLabel, chipsLa
               </div>
             </section>
           ) : null}
-          {categories.map((category) => {
-            const inSection = items.filter((item) => item.categories[0] === category.id);
-            if (!inSection.length) return null;
-            return (
-              <section key={category.id} aria-labelledby={`cat-${category.id}`} className="space-y-4">
-                <div className="flex items-baseline justify-between gap-3 border-b border-border pb-2">
-                  <h2 id={`cat-${category.id}`} className="text-xl font-semibold tracking-tight sm:text-2xl">
-                    {category.label}
-                  </h2>
-                  <span className="text-sm text-muted">{countTemplate.replace("{n}", String(inSection.length))}</span>
-                </div>
-                <div className={grid}>
-                  {inSection.map((item) => (
-                    <React.Fragment key={item.slug}>{item.card}</React.Fragment>
-                  ))}
-                </div>
-              </section>
-            );
-          })}
-          {trailing ? <div className={grid}>{trailing}</div> : null}
+          <section aria-labelledby="games-all" className="space-y-4">
+            {/* The heading only shows when a "recently played" row sits above. */}
+            <h2 id="games-all" className={recent.length ? "border-b border-border pb-2 text-xl font-semibold tracking-tight sm:text-2xl" : "sr-only"}>{allLabel}</h2>
+            <div className={grid}>
+              {items.map((item) => (
+                <React.Fragment key={item.slug}>{item.card}</React.Fragment>
+              ))}
+              <React.Fragment key="trailing">{trailing}</React.Fragment>
+            </div>
+          </section>
         </>
       ) : (
         <section aria-label={categories.find((category) => category.id === picked)?.label} className={grid}>
