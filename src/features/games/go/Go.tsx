@@ -92,9 +92,22 @@ function canUseNet(): boolean {
   }
 }
 
+/**
+ * canUseNet() for rendering: false on the server and in the first client render (so the
+ * HTML matches), then the real answer once the page has hydrated.
+ */
+function useCanUseNet(): boolean {
+  return React.useSyncExternalStore(
+    () => () => {},
+    canUseNet,
+    () => false,
+  );
+}
+
 const rankLabel = (rank: string) => rank.replace(/(\d+)k$/, "$1 kyu").replace(/(\d+)d$/, "$1 dan");
 
 export function Go() {
+  const netAvailable = useCanUseNet();
   const { t } = useI18n();
   const engine = useGoEngine();
   const [settings, setSettings] = React.useState<Settings>(DEFAULT_SETTINGS);
@@ -497,7 +510,7 @@ export function Go() {
           </aside>
         </div>
       )}
-      {brain === "net" || (phase === "setup" && canUseNet()) ? <p className="text-center text-xs leading-relaxed text-muted">{t("games.goNetCredit")}</p> : null}
+      {brain === "net" || (phase === "setup" && netAvailable) ? <p className="text-center text-xs leading-relaxed text-muted">{t("games.goNetCredit")}</p> : null}
     </div>
   );
 }
@@ -604,6 +617,7 @@ function Segmented<T extends string | number>({
 }
 
 function SetupPanel({ initial, maxSize, onStart, record }: { initial: Settings; maxSize: BoardSize; onStart: (s: Settings) => void; record: Stats }) {
+  const netAvailable = useCanUseNet();
   const { t } = useI18n();
   const [draft, setDraft] = React.useState<Settings>({ ...initial, size: initial.size > maxSize ? maxSize : initial.size });
   React.useEffect(() => {
@@ -663,10 +677,10 @@ function SetupPanel({ initial, maxSize, onStart, record }: { initial: Settings; 
         options={(["easy", "medium", "hard"] as const).map((level) => ({
           value: level,
           label: t(level === "easy" ? "games.goEasy" : level === "medium" ? "games.goMedium" : "games.goHard"),
-          hint: draft.mode === "full" && canUseNet() ? t("games.goBrainNet", { rank: rankLabel(NET_STYLES[level].rank) }) : undefined,
+          hint: draft.mode === "full" && netAvailable ? t("games.goBrainNet", { rank: rankLabel(NET_STYLES[level].rank) }) : undefined,
         }))}
       />
-      {draft.mode === "full" && canUseNet() ? <p className="text-xs text-foreground-secondary">{t("games.goBrainNote", { mb: NET_SIZE_MB })}</p> : null}
+      {draft.mode === "full" && netAvailable ? <p className="text-xs text-foreground-secondary">{t("games.goBrainNote", { mb: NET_SIZE_MB })}</p> : null}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs text-muted">{t("games.goRecord", { wins: record[draft.mode].wins, losses: record[draft.mode].losses })}</p>
         <Button type="submit" size="lg">
