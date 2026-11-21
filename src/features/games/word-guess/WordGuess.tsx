@@ -23,6 +23,7 @@ import {
   type WordEntry,
 } from "./logic";
 import type { TopicLabels } from "./notion-words";
+import { chipClassName } from "@/components/ui/chip";
 
 const STORAGE_KEY = "shanverse:word-guess:progress";
 
@@ -215,10 +216,7 @@ export function WordGuess({ words, topics }: { words: WordEntry[]; topics: Topic
               type="button"
               aria-pressed={active}
               onClick={() => onTopic(topic)}
-              className={cn(
-                "min-h-10 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary",
-                active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface text-foreground-secondary hover:border-primary/50",
-              )}
+              className={chipClassName(active)}
             >
               {topic === null ? t("games.wgAll") : topicName(topic)}
             </button>

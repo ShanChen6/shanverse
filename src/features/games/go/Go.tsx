@@ -497,7 +497,7 @@ export function Go() {
           </aside>
         </div>
       )}
-      {brain === "net" || (phase === "setup" && canUseNet()) ? <p className="text-center text-[11px] leading-relaxed text-muted">{t("games.goNetCredit")}</p> : null}
+      {brain === "net" || (phase === "setup" && canUseNet()) ? <p className="text-center text-xs leading-relaxed text-muted">{t("games.goNetCredit")}</p> : null}
     </div>
   );
 }

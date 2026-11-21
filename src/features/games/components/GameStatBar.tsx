@@ -25,7 +25,7 @@ export function GameStatBar({ stats, className, fill = false }: { stats: GameSta
             stat.highlight ? "border-primary/40" : "border-border",
           )}
         >
-          <p className="flex items-center justify-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
+          <p className="flex items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted">
             {stat.icon}
             {stat.label}
           </p>

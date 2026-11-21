@@ -31,6 +31,7 @@ import {
   type Size,
 } from "./logic";
 import { PICTURES } from "./pictures";
+import { chipClassName } from "@/components/ui/chip";
 
 const STORAGE_KEY = "shanverse:nonogram:v1";
 export const HINTS_PER_PUZZLE = 3;
@@ -166,10 +167,7 @@ export function Nonogram() {
             role="radio"
             aria-checked={saved.mode === mode}
             onClick={() => setMode(mode)}
-            className={cn(
-              "min-h-10 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary",
-              saved.mode === mode ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface text-foreground-secondary hover:border-primary/50",
-            )}
+            className={chipClassName(saved.mode === mode)}
           >
             {mode === "pictures" ? t("games.ngModePictures") : t("games.ngModeRandom")}
           </button>
@@ -197,10 +195,7 @@ export function Nonogram() {
                   commit({ ...saved, size });
                   setOpen({ kind: "random", size });
                 }}
-                className={cn(
-                  "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50",
-                  saved.size === size ? "border-primary bg-primary/10 text-primary" : "border-border bg-surface text-foreground-secondary hover:border-primary/50",
-                )}
+                className={chipClassName(saved.size === size, "disabled:cursor-not-allowed disabled:opacity-50")}
               >
                 {locked ? <Lock aria-hidden="true" className="size-3.5" /> : null}
                 {label} · {size}×{size}

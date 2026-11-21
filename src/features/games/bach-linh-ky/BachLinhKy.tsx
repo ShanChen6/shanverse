@@ -41,6 +41,7 @@ import {
 } from "./rules";
 import { DIFFICULTIES, loadCollection, loadGame, loadPrefs, saveCollection, saveGame, savePrefs, type MapChoice, type Prefs, type SavedGame } from "./storage";
 import { useBachLinhKyEngine } from "./use-engine";
+import { chipClassName } from "@/components/ui/chip";
 
 type Phase = "loading" | "setup" | "place" | "play";
 type Mode = "move" | "shoot" | "ability";
@@ -355,8 +356,9 @@ export function BachLinhKy() {
           </div>
           <div className="space-y-2">
             {LEVELS.map((level, i) => (
-              <div key={level} role="radiogroup" aria-label={t("games.blkLevel", { n: level })} className="flex items-center gap-2 overflow-x-auto pb-1">
-                <span className="w-14 shrink-0 text-xs font-semibold uppercase tracking-wider text-muted">{t("games.blkLevel", { n: level })}</span>
+              <div key={level} role="radiogroup" aria-label={t("games.blkLevel", { n: level })} className="grid grid-cols-5 gap-2 pb-1 sm:flex sm:items-center sm:overflow-x-auto">
+                {/* Phones: the level label on its own row, then the monsters wrap five to a row. */}
+                <span className="col-span-5 shrink-0 text-xs font-semibold uppercase tracking-wider text-muted sm:w-14">{t("games.blkLevel", { n: level })}</span>
                 {MONSTERS.filter((m) => m.level === level).sort((a, b) => Number(owned.includes(b.id)) - Number(owned.includes(a.id))).map((m) => {
                   const has = owned.includes(m.id);
                   const on = team[i] === m.id;
@@ -370,13 +372,13 @@ export function BachLinhKy() {
                       onClick={() => setTeam(team.map((id, j) => (j === i ? m.id : id)))}
                       title={has ? m.name[lang] : `${m.name[lang]} (${t("games.blkLevel", { n: level })})`}
                       className={cn(
-                        "flex w-[4.6rem] shrink-0 flex-col items-center gap-1 rounded-card border p-1.5 text-center transition-colors focus-visible:ring-2 focus-visible:ring-primary",
+                        "flex w-full min-w-0 shrink-0 flex-col items-center gap-1 rounded-card border p-1.5 sm:w-[4.6rem] text-center transition-colors focus-visible:ring-2 focus-visible:ring-primary",
                         on ? "border-primary bg-primary/10" : "border-border bg-surface hover:border-primary/50",
                         !has && "cursor-not-allowed opacity-45",
                       )}
                     >
-                      <Token monsterId={m.id} level={m.level} side={0} locked={!has} className="size-12" />
-                      <span className="line-clamp-2 text-[11px] leading-tight">{has ? m.name[lang] : "???"}</span>
+                      <Token monsterId={m.id} level={m.level} side={0} locked={!has} className="size-11 sm:size-12" />
+                      <span className={cn("line-clamp-2 text-xs leading-tight", !has && "hidden sm:block")}>{has ? m.name[lang] : "???"}</span>
                     </button>
                   );
                 })}
@@ -387,7 +389,7 @@ export function BachLinhKy() {
 
         <section aria-labelledby="blk-map" className="space-y-2">
           <h2 id="blk-map" className="text-lg font-bold">{t("games.blkMap")}</h2>
-          <div role="radiogroup" aria-labelledby="blk-map" className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
+          <div role="radiogroup" aria-labelledby="blk-map" className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
             {[...MAPS.map((m) => m.id), "random"].map((id) => {
               const on = prefs.map === id;
               const map = MAP_BY_ID.get(id);
@@ -422,7 +424,7 @@ export function BachLinhKy() {
 
         <section className="flex flex-wrap items-center justify-between gap-3">
           <div role="radiogroup" aria-label={t("games.blkDifficulty")} className="flex items-center gap-1 rounded-full border border-border bg-surface p-1">
-            <span className="px-2 text-[11px] font-semibold uppercase tracking-wider text-muted">{t("games.blkDifficulty")}</span>
+            <span className="px-2 text-xs font-semibold uppercase tracking-wider text-muted">{t("games.blkDifficulty")}</span>
             {DIFFICULTIES.map((d: Difficulty) => (
               <button
                 key={d}
@@ -490,7 +492,7 @@ export function BachLinhKy() {
                 )}
               >
                 <Token monsterId={id} level={monster(id).level} side={0} className="size-11" />
-                <span className="line-clamp-2 text-[11px] leading-tight">{monster(id).name[lang]}</span>
+                <span className="line-clamp-2 text-xs leading-tight">{monster(id).name[lang]}</span>
               </button>
             );
           })}
@@ -654,10 +656,7 @@ function ModeButton({ on, onClick, icon, children }: { on: boolean; onClick: () 
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      className={cn(
-        "inline-flex min-h-8 items-center gap-1.5 rounded-full border px-3 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary",
-        on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface text-foreground-secondary hover:border-primary/50",
-      )}
+      className={chipClassName(on)}
     >
       {icon}
       {children}

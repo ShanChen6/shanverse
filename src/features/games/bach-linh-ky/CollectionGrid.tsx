@@ -50,7 +50,7 @@ export function CollectionGrid({ collection }: { collection: CollectionData }) {
             <tbody>
               {LEVELS.map((level) => (
                 <tr key={level}>
-                  <th scope="row" className="text-left text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <th scope="row" className="text-left text-xs font-semibold uppercase tracking-wider text-muted">
                     {t("games.blkLevel", { n: level })}
                   </th>
                   {ELEMENTS.map((element) => (
