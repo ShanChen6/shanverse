@@ -4,7 +4,6 @@ import Image from "next/image";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { notFound } from "next/navigation";
 import {
-  ArrowLeft,
   CalendarDays,
   Code2,
   ExternalLink,
@@ -117,10 +116,6 @@ export default async function ProjectDetailPage({ params }: Props) {
               { label: project.title },
             ]}
           />
-          <Link href={ROUTES.PROJECTS} className="tap-area inline-flex items-center gap-2 rounded-control text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary">
-            <ArrowLeft aria-hidden="true" className="size-4" /> {t("projects.back")}
-          </Link>
-
           <div className="space-y-6">
             {project.featured ? (
               <Badge className="bg-primary/10 text-primary">
@@ -134,6 +129,16 @@ export default async function ProjectDetailPage({ params }: Props) {
               <p className="max-w-3xl text-pretty text-lg leading-8 text-foreground-secondary">
                 {project.description}
               </p>
+            ) : null}
+            {project.highlights.length ? (
+              <dl aria-label={t("projects.highlightsLabel")} className="flex flex-wrap gap-x-8 gap-y-3">
+                {project.highlights.map((highlight) => (
+                  <div key={highlight.label} className="flex flex-col-reverse">
+                    <dt className="text-sm text-foreground-secondary">{highlight.label}</dt>
+                    <dd className="text-2xl font-bold text-primary sm:text-3xl">{highlight.value}</dd>
+                  </div>
+                ))}
+              </dl>
             ) : null}
             {(liveUrl || githubUrl) && (
               <div id="project-actions" className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -173,20 +178,10 @@ export default async function ProjectDetailPage({ params }: Props) {
           </div>
         </header>
 
-        <figure className="relative mx-auto aspect-[16/8] max-w-reading overflow-hidden rounded-panel border border-border bg-surface">
+        <figure className="relative mx-auto aspect-[2/1] max-w-reading lg:aspect-[21/9] overflow-hidden rounded-panel border border-border bg-surface">
           <Image src={cover} alt={t("projects.coverAlt", { title: project.title })} fill priority unoptimized={!cover.startsWith("/")} sizes="(min-width: 1280px) 1152px, 100vw" className="object-cover" />
         </figure>
 
-        {project.highlights.length ? (
-          <dl aria-label={t("projects.highlightsLabel")} className="mx-auto grid max-w-reading grid-cols-2 gap-3 sm:grid-cols-4">
-            {project.highlights.map((highlight) => (
-              <div key={highlight.label} className="rounded-card border border-border bg-surface shadow-card p-4 text-center sm:p-5">
-                <dd className="text-2xl font-extrabold text-primary sm:text-3xl">{highlight.value}</dd>
-                <dt className="mt-1 text-xs text-foreground-secondary sm:text-sm">{highlight.label}</dt>
-              </div>
-            ))}
-          </dl>
-        ) : null}
 
         {toc.length >= 2 ? (
           <details className="mx-auto max-w-reading rounded-card border border-border bg-surface shadow-card p-5 lg:hidden">

@@ -189,17 +189,10 @@ export default async function BlogDetailPage({ params }: Props) {
                 { label: post.title },
               ]}
             />
-            <Link
-              href={ROUTES.BLOG}
-              className="tap-area inline-flex items-center gap-2 rounded-control text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              <ArrowLeft aria-hidden="true" className="size-4" />{" "}
-              {t("blog.back")}
-            </Link>
             {locale === "en" ? (
               <p
                 role="note"
-                className="rounded-card border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground-secondary"
+                className="rounded-card border border-border bg-surface px-4 py-3 text-sm text-foreground-secondary"
               >
                 This article is available in Vietnamese only.
               </p>
@@ -276,7 +269,7 @@ export default async function BlogDetailPage({ params }: Props) {
           </header>
 
           {cover ? (
-            <figure className="relative mx-auto aspect-16/8 max-w-reading overflow-hidden rounded-panel border border-border bg-surface">
+            <figure className="relative mx-auto aspect-[2/1] max-w-reading lg:aspect-[21/9] overflow-hidden rounded-panel border border-border bg-surface">
               <Image
                 src={cover}
                 alt={`Cover image for ${post.title}`}
@@ -330,7 +323,7 @@ export default async function BlogDetailPage({ params }: Props) {
             </div>
             <section
               aria-labelledby="author-heading"
-              className="flex flex-col gap-4 rounded-card border border-primary/20 bg-primary/5 p-6 sm:flex-row sm:items-center"
+              className="flex flex-col gap-4 rounded-card border border-border bg-surface-elevated p-6 shadow-card sm:flex-row sm:items-center"
             >
               {post.authorAvatar?.startsWith("http") ? (
                 <img
