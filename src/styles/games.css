@@ -449,6 +449,58 @@
   --go-line: #4a361d;
 }
 
+/* Cờ Việt Nam -------------------------------------------------------- */
+:root {
+  --cvn-red: #c2362b;
+  --cvn-blue: #1f4fa3;
+  --cvn-gold: #c98a12;
+  --cvn-token: #fbf8f1;
+}
+
+.dark {
+  --cvn-red: #ec6a5e;
+  --cvn-blue: #6d9bf0;
+  --cvn-gold: #f0b443;
+  --cvn-token: #1b2438;
+}
+
+.cvn-board {
+  --cvn-land: #ece0c3;
+  --cvn-coast: #d9cfa8;
+  --cvn-sea: #9fcbd6;
+  --cvn-river: #a9d3dd;
+  --cvn-bridge: #b8894f;
+  --cvn-line: #6b5636;
+  --cvn-move: #2f7d4f;
+  --cvn-target: #c2362b;
+  background: var(--cvn-land);
+}
+
+.dark .cvn-board {
+  --cvn-land: #2a3246;
+  --cvn-coast: #334059;
+  --cvn-sea: #1d4a5c;
+  --cvn-river: #22566a;
+  --cvn-bridge: #8a6a3f;
+  --cvn-line: #9aa6bd;
+  --cvn-move: #5fd08f;
+  --cvn-target: #ff7b70;
+}
+
+.cvn-token {
+  background: var(--cvn-token);
+}
+
+.cvn-token.cvn-red {
+  color: var(--cvn-red);
+  border-color: var(--cvn-red);
+}
+
+.cvn-token.cvn-blue {
+  color: var(--cvn-blue);
+  border-color: var(--cvn-blue);
+}
+
 /* Chain reaction (/games/red-cliffs): three themed boards ---------------- */
 .rc-board {
   --rc-cell: min(4rem, calc((100vw - 4rem) / 6));

@@ -102,6 +102,14 @@ export const GAMES: GameEntry[] = [
     featured: true,
   },
   {
+    slug: "co-viet-nam",
+    href: ROUTES.GAME_DETAIL("co-viet-nam"),
+    titleKey: "games.cvnTitle",
+    descriptionKey: "games.cvnDescription",
+    category: "strategy-board",
+    controlKeys: ["games.tagMouse", "games.tagKeyboard", "games.tagTouch"],
+  },
+  {
     slug: "snake",
     href: ROUTES.GAME_DETAIL("snake"),
     titleKey: "games.snakeTitle",
