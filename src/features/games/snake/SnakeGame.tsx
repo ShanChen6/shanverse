@@ -318,7 +318,7 @@ export function SnakeGame() {
           ref={canvasRef}
           role="img"
           aria-label={t("games.snakeBoardLabel", { score })}
-          className="block aspect-square w-full touch-none rounded-2xl"
+          className="block aspect-square w-full touch-none rounded-card"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={endPointer}
@@ -327,7 +327,7 @@ export function SnakeGame() {
         />
         {status !== "running" ? (
           <GameResultDialog
-            className="rounded-2xl bg-background/55"
+            className="rounded-card bg-background/55"
             title={status === "over" ? t("games.snakeOver") : status === "paused" ? t("games.snakePaused") : undefined}
             description={status === "over" ? t("games.overDescription", { score }) : status === "ready" ? t("games.snakeReady") : undefined}
             record={status === "over" && newRecord ? t("games.newRecord") : undefined}
@@ -373,7 +373,7 @@ function PadButton({ label, onPress, rotate }: { label: string; onPress: () => v
       onKeyDown={(event) => {
         if (event.key === "Enter") onPress();
       }}
-      className="flex aspect-square items-center justify-center rounded-xl border border-border bg-surface text-foreground-secondary shadow-sm active:bg-primary active:text-primary-foreground touch-manipulation focus-visible:ring-2 focus-visible:ring-primary"
+      className="flex aspect-square items-center justify-center rounded-card border border-border bg-surface text-foreground-secondary shadow-sm active:bg-primary active:text-primary-foreground touch-manipulation focus-visible:ring-2 focus-visible:ring-primary"
     >
       <svg viewBox="0 0 24 24" aria-hidden="true" className="size-6" style={{ transform: `rotate(${rotate}deg)` }}>
         <path d="M12 6l7 9H5z" fill="currentColor" />

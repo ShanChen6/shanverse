@@ -33,7 +33,7 @@ export async function HighlightedCodeBlock({ code, language, fileName, locale = 
   ).tokens);
 
   return (
-    <figure className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface-elevated shadow-sm">
+    <figure className="min-w-0 overflow-hidden rounded-card border border-border bg-surface-elevated shadow-sm">
       <figcaption className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-4 py-2.5">
         <div className="min-w-0 text-xs"><span className="font-semibold text-foreground">{fileName || "Code"}</span><span className="ml-2 uppercase text-muted">{language || safeLanguage}</span></div>
         <CopyCodeButton code={code} copyLabel={labels.copyCode} copiedLabel={labels.copied} />

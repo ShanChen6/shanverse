@@ -5,7 +5,7 @@ import { cn } from "@/lib/cn";
 
 export const inputVariants = cva(
   [
-    "flex w-full rounded-lg border bg-background px-3 py-2",
+    "flex w-full rounded-control border bg-background px-3 py-2",
     "text-sm text-foreground",
     "placeholder:text-muted",
     "transition-colors",

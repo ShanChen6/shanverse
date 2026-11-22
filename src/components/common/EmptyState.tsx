@@ -19,7 +19,7 @@ export function EmptyState({ icon, illustration, note, title, description, actio
     <section
       role="status"
       className={cn(
-        "rounded-2xl border border-dashed border-border bg-surface px-4 py-12 text-center sm:px-6 sm:py-16",
+        "rounded-card border border-dashed border-border bg-surface px-4 py-12 text-center sm:px-6 sm:py-16",
         className,
       )}
     >

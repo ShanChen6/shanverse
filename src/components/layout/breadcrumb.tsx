@@ -37,7 +37,7 @@ export function Breadcrumb({
               {item.href && !isLast ? (
                 <Link
                   href={item.href}
-                  className="hover:text-foreground transition-colors"
+                  className="tap-area transition-colors hover:text-foreground"
                 >
                   {item.label}
                 </Link>

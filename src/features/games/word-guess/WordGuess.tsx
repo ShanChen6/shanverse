@@ -23,6 +23,7 @@ import {
   type WordEntry,
 } from "./logic";
 import type { TopicLabels } from "./notion-words";
+import { chipClassName } from "@/components/ui/chip";
 
 const STORAGE_KEY = "shanverse:word-guess:progress";
 
@@ -197,7 +198,7 @@ export function WordGuess({ words, topics }: { words: WordEntry[]; topics: Topic
   const topicName = (id: string) => topics[id]?.[lang] ?? id;
 
   if (!saved) {
-    return <div aria-busy="true" className="mx-auto h-[28rem] max-w-2xl animate-pulse rounded-2xl border border-border bg-surface" />;
+    return <div aria-busy="true" className="mx-auto h-[28rem] max-w-2xl animate-pulse rounded-card border border-border bg-surface" />;
   }
 
   const pool = poolIds(lib.words, saved.topic);
@@ -215,10 +216,7 @@ export function WordGuess({ words, topics }: { words: WordEntry[]; topics: Topic
               type="button"
               aria-pressed={active}
               onClick={() => onTopic(topic)}
-              className={cn(
-                "min-h-10 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary",
-                active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface text-foreground-secondary hover:border-primary/50",
-              )}
+              className={chipClassName(active)}
             >
               {topic === null ? t("games.wgAll") : topicName(topic)}
             </button>
@@ -238,7 +236,7 @@ export function WordGuess({ words, topics }: { words: WordEntry[]; topics: Topic
       {lang === "en" ? <p className="text-center text-xs text-muted">{t("games.wgContentNote")}</p> : null}
 
       {round && word ? (
-        <section aria-labelledby="wg-question" className="space-y-4 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
+        <section aria-labelledby="wg-question" className="space-y-4 rounded-card border border-border bg-surface p-4 shadow-sm sm:p-6">
           <div className="flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-widest">
             <span className="text-primary">{t("games.wgQuestion")}</span>
             {saved.topic === null ? <span className="rounded-full bg-primary/10 px-2.5 py-1 text-primary">{topicName(word.topic)}</span> : null}
@@ -254,7 +252,7 @@ export function WordGuess({ words, topics }: { words: WordEntry[]; topics: Topic
                 <li
                   key={i}
                   className={cn(
-                    "flex gap-3 rounded-xl border px-3 py-2.5 text-sm transition-colors",
+                    "flex gap-3 rounded-card border px-3 py-2.5 text-sm transition-colors",
                     open ? "border-[#D9AF62]/50 bg-[#D9AF62]/10" : "border-dashed border-border text-muted",
                   )}
                 >
@@ -349,7 +347,7 @@ export function WordGuess({ words, topics }: { words: WordEntry[]; topics: Topic
           )}
         </section>
       ) : (
-        <p className="rounded-2xl border border-border bg-surface p-6 text-center text-foreground-secondary">{t("games.wgEmpty")}</p>
+        <p className="rounded-card border border-border bg-surface p-6 text-center text-foreground-secondary">{t("games.wgEmpty")}</p>
       )}
     </div>
   );

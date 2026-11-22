@@ -15,6 +15,7 @@ import { CELLS, SIZE, TORCHES, fire, isCleared, shipsLeft, type Frame } from "./
 import { AmmoIcon, Burst, Piece, Projectile, preloadThemeArt } from "./pieces";
 import { DEFAULT_THEME, PREFS_KEY, THEMES, THEME_EVENT, THEME_IDS, fill, isThemeId, stateText, type ThemeId } from "./themes";
 import { useRedCliffsEngine } from "./use-engine";
+import { chipClassName } from "@/components/ui/chip";
 
 const STORAGE_KEY = "shanverse:red-cliffs:progress";
 
@@ -288,17 +289,14 @@ export function RedCliffs() {
             role="radio"
             aria-checked={prefs.theme === id}
             onClick={() => updatePrefs({ theme: id })}
-            className={cn(
-              "min-h-9 rounded-full border px-3.5 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary",
-              prefs.theme === id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface text-foreground-secondary hover:border-primary/50",
-            )}
+            className={chipClassName(prefs.theme === id)}
           >
             {THEMES[id].chip[lang]}
           </button>
         ))}
       </div>
       <div role="radiogroup" aria-label={t("games.rcSpeed")} className="flex items-center gap-1 rounded-full border border-border bg-surface p-1">
-        <span className="px-2 text-[11px] font-semibold uppercase tracking-wider text-muted">{t("games.rcSpeed")}</span>
+        <span className="px-2 text-xs font-semibold uppercase tracking-wider text-muted">{t("games.rcSpeed")}</span>
         {SPEED_IDS.map((id) => (
           <button
             key={id}
@@ -332,7 +330,7 @@ export function RedCliffs() {
 
   if (!game) {
     return (
-      <div className="mx-auto max-w-md space-y-3 rounded-2xl border border-border bg-surface p-6 text-center">
+      <div className="mx-auto max-w-md space-y-3 rounded-card border border-border bg-surface p-6 text-center">
         <p className="text-foreground-secondary">{error ? t("games.rcError") : fill(theme.dealing, lang)}</p>
         <Button type="button" onClick={onNew} disabled={busy !== null}>
           {t("games.rcNew")}
@@ -363,8 +361,8 @@ export function RedCliffs() {
       </div>
 
       <div className="flex flex-wrap items-stretch justify-center gap-2 sm:gap-3">
-        <div className="flex min-w-[9rem] items-center gap-2 rounded-xl border border-primary/40 bg-surface px-3 py-1.5">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">{theme.ammo[lang]}</span>
+        <div className="flex min-w-[9rem] items-center gap-2 rounded-card border border-primary/40 bg-surface px-3 py-1.5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted">{theme.ammo[lang]}</span>
           <span aria-label={fill(theme.ammoLeft, lang, { n: torchesLeft })} className="flex gap-0.5">
             {Array.from({ length: TORCHES }, (_, i) => (
               <AmmoIcon key={i} theme={prefs.theme} lit={i < torchesLeft} />

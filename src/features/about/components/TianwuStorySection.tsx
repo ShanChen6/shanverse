@@ -48,7 +48,7 @@ export async function TianwuStorySection() {
                   href={sticker.href}
                   download
                   aria-label={t("mascot.stickerDownload", { name })}
-                  className="group flex h-full flex-col items-center gap-3 rounded-2xl border border-border bg-surface shadow-card p-4 text-sm font-medium transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary"
+                  className="group flex h-full flex-col items-center gap-3 rounded-card border border-border bg-surface shadow-card p-4 text-sm font-medium transition-colors hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <img src={sticker.href} alt="" loading="lazy" className="h-24 w-full object-contain" />
                   <span className="inline-flex items-center gap-1.5 text-foreground-secondary group-hover:text-primary">

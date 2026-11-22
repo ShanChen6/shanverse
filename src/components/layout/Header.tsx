@@ -13,7 +13,8 @@ export function Header() {
       <MobileTopBar>
         <div className="mx-auto flex h-14 items-center justify-between gap-3 px-4">
           <BrandLogo priority />
-          <div className="flex items-center gap-1"><SearchDialog /><Suspense fallback={null}><LanguageSwitcher compact /></Suspense><ThemeToggle /></div>
+          {/* The language switch sits in the footer on phones. */}
+          <div className="flex items-center gap-1"><SearchDialog /><ThemeToggle /></div>
         </div>
       </MobileTopBar>
 

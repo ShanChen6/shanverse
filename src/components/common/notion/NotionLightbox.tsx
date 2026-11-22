@@ -202,7 +202,7 @@ export function NotionLightbox({ children, className, labels }: { children: Reac
                     alt={current.alt}
                     draggable={false}
                     onClick={() => setZoomed(false)}
-                    className="m-auto max-w-none cursor-zoom-out select-none rounded-lg"
+                    className="m-auto max-w-none cursor-zoom-out select-none rounded-control"
                   />
                 ) : null}
                 {current && !zoomed ? (
@@ -231,7 +231,7 @@ export function NotionLightbox({ children, className, labels }: { children: Reac
                           aria-hidden={role === "current" ? undefined : true}
                           draggable={false}
                           onClick={role === "current" ? () => setZoomed(true) : undefined}
-                          className={cn("max-h-full max-w-full select-none rounded-lg object-contain", role === "current" && "cursor-zoom-in")}
+                          className={cn("max-h-full max-w-full select-none rounded-control object-contain", role === "current" && "cursor-zoom-in")}
                         />
                       </div>
                     ))}

@@ -16,11 +16,11 @@ export const drawerContentVariants = cva(
     variants: {
       direction: {
         bottom:
-          "inset-x-0 bottom-0 rounded-t-2xl border-t data-[state=closed]:translate-y-6",
-        top: "inset-x-0 top-0 rounded-b-2xl border-b data-[state=closed]:-translate-y-6",
-        left: "inset-y-0 left-0 h-full w-[min(95vw,24rem)] rounded-r-2xl border-r data-[state=closed]:-translate-x-6",
+          "inset-x-0 bottom-0 rounded-t-card border-t data-[state=closed]:translate-y-6",
+        top: "inset-x-0 top-0 rounded-b-card border-b data-[state=closed]:-translate-y-6",
+        left: "inset-y-0 left-0 h-full w-[min(95vw,24rem)] rounded-r-card border-r data-[state=closed]:-translate-x-6",
         right:
-          "inset-y-0 right-0 h-full w-[min(95vw,24rem)] rounded-l-2xl border-l data-[state=closed]:translate-x-6",
+          "inset-y-0 right-0 h-full w-[min(95vw,24rem)] rounded-l-card border-l data-[state=closed]:translate-x-6",
       },
     },
     defaultVariants: {

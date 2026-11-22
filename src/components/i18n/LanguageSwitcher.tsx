@@ -21,7 +21,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   }
 
   return (
-    <div role="group" aria-label={t("navigation.language")} className="flex items-center rounded-lg border border-border bg-surface p-0.5">
+    <div role="group" aria-label={t("navigation.language")} className="flex items-center rounded-control border border-border bg-surface p-0.5">
       {locales.map((nextLocale) => {
         const unavailable = !isEnabledLocale(nextLocale);
         return (
@@ -35,7 +35,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
           disabled={isPending || unavailable}
           onClick={() => switchLocale(nextLocale)}
           className={cn(
-            "flex min-h-9 min-w-10 items-center justify-center rounded-md px-2 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-wait disabled:opacity-70",
+            "flex min-h-9 min-w-10 items-center justify-center rounded-control px-2 text-xs font-semibold focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-wait disabled:opacity-70",
             locale === nextLocale
               ? "bg-primary text-primary-foreground"
               : "text-foreground-secondary hover:bg-background hover:text-foreground",

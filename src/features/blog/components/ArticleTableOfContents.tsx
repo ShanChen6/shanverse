@@ -155,7 +155,7 @@ export function ArticleTableOfContents({
     <>
       <details
         ref={mobileDetailsRef}
-        className="group order-first min-w-0 rounded-2xl border border-border bg-surface lg:hidden"
+        className="group order-first min-w-0 rounded-card border border-border bg-surface lg:hidden"
       >
         <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 py-3 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary [&::-webkit-details-marker]:hidden">
           <ListTree aria-hidden="true" className="size-4 text-primary" />
@@ -179,7 +179,7 @@ export function ArticleTableOfContents({
         </nav>
       </details>
 
-      <aside className="sticky top-24 hidden min-w-0 self-start overflow-hidden rounded-2xl border border-border bg-surface/95 shadow-sm backdrop-blur lg:block">
+      <aside className="sticky top-24 hidden min-w-0 self-start overflow-hidden rounded-card border border-border bg-surface/95 shadow-sm backdrop-blur lg:block">
         <header className="flex items-center gap-2 border-b border-border px-4 py-3">
           <ListTree aria-hidden="true" className="size-4 text-primary" />
           <p className="text-sm font-semibold">{label}</p>

@@ -66,7 +66,7 @@ export function SharePost({ title, description, canonicalUrl }: SharePostProps) 
   }, [canonicalUrl, description, showFeedback, title]);
 
   const controlClassName =
-    "inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary";
+    "inline-flex min-h-10 items-center justify-center gap-2 rounded-control border border-border bg-surface px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary";
 
   return (
     <div className="space-y-2">

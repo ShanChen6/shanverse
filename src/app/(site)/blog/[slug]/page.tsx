@@ -181,7 +181,7 @@ export default async function BlogDetailPage({ params }: Props) {
               },
             ]}
           />
-          <header className="mx-auto max-w-[67.5rem] space-y-6">
+          <header className="mx-auto max-w-reading space-y-6">
             <Breadcrumb
               items={[
                 { label: t("common.home"), href: ROUTES.HOME },
@@ -189,17 +189,10 @@ export default async function BlogDetailPage({ params }: Props) {
                 { label: post.title },
               ]}
             />
-            <Link
-              href={ROUTES.BLOG}
-              className="inline-flex items-center gap-2 rounded-md text-sm font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              <ArrowLeft aria-hidden="true" className="size-4" />{" "}
-              {t("blog.back")}
-            </Link>
             {locale === "en" ? (
               <p
                 role="note"
-                className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground-secondary"
+                className="rounded-card border border-border bg-surface px-4 py-3 text-sm text-foreground-secondary"
               >
                 This article is available in Vietnamese only.
               </p>
@@ -276,7 +269,7 @@ export default async function BlogDetailPage({ params }: Props) {
           </header>
 
           {cover ? (
-            <figure className="relative mx-auto aspect-16/8 max-w-[67.5rem] overflow-hidden rounded-3xl border border-border bg-surface">
+            <figure className="relative mx-auto aspect-[2/1] max-w-reading lg:aspect-[21/9] overflow-hidden rounded-panel border border-border bg-surface">
               <Image
                 src={cover}
                 alt={`Cover image for ${post.title}`}
@@ -288,7 +281,7 @@ export default async function BlogDetailPage({ params }: Props) {
               />
             </figure>
           ) : null}
-          <div className="mx-auto grid max-w-[67.5rem] items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
+          <div className="mx-auto grid max-w-reading items-start gap-10 lg:grid-cols-[minmax(0,800px)_240px]">
             <BlogViewContent>
               {blocks.length ? (
                 <NotionRenderer
@@ -298,7 +291,7 @@ export default async function BlogDetailPage({ params }: Props) {
                   locale={locale === "en" ? "en" : "vi"}
                 />
               ) : (
-                <p className="rounded-2xl border border-border bg-surface shadow-card p-6 text-foreground-secondary">
+                <p className="rounded-card border border-border bg-surface shadow-card p-6 text-foreground-secondary">
                   This article does not have any content yet.
                 </p>
               )}
@@ -312,7 +305,7 @@ export default async function BlogDetailPage({ params }: Props) {
             ) : null}
           </div>
 
-          <footer className="mx-auto max-w-[67.5rem] space-y-10 border-t border-border pt-10">
+          <footer className="mx-auto max-w-reading space-y-10 border-t border-border pt-10">
             <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
               <SharePost
                 title={post.title}
@@ -322,7 +315,7 @@ export default async function BlogDetailPage({ params }: Props) {
               />
               <Link
                 href={ROUTES.BLOG}
-                className="inline-flex items-center gap-2 rounded-md font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
+                className="tap-area inline-flex items-center gap-2 rounded-control font-medium text-primary hover:underline focus-visible:ring-2 focus-visible:ring-primary"
               >
                 <ArrowLeft aria-hidden="true" className="size-4" />
                 {t("blog.back")}
@@ -330,7 +323,7 @@ export default async function BlogDetailPage({ params }: Props) {
             </div>
             <section
               aria-labelledby="author-heading"
-              className="flex flex-col gap-4 rounded-2xl border border-primary/20 bg-primary/5 p-6 sm:flex-row sm:items-center"
+              className="flex flex-col gap-4 rounded-card border border-border bg-surface-elevated p-6 shadow-card sm:flex-row sm:items-center"
             >
               {post.authorAvatar?.startsWith("http") ? (
                 <img

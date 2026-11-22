@@ -119,7 +119,7 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
         {data.hasError ? (
           <section
             role="status"
-            className="rounded-2xl border border-border bg-surface shadow-card px-6 py-16 text-center"
+            className="rounded-card border border-border bg-surface shadow-card px-6 py-16 text-center"
           >
             <BookOpen
               aria-hidden="true"
@@ -202,7 +202,7 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
                         {t("blog.latest")}
                       </h2>
                     </div>
-                    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                    <div className="grid grid-fill-last-xl gap-6 sm:grid-cols-2 xl:grid-cols-3">
                       {latestPosts.map((post) => (
                         <PostCard key={post.id} post={post} />
                       ))}
@@ -223,7 +223,7 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
 
               <aside
                 aria-labelledby="tags-heading"
-                className="min-w-0 rounded-2xl border border-border bg-surface shadow-card p-5 lg:sticky lg:top-24"
+                className="order-first min-w-0 rounded-card border border-border bg-surface p-5 shadow-card lg:sticky lg:top-24 lg:order-none"
               >
                 <h2
                   id="tags-heading"
@@ -232,13 +232,13 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
                   <Tags aria-hidden="true" className="size-4 text-primary" />{" "}
                   {t("blog.exploreTags")}
                 </h2>
-                <p className="mb-5 mt-2 text-sm leading-relaxed text-foreground-secondary">
+                <p className="mt-2 hidden text-sm leading-relaxed text-foreground-secondary lg:mb-5 lg:block">
                   {t("blog.exploreTagsDescription")}
                 </p>
                 {tags.length > 0 ? (
                   <nav
                     aria-label={t("blog.filterByTag")}
-                    className="flex max-h-96 flex-wrap gap-2 overflow-y-auto p-1 -m-1"
+                    className="-m-1 mt-3 flex max-h-96 flex-wrap gap-2 overflow-y-auto p-1 lg:mt-0"
                   >
                     {tags.map((tag) => {
                       const active =
@@ -261,7 +261,7 @@ async function BlogDataSection({ query, t }: { query: ReturnType<typeof parseBlo
                         <span className="break-words [overflow-wrap:anywhere]">
                           #{tag.name}
                         </span>
-                        <span className="text-[10px] opacity-70">{tag.count}</span>
+                        <span className="text-xs opacity-70">{tag.count}</span>
                       </Link>
                     )})}
                   </nav>

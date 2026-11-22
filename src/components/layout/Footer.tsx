@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 
 import { SocialIcon } from "@/components/common/icons/SocialIcon";
@@ -8,11 +9,12 @@ import { SITE_CONFIG } from "@/config/site.config";
 import { NAVIGATION_ITEMS } from "@/constants/navigation";
 import { ROUTES } from "@/constants/routes";
 import { BrandLogo } from "./BrandLogo";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { useI18n } from "@/i18n/client";
 import { useRuntimeConfig } from "@/providers/RuntimeConfigProvider";
 
 const footerLinkClass =
-  "rounded-sm text-sm text-foreground-secondary hover:text-primary focus-visible:ring-2 focus-visible:ring-primary";
+  "tap-area rounded-sm text-sm text-foreground-secondary hover:text-primary focus-visible:ring-2 focus-visible:ring-primary";
 
 export function Footer() {
   const { t } = useI18n();
@@ -55,7 +57,7 @@ export function Footer() {
             </h2>
             <p className="text-sm leading-relaxed text-foreground-secondary">
               {t("footer.contactLine")}{" "}
-              <Link href={ROUTES.CONTACT} className="font-medium text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-primary">
+              <Link href={ROUTES.CONTACT} className="tap-area font-medium text-primary underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-primary">
                 {t("common.contact")}
               </Link>
             </p>
@@ -70,7 +72,7 @@ export function Footer() {
                       target={external ? "_blank" : undefined}
                       rel={external ? "noopener noreferrer" : undefined}
                       aria-label={label}
-                      className="inline-flex size-10 items-center justify-center rounded-control border border-border bg-background text-foreground-secondary hover:border-primary/40 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
+                      className="inline-flex size-11 items-center justify-center rounded-control border border-border bg-background text-foreground-secondary hover:border-primary/40 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary"
                     >
                       <SocialIcon label={label} className="size-4" />
                     </a>
@@ -86,6 +88,10 @@ export function Footer() {
             © {currentYear} {SITE_CONFIG.name}. {t("footer.rights")}
           </p>
           <p>{t("footer.builtWith")}</p>
+          {/* Phones only: the header has no room for the language switch. */}
+          <div className="self-start md:hidden">
+            <Suspense fallback={null}><LanguageSwitcher /></Suspense>
+          </div>
         </div>
       </div>
     </footer>

@@ -10,7 +10,7 @@ export function Legend() {
   const { t, locale } = useI18n();
   const lang = locale === "en" ? "en" : "vi";
   return (
-    <div className="mt-4 grid gap-4 text-sm sm:grid-cols-3">
+    <div className="mt-4 grid gap-4 text-sm @2xl:grid-cols-3">
       <section className="space-y-1.5">
         <h3 className="font-semibold">{t("games.blkLegendElements")}</h3>
         <p className="flex flex-wrap gap-x-3 gap-y-1">
@@ -63,8 +63,8 @@ export function Legend() {
             const names = `${monster(a).name[lang]} · ${monster(b).name[lang]}`;
             return src ? (
               <li key={`${a}-${b}`} className="space-y-1">
-                <img src={src} alt={names} width={960} height={540} className="aspect-video w-full rounded-lg object-cover" loading="lazy" decoding="async" />
-                <p className="text-[11px] leading-tight text-muted">{names}</p>
+                <img src={src} alt={names} width={960} height={540} className="aspect-video w-full rounded-control object-cover" loading="lazy" decoding="async" />
+                <p className="text-xs leading-tight text-muted">{names}</p>
               </li>
             ) : null;
           })}

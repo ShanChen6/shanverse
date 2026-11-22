@@ -36,7 +36,7 @@ const DialogContent = React.forwardRef<
     className={cn(
       "fixed left-1/2 top-1/2 z-50 w-[min(92vw,32rem)]",
       "-translate-x-1/2 -translate-y-1/2",
-      "rounded-xl border border-border bg-surface-elevated p-6 shadow-xl",
+      "rounded-card border border-border bg-surface-elevated p-6 shadow-xl",
       "data-[state=open]:opacity-100 data-[state=closed]:opacity-0",
       "data-[state=open]:scale-100 data-[state=closed]:scale-95",
       "transition duration-200",

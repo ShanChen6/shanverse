@@ -5,6 +5,7 @@ import { CheckCircle2, LoaderCircle, Send } from "lucide-react";
 
 import { Tianwu } from "@/components/mascot/Tianwu";
 import { Button } from "@/components/ui/button";
+import { chipClassName } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useI18n } from "@/i18n/client";
@@ -110,10 +111,10 @@ export function ContactForm() {
       aria-busy={pending}
       className="space-y-5"
     >
-      <div ref={statusRef} tabIndex={-1} className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-live="polite">
+      <div ref={statusRef} tabIndex={-1} className="rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-live="polite">
         {showSuccess ? (
           <div className="flex flex-col items-center gap-4 rounded-card border border-success/30 bg-success/10 p-6 text-center sm:p-8">
-            <div className="tw-sky w-32 rounded-3xl p-4"><Tianwu pose="wave" className="tw-sway h-auto w-full" title={t("mascot.artWaving")} /></div>
+            <div className="tw-sky w-32 rounded-panel p-4"><Tianwu pose="wave" className="tw-sway h-auto w-full" title={t("mascot.artWaving")} /></div>
             <div role="status" className="space-y-2">
               <p className="flex items-center justify-center gap-2 text-xl font-semibold"><CheckCircle2 aria-hidden="true" className="size-5 text-success" /> {t("contact.successTitle")}</p>
               <p className="text-sm leading-6 text-foreground-secondary">{t("contact.status.success")}</p>
@@ -146,7 +147,7 @@ export function ContactForm() {
           {CONTACT_TYPES.map((value) => (
             <label key={value} className="relative">
               <input type="radio" name="contactType" value={value} required disabled={pending} aria-invalid={Boolean(fieldErrors?.contactType)} className="peer sr-only" />
-              <span className={cn("inline-flex min-h-11 cursor-pointer items-center rounded-control border bg-background px-4 text-sm font-medium transition-colors hover:border-primary/50 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-disabled:opacity-60", fieldErrors?.contactType ? "border-danger" : "border-border")}>{t(`contact.types.${value}`)}</span>
+              <span className={chipClassName(false, cn("cursor-pointer peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-disabled:opacity-60", fieldErrors?.contactType && "border-danger"))}>{t(`contact.types.${value}`)}</span>
             </label>
           ))}
         </div>

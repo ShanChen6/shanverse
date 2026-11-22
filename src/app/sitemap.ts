@@ -6,7 +6,7 @@ import { buildAbsoluteUrl, buildBlogPostCanonicalUrl, localePath } from "@/confi
 import { defaultLocale, enabledLocales } from "@/i18n/config";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticPaths = ["", "/projects", "/games", "/games/2048", "/games/minesweeper", "/games/typing", "/games/memory", "/games/snake", "/games/sokoban", "/games/go", "/games/word-guess", "/games/red-cliffs", "/games/nonogram", "/games/bach-linh-ky", "/games/co-lau", "/games/hanoi", "/about", "/contact"];
+  const staticPaths = ["", "/projects", "/games", "/games/2048", "/games/minesweeper", "/games/typing", "/games/memory", "/games/snake", "/games/sokoban", "/games/go", "/games/word-guess", "/games/red-cliffs", "/games/nonogram", "/games/bach-linh-ky", "/games/co-lau", "/games/co-viet-nam", "/games/hanoi", "/about", "/contact"];
   const entries: MetadataRoute.Sitemap = staticPaths.flatMap((path) =>
     enabledLocales.map((locale) => ({
       url: buildAbsoluteUrl(`/${locale}${path}`),

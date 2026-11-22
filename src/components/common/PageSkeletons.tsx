@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 function CardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-surface">
+    <div className="overflow-hidden rounded-card border border-border bg-surface">
       <Skeleton className="aspect-video w-full rounded-none" />
       <div className="space-y-4 p-5 sm:p-6">
         <div className="flex gap-2"><Skeleton className="h-6 w-20 rounded-full" /><Skeleton className="h-6 w-16 rounded-full" /></div>
@@ -23,10 +23,10 @@ export function ListPageSkeleton({ label }: { label: string }) {
       <TianwuLoader className="mx-auto max-w-xl" />
       <div aria-hidden="true" className="space-y-10">
         <Skeleton className="h-5 w-52 max-w-full" />
-        <div className="space-y-5 rounded-3xl border border-border p-6 sm:p-10"><Skeleton className="h-7 w-44 rounded-full" /><Skeleton className="h-12 w-4/5" /><Skeleton className="h-5 w-full max-w-2xl" /></div>
+        <div className="space-y-5 rounded-panel border border-border p-6 sm:p-10"><Skeleton className="h-7 w-44 rounded-full" /><Skeleton className="h-12 w-4/5" /><Skeleton className="h-5 w-full max-w-2xl" /></div>
         <Skeleton className="h-12 w-full" />
         <div className="flex gap-2 overflow-hidden"><Skeleton className="h-10 w-20 shrink-0 rounded-full" /><Skeleton className="h-10 w-28 shrink-0 rounded-full" /><Skeleton className="h-10 w-24 shrink-0 rounded-full" /></div>
-        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]"><div className="grid min-w-0 gap-6 sm:grid-cols-2"><CardSkeleton /><CardSkeleton /><CardSkeleton /><CardSkeleton /></div><Skeleton className="hidden h-72 rounded-2xl lg:block" /></div>
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]"><div className="grid min-w-0 gap-6 sm:grid-cols-2"><CardSkeleton /><CardSkeleton /><CardSkeleton /><CardSkeleton /></div><Skeleton className="hidden h-72 rounded-card lg:block" /></div>
       </div>
     </div>
   );
@@ -39,8 +39,8 @@ export function DetailPageSkeleton({ label }: { label: string }) {
       <TianwuLoader className="mx-auto max-w-xl" />
       <div aria-hidden="true" className="space-y-10">
         <header className="mx-auto max-w-5xl space-y-5"><Skeleton className="h-5 w-64 max-w-full" /><Skeleton className="h-8 w-28 rounded-full" /><Skeleton className="h-14 w-4/5" /><Skeleton className="h-6 w-full max-w-3xl" /><Skeleton className="h-12 w-full" /></header>
-        <Skeleton className="mx-auto aspect-video w-full max-w-page rounded-3xl" />
-        <div className="mx-auto grid max-w-page gap-10 lg:grid-cols-[minmax(0,800px)_260px]"><div className="min-w-0 space-y-5"><Skeleton className="h-8 w-2/3" /><Skeleton className="h-28 w-full" /><Skeleton className="h-8 w-1/2" /><Skeleton className="h-40 w-full" /></div><Skeleton className="hidden h-72 rounded-2xl lg:block" /></div>
+        <Skeleton className="mx-auto aspect-video w-full max-w-page rounded-panel" />
+        <div className="mx-auto grid max-w-page gap-10 lg:grid-cols-[minmax(0,800px)_260px]"><div className="min-w-0 space-y-5"><Skeleton className="h-8 w-2/3" /><Skeleton className="h-28 w-full" /><Skeleton className="h-8 w-1/2" /><Skeleton className="h-40 w-full" /></div><Skeleton className="hidden h-72 rounded-card lg:block" /></div>
       </div>
     </div>
   );
@@ -63,10 +63,10 @@ export function HomeContentSkeleton({ label }: { label: string }) {
 
 export function BlogDataSkeleton({ label }: { label: string }) {
   return <section role="status" aria-busy="true" className="space-y-8"><span className="sr-only">{label}</span>
-      <TianwuLoader className="mx-auto max-w-xl" /><div aria-hidden="true" className="space-y-8"><Skeleton className="h-12 w-full" /><div className="flex gap-2 overflow-hidden"><Skeleton className="h-10 w-20 shrink-0 rounded-full" /><Skeleton className="h-10 w-28 shrink-0 rounded-full" /><Skeleton className="h-10 w-24 shrink-0 rounded-full" /></div><Skeleton className="h-5 w-48" /><div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]"><div className="grid gap-6 sm:grid-cols-2"><CardSkeleton /><CardSkeleton /><CardSkeleton /><CardSkeleton /></div><Skeleton className="hidden h-72 rounded-2xl lg:block" /></div></div></section>;
+      <TianwuLoader className="mx-auto max-w-xl" /><div aria-hidden="true" className="space-y-8"><Skeleton className="h-12 w-full" /><div className="flex gap-2 overflow-hidden"><Skeleton className="h-10 w-20 shrink-0 rounded-full" /><Skeleton className="h-10 w-28 shrink-0 rounded-full" /><Skeleton className="h-10 w-24 shrink-0 rounded-full" /></div><Skeleton className="h-5 w-48" /><div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]"><div className="grid gap-6 sm:grid-cols-2"><CardSkeleton /><CardSkeleton /><CardSkeleton /><CardSkeleton /></div><Skeleton className="hidden h-72 rounded-card lg:block" /></div></div></section>;
 }
 
 export function ProjectsDataSkeleton({ label }: { label: string }) {
   return <section role="status" aria-busy="true" className="space-y-8"><span className="sr-only">{label}</span>
-      <TianwuLoader className="mx-auto max-w-xl" /><div aria-hidden="true" className="space-y-8"><div className="grid gap-3 sm:grid-cols-3"><Skeleton className="h-24 rounded-2xl" /><Skeleton className="h-24 rounded-2xl" /><Skeleton className="h-24 rounded-2xl" /></div><Skeleton className="h-12 w-full" /><div className="flex gap-2 overflow-hidden"><Skeleton className="h-10 w-20 shrink-0 rounded-full" /><Skeleton className="h-10 w-28 shrink-0 rounded-full" /><Skeleton className="h-10 w-24 shrink-0 rounded-full" /></div><div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]"><div className="grid gap-6 sm:grid-cols-2"><CardSkeleton /><CardSkeleton /><CardSkeleton /><CardSkeleton /></div><Skeleton className="hidden h-72 rounded-2xl lg:block" /></div></div></section>;
+      <TianwuLoader className="mx-auto max-w-xl" /><div aria-hidden="true" className="space-y-8"><div className="grid gap-3 sm:grid-cols-3"><Skeleton className="h-24 rounded-card" /><Skeleton className="h-24 rounded-card" /><Skeleton className="h-24 rounded-card" /></div><Skeleton className="h-12 w-full" /><div className="flex gap-2 overflow-hidden"><Skeleton className="h-10 w-20 shrink-0 rounded-full" /><Skeleton className="h-10 w-28 shrink-0 rounded-full" /><Skeleton className="h-10 w-24 shrink-0 rounded-full" /></div><div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]"><div className="grid gap-6 sm:grid-cols-2"><CardSkeleton /><CardSkeleton /><CardSkeleton /><CardSkeleton /></div><Skeleton className="hidden h-72 rounded-card lg:block" /></div></div></section>;
 }

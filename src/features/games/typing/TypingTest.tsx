@@ -171,7 +171,7 @@ export function TypingTest() {
         <p className="mb-2 text-center text-xs font-medium uppercase tracking-widest text-muted">{passage.label}</p>
         <div
           className={cn(
-            "relative max-h-80 overflow-auto rounded-2xl border bg-surface p-5 transition-colors sm:p-6",
+            "relative max-h-80 overflow-auto rounded-card border bg-surface p-5 transition-colors sm:p-6",
             focused ? "border-primary/60 shadow-[0_0_0_3px] shadow-primary/15" : "border-border",
           )}
           onClick={() => inputRef.current?.focus()}
@@ -236,7 +236,7 @@ export function TypingTest() {
             className="absolute inset-0 h-full w-full resize-none cursor-text bg-transparent text-base text-transparent caret-transparent opacity-0 outline-none"
           />
           {!focused && !finished ? (
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl bg-background/60 backdrop-blur-[1px]">
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-card bg-background/60 backdrop-blur-[1px]">
               <span className="rounded-full border border-border bg-surface px-4 py-2 text-sm font-semibold shadow-sm">
                 {t(progress.value ? "games.typingResume" : "games.typingStart")}
               </span>

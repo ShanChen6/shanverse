@@ -24,7 +24,7 @@ export function Image({
 }: ImageProps) {
   return (
     <figure className={cn("space-y-2", className)}>
-      <div className="overflow-hidden rounded-xl border border-border bg-surface">
+      <div className="overflow-hidden rounded-card border border-border bg-surface">
         <NextImage
           src={src}
           alt={alt}

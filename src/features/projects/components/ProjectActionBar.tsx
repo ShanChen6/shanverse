@@ -30,7 +30,7 @@ export function ProjectActionBar({ targetId, liveUrl, githubUrl, liveLabel, sour
     return () => observer.disconnect();
   }, [targetId]);
 
-  const link = "inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold focus-visible:ring-2 focus-visible:ring-primary";
+  const link = "inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-control px-4 text-sm font-semibold focus-visible:ring-2 focus-visible:ring-primary";
   return (
     <div
       role="group"

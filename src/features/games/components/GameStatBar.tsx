@@ -20,12 +20,12 @@ export function GameStatBar({ stats, className, fill = false }: { stats: GameSta
         <div
           key={stat.label}
           className={cn(
-            "relative min-w-[4.25rem] rounded-xl border bg-surface px-2 py-1.5 text-center sm:min-w-20 sm:px-3",
+            "relative min-w-[4.25rem] rounded-card border bg-surface px-2 py-1.5 text-center sm:min-w-20 sm:px-3",
             fill && "flex-1 sm:flex-none",
             stat.highlight ? "border-primary/40" : "border-border",
           )}
         >
-          <p className="flex items-center justify-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
+          <p className="flex items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted">
             {stat.icon}
             {stat.label}
           </p>

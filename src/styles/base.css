@@ -282,14 +282,50 @@
   }
 }
 
-@utility rounded-control {
-  border-radius: var(--radius-control);
+/* The page body's reading width: blog posts and project details share it. */
+@utility max-w-reading {
+  max-width: 67.5rem;
 }
 
-@utility rounded-card {
-  border-radius: var(--radius-card);
+/* Grows a small link's touch area to at least 44x44px without changing how it looks. */
+@utility tap-area {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 100%;
+    height: 100%;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    transform: translate(-50%, -50%);
+  }
 }
 
-@utility rounded-panel {
-  border-radius: var(--radius-panel);
+/* Two-column card grids (tablet): an odd card left alone on the last row spans the row,
+   with a wider, lower image, so no half-empty row is left. Cards mark their image with
+   data-card-media. */
+@utility grid-fill-last {
+  @media (min-width: 40rem) and (max-width: 63.99rem) {
+    & > :last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+    & > :last-child:nth-child(odd) [data-card-media] {
+      aspect-ratio: 21 / 9;
+    }
+  }
+}
+
+/* Same, for grids that keep two columns up to xl (the blog list beside its sidebar). */
+@utility grid-fill-last-xl {
+  @media (min-width: 40rem) and (max-width: 79.99rem) {
+    & > :last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+    & > :last-child:nth-child(odd) [data-card-media] {
+      aspect-ratio: 21 / 9;
+    }
+  }
 }

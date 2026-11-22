@@ -3,12 +3,8 @@
 ========================================================== */
 
 :root {
-  --mobile-bottom-nav-height: 5.25rem;
+  --mobile-bottom-nav-height: 4rem;
 
-  /* Radius scale, three steps only: controls 6px, cards 8px, panels 12px. */
-  --radius-control: 0.375rem;
-  --radius-card: 0.5rem;
-  --radius-panel: 0.75rem;
 
   /* Card depth: a soft two-layer shadow, a little stronger on hover. */
   --elevation-card: 0 1px 3px rgb(3 18 66 / 0.08), 0 10px 24px -8px rgb(3 18 66 / 0.18);
@@ -115,6 +111,14 @@
 ========================================================== */
 
 @theme {
+  /* Screen steps: mobile < sm (640) · tablet sm..lg · desktop lg (1024) · wide (1680). Grids go 1 / 2 / 3 / 4 columns. */
+  --breakpoint-wide: 105rem;
+
+  /* Radius scale, three steps only: controls 6px, cards 8px, panels 12px.
+     Use rounded-control / rounded-card / rounded-panel (and their side variants). */
+  --radius-control: 0.375rem;
+  --radius-card: 0.5rem;
+  --radius-panel: 0.75rem;
   /* Tailwind's own radius names collapse onto the same three steps. */
   --radius-md: 0.375rem;
   --radius-lg: 0.375rem;

@@ -34,7 +34,7 @@ export function TianwuLoader({ className }: { className?: string }) {
   const { t } = useI18n();
   return (
     <div aria-hidden="true" className={cn("space-y-2", className)}>
-      <div className="tw-sky relative h-20 overflow-hidden rounded-2xl border border-border sm:h-24">
+      <div className="tw-sky relative h-20 overflow-hidden rounded-card border border-border sm:h-24">
         <Starfield />
         <div className="tw-trail absolute inset-x-0 top-1/2 border-t-2 border-dashed border-[#D9AF62]/35" />
         <div className="tw-glide absolute inset-0">
@@ -52,7 +52,7 @@ export function TianwuLoader({ className }: { className?: string }) {
 export function TianwuLost({ className }: { className?: string }) {
   const { t } = useI18n();
   return (
-    <div className={cn("tw-sky relative mx-auto aspect-[4/3] w-full max-w-sm overflow-hidden rounded-3xl border border-border", className)}>
+    <div className={cn("tw-sky relative mx-auto aspect-[4/3] w-full max-w-sm overflow-hidden rounded-panel border border-border", className)}>
       <Starfield />
       <svg aria-hidden="true" viewBox="0 0 400 300" className="absolute inset-0 size-full">
         <circle cx="330" cy="62" r="34" fill="#D9AF62" opacity="0.9" />

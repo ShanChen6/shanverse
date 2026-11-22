@@ -1,7 +1,5 @@
 "use client";
 
-/* Notched bottom tab bar based on Lucian UX/UI Prompt #041 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#041 */
-
 import * as React from "react";
 import { usePathname } from "next/navigation";
 
@@ -10,110 +8,36 @@ import { isActiveRoute, isGamePlayRoute, NAVIGATION_ITEMS } from "@/constants/na
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/cn";
 
-import styles from "./MobileBottomNavigation.module.css";
-
-const TAB_COUNT = NAVIGATION_ITEMS.length;
-
+/** Flat bottom tab bar for phones: five tabs, the active one in the primary colour with a short bar on top. */
 export function MobileBottomNavigation() {
   const pathname = usePathname();
   const { t } = useI18n();
-  const hidden = isGamePlayRoute(pathname);
 
-  const rootRef = React.useRef<HTMLElement>(null);
-  const itemRefs = React.useRef<(HTMLLIElement | null)[]>([]);
-  const tabRefs = React.useRef<(HTMLElement | null)[]>([]);
-  const motion = React.useRef({ x: 0, v: 0, raf: 0, ready: false });
-
-  const activeIndex = NAVIGATION_ITEMS.findIndex((item) => isActiveRoute(pathname, item.href));
-
-  // Slide the notch and bubble to the active tab with the same spring as the original.
-  React.useEffect(() => {
-    const root = rootRef.current;
-    const m = motion.current;
-    if (!root || hidden || activeIndex < 0) {
-      m.ready = false;
-      return;
-    }
-    const centre = () => {
-      const li = itemRefs.current[activeIndex];
-      return li ? li.offsetLeft + li.offsetWidth / 2 : 0;
-    };
-    const apply = () => root.style.setProperty("--x", `${m.x.toFixed(2)}px`);
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let target = centre();
-
-    const snap = () => {
-      cancelAnimationFrame(m.raf);
-      m.raf = 0;
-      target = centre();
-      m.x = target;
-      m.v = 0;
-      apply();
-    };
-    const step = () => {
-      const a = (target - m.x) * 0.16 - m.v * 0.42;
-      m.v += a;
-      m.x += m.v;
-      apply();
-      if (Math.abs(target - m.x) > 0.3 || Math.abs(m.v) > 0.3) m.raf = requestAnimationFrame(step);
-      else snap();
-    };
-
-    if (reduced || !m.ready) snap();
-    else if (!m.raf) m.raf = requestAnimationFrame(step);
-    m.ready = true;
-
-    const observer = new ResizeObserver(snap);
-    observer.observe(root);
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(m.raf);
-      m.raf = 0;
-    };
-  }, [activeIndex, hidden]);
-
-  function onKeyDown(event: React.KeyboardEvent, index: number) {
-    const delta = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
-    if (event.key === "Home" || event.key === "End") {
-      event.preventDefault();
-      tabRefs.current[event.key === "Home" ? 0 : TAB_COUNT - 1]?.focus();
-    } else if (delta) {
-      event.preventDefault();
-      tabRefs.current[(index + delta + TAB_COUNT) % TAB_COUNT]?.focus();
-    }
-  }
-
-  if (hidden) return null;
-
-  const iconProps = { "aria-hidden": true, fill: "none", strokeLinecap: "round", strokeLinejoin: "round" } as const;
+  if (isGamePlayRoute(pathname)) return null;
 
   return (
     <nav
-      ref={rootRef}
       aria-label={t("navigation.mobile")}
-      className={cn(styles.u041, "md:hidden")}
-      data-idle={activeIndex < 0}
-      style={{ "--i": Math.max(activeIndex, 0) } as React.CSSProperties}
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface-elevated/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
     >
-      <span className={styles.shadow} aria-hidden="true" />
-      <span className={styles.bar} aria-hidden="true" />
-      <span className={styles.bubble} aria-hidden="true" />
-      <ul className={styles.tabs}>
-        {NAVIGATION_ITEMS.map((item, index) => {
-          const active = index === activeIndex;
+      <ul className="mx-auto flex h-[var(--mobile-bottom-nav-height)] max-w-lg">
+        {NAVIGATION_ITEMS.map((item) => {
+          const active = isActiveRoute(pathname, item.href);
           const Icon = item.icon;
           return (
-            <li key={item.href} ref={(el) => { itemRefs.current[index] = el; }}>
+            <li key={item.href} className="flex flex-1">
               <Link
-                ref={(el: HTMLAnchorElement | null) => { tabRefs.current[index] = el; }}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                data-active={active}
-                className={styles.tab}
-                onKeyDown={(event) => onKeyDown(event, index)}
+                className={cn(
+                  "relative flex flex-1 flex-col items-center justify-center gap-1 text-xs font-medium transition-colors",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary",
+                  active ? "text-primary" : "text-muted hover:text-foreground",
+                )}
               >
-                <span className={styles.icon} aria-hidden="true"><Icon {...iconProps} /></span>
-                <span className={styles.label}>{t(item.labelKey)}</span>
+                {active ? <span aria-hidden="true" className="absolute inset-x-5 top-0 h-0.5 rounded-full bg-primary" /> : null}
+                <Icon aria-hidden="true" className="size-6" strokeWidth={active ? 2.2 : 1.9} />
+                <span className="max-w-full truncate px-1">{t(item.labelKey)}</span>
               </Link>
             </li>
           );

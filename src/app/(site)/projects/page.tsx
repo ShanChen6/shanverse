@@ -72,7 +72,7 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
             {query.tech && <input type="hidden" name="tech" value={query.tech} />}
             {query.tag && <input type="hidden" name="tag" value={query.tag} />}
             {query.status && <input type="hidden" name="status" value={query.status} />}
-            <button type="submit" className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-6 text-sm font-semibold text-primary transition-colors hover:bg-primary/20 focus-visible:ring-2 focus-visible:ring-primary">{t("blog.searchButton")} <ArrowUpRight aria-hidden="true" className="size-4" /></button>
+            <button type="submit" className="inline-flex h-12 items-center justify-center gap-2 rounded-control border border-primary/30 bg-primary/10 px-6 text-sm font-semibold text-primary transition-colors hover:bg-primary/20 focus-visible:ring-2 focus-visible:ring-primary">{t("blog.searchButton")} <ArrowUpRight aria-hidden="true" className="size-4" /></button>
           </form>
 
           <nav aria-label={t("projects.filtersLabel")} className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
@@ -100,7 +100,7 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <span className="text-foreground-secondary">{t("projects.filters")}</span>
               {(["q", "tech", "tag", "status"] as const).filter((key) => query[key]).map((key) => (
-                <Link key={key} href={projectHref(query, { [key]: "", page: 1 })} aria-label={t("projects.removeFilter", { value: `${key}: ${query[key]}` })} className="inline-flex min-w-0 max-w-full items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary"><span className="break-words [overflow-wrap:anywhere]">{query[key]}</span><X aria-hidden="true" className="size-3.5" /></Link>
+                <Link key={key} href={projectHref(query, { [key]: "", page: 1 })} aria-label={t("projects.removeFilter", { value: `${key}: ${query[key]}` })} className="inline-flex min-w-0 max-w-full items-center gap-2 rounded-control border border-border bg-surface px-3 py-1.5 hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary"><span className="break-words [overflow-wrap:anywhere]">{query[key]}</span><X aria-hidden="true" className="size-3.5" /></Link>
               ))}
               <Link href={ROUTES.PROJECTS} className={textLinkClass}>{t("common.clearAll")}</Link>
             </div>
@@ -108,7 +108,7 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
         </section> : null}
 
         {data.hasError ? (
-          <section role="status" className="rounded-2xl border border-border bg-surface shadow-card px-6 py-16 text-center">
+          <section role="status" className="rounded-card border border-border bg-surface shadow-card px-6 py-16 text-center">
             <BriefcaseBusiness aria-hidden="true" className="mx-auto mb-4 size-10 text-primary" />
             <h2 className="text-2xl font-semibold">{t("projects.loadErrorTitle")}</h2>
             <p className="mx-auto mb-6 mt-3 max-w-lg text-foreground-secondary">{t("errors.dataUnavailable")}</p>
@@ -141,7 +141,7 @@ async function ProjectsDataSection({ query }: { query: ReturnType<typeof parsePr
                 ) : pageProjects.length > 0 ? (
                   <section aria-labelledby="project-grid-heading" className="space-y-5">
                     <h2 id="project-grid-heading" className="flex items-center gap-2 text-2xl font-semibold tracking-tight"><Layers3 aria-hidden="true" className="size-5 text-primary" /> {t("projects.otherProjects")}</h2>
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{pageProjects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
+                    <div className="grid grid-fill-last gap-6 sm:grid-cols-2 lg:grid-cols-3">{pageProjects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>
                   </section>
                 ) : null}
                 <Pagination currentPage={currentPage} totalPages={totalPages} hrefBuilder={(page) => projectHref(query, { page })} labels={paginationLabels(t)} className="justify-center border-t border-border pt-6" />

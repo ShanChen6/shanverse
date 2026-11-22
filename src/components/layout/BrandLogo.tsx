@@ -26,7 +26,7 @@ export function BrandLogo({
       href={ROUTES.HOME}
       aria-label={`${SITE_CONFIG.name} ${t("common.home")}`}
       className={cn(
-        "inline-flex min-h-10 items-center gap-2.5 rounded-lg text-foreground transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-primary",
+        "inline-flex min-h-10 items-center gap-2.5 rounded-control text-foreground transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-primary",
         className,
       )}
     >

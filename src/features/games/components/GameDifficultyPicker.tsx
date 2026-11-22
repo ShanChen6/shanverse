@@ -21,7 +21,7 @@ export function GameDifficultyPicker<T extends string>({
   className?: string;
 }) {
   return (
-    <div role="group" aria-label={label} className={cn("inline-flex rounded-xl border border-border bg-surface p-1", className)}>
+    <div role="group" aria-label={label} className={cn("inline-flex rounded-card border border-border bg-surface p-1", className)}>
       {options.map((option) => (
         <button
           key={option.id}
@@ -29,7 +29,7 @@ export function GameDifficultyPicker<T extends string>({
           aria-pressed={value === option.id}
           onClick={() => onChange(option.id)}
           className={cn(
-            "min-h-9 rounded-lg px-3 py-1.5 text-sm font-semibold text-foreground-secondary transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary",
+            "min-h-9 rounded-control px-3 py-1.5 text-sm font-semibold text-foreground-secondary transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary",
             value === option.id && "bg-primary text-primary-foreground hover:text-primary-foreground",
           )}
         >

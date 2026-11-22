@@ -14,7 +14,7 @@ function CommentsFallback({ label }: { label: string }) {
     <div
       role="status"
       aria-label={label}
-      className="h-40 animate-pulse rounded-2xl border border-border bg-surface motion-reduce:animate-none"
+      className="h-40 animate-pulse rounded-card border border-border bg-surface motion-reduce:animate-none"
     />
   );
 }

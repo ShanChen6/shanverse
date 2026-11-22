@@ -15,8 +15,8 @@ export default function GamesError({ reset }: { error: Error & { digest?: string
       <h1 className="text-3xl font-semibold">{t("errors.gameLoadTitle")}</h1>
       <p className="mt-3 text-foreground-secondary">{t("errors.gameLoadDescription")}</p>
       <div className="mt-7 flex flex-wrap justify-center gap-3">
-        <button type="button" onClick={reset} className="rounded-lg bg-primary px-5 py-2.5 font-medium text-primary-foreground focus-visible:ring-2 focus-visible:ring-primary">{t("common.retry")}</button>
-        <Link href={ROUTES.GAMES} className="rounded-lg border border-border bg-surface px-5 py-2.5 font-medium hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary">{t("games.back")}</Link>
+        <button type="button" onClick={reset} className="rounded-control bg-primary px-5 py-2.5 font-medium text-primary-foreground focus-visible:ring-2 focus-visible:ring-primary">{t("common.retry")}</button>
+        <Link href={ROUTES.GAMES} className="rounded-control border border-border bg-surface px-5 py-2.5 font-medium hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary">{t("games.back")}</Link>
       </div>
     </main>
   );

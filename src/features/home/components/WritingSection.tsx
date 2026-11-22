@@ -25,7 +25,7 @@ export async function WritingSection({ lead, posts }: WritingSectionProps) {
       <PostCard post={lead} variant="featured" />
 
       {posts.length > 0 ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-fill-last gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
