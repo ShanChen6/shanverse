@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
     path: PATH,
     title: t("metadata.cvnTitle"),
     description: t("metadata.cvnDescription"),
-    keywords: ["Cờ Việt Nam", "strategy board game", "war game", "two player", "Shanverse"],
+    keywords: ["Cờ Việt Nam", "strategy board game", "war game", "two player", "Tianwu", "Shanverse"],
   });
 }
 

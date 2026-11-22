@@ -3,6 +3,7 @@
 import * as React from "react";
 import { FlipVertical2, Flag, RotateCcw, Undo2 } from "lucide-react";
 
+import { MASCOT_NAME, TianwuBadge } from "@/components/mascot/Tianwu";
 import { Button } from "@/components/ui/button";
 import { GameResultDialog } from "@/features/games/components/GameResultDialog";
 import { GameToolbar } from "@/features/games/components/GameToolbar";
@@ -10,7 +11,9 @@ import { useI18n } from "@/i18n/client";
 import type { TranslationKey } from "@/i18n/messages";
 import { cn } from "@/lib/cn";
 
+import type { Level } from "./ai";
 import { PieceGlyph, glyph } from "./icons";
+import { useCvnEngine } from "./use-engine";
 import {
   BLUE,
   BRIDGE_FILES,
@@ -41,8 +44,17 @@ const GAME_KEY = "shanverse:co-viet-nam:game";
 const CLOCK_OPTIONS = [0, 10, 15, 30] as const;
 type ClockMinutes = (typeof CLOCK_OPTIONS)[number];
 
+type Mode = "ai" | "two";
+const LEVELS: Level[] = ["easy", "medium", "hard"];
+const LEVEL_KEYS: Record<Level, TranslationKey> = { easy: "games.cvnEasy", medium: "games.cvnMedium", hard: "games.cvnHard" };
+/** Tianwu waits at least this long before moving, so his moves can be followed. */
+const MIN_THINK_MS = 500;
+
 type Saved = {
   v: 1;
+  mode?: Mode;
+  human?: Color;
+  level?: Level;
   clock: ClockMinutes;
   moves: Move[];
   timeLeft: Record<Color, number>;
@@ -124,6 +136,13 @@ const formatClock = (ms: number) => {
 
 export function CoVietNam() {
   const { t } = useI18n();
+  const [mode, setMode] = React.useState<Mode>("ai");
+  const [human, setHuman] = React.useState<Color>(RED);
+  const [level, setLevel] = React.useState<Level>("medium");
+  const [begun, setBegun] = React.useState(false);
+  const [thinking, setThinking] = React.useState(false);
+  const gameToken = React.useRef(0);
+  const callEngine = useCvnEngine();
   const [clock, setClock] = React.useState<ClockMinutes>(15);
   const [moves, setMoves] = React.useState<Move[]>([]);
   const [timeLeft, setTimeLeft] = React.useState<Record<Color, number>>({ r: 15 * 60_000, b: 15 * 60_000 });
@@ -140,7 +159,9 @@ export function CoVietNam() {
   const current = positions[positions.length - 1];
   const position = React.useMemo(() => (ended ? endGame(current, ended.loser, ended.reason) : current), [current, ended]);
   const result = position.result;
-  const started = moves.length > 0;
+  const started = moves.length > 0 || begun;
+  const tianwu: Color | null = mode === "ai" ? (human === RED ? BLUE : RED) : null;
+  const tianwuTurn = !!tianwu && position.toMove === tianwu && !result;
 
   // ---- saving -----------------------------------------------------------------
 
@@ -148,6 +169,11 @@ export function CoVietNam() {
     const saved = readSaved();
     if (saved) {
       setClock(CLOCK_OPTIONS.includes(saved.clock) ? saved.clock : 15);
+      setMode(saved.mode === "two" ? "two" : "ai");
+      setHuman(saved.human === BLUE ? BLUE : RED);
+      setFlipped(saved.human === BLUE && saved.mode !== "two");
+      setLevel(saved.level && LEVELS.includes(saved.level) ? saved.level : "medium");
+      setBegun(true);
       setMoves(saved.moves);
       setTimeLeft(saved.timeLeft);
       setEnded(saved.ended);
@@ -157,8 +183,8 @@ export function CoVietNam() {
 
   React.useEffect(() => {
     if (!loaded.current) return;
-    writeSaved(moves.length || ended ? { v: 1, clock, moves, timeLeft, ended } : null);
-  }, [clock, moves, timeLeft, ended]);
+    writeSaved(moves.length || ended ? { v: 1, mode, human, level, clock, moves, timeLeft, ended } : null);
+  }, [mode, human, level, clock, moves, timeLeft, ended]);
 
   // ---- clocks -------------------------------------------------------------------
 
@@ -189,15 +215,42 @@ export function CoVietNam() {
   };
 
   const sideName = (color: Color) => t(color === RED ? "games.cvnRed" : "games.cvnBlue");
+  const playerName = (color: Color) => (tianwu === color ? MASCOT_NAME : tianwu ? t("games.cvnYou") : sideName(color));
 
-  const commit = (move: Move) => {
-    const next = play(current, move);
-    setMoves((list) => [...list, move]);
-    clearSelection();
-    const name = moveName(current, move);
-    const check = !next.result && inCheck(next, next.toMove) ? ` ${t("games.cvnCheck")}` : "";
-    setAnnounce(`${sideName(current.toMove)}: ${name}.${check}`);
-  };
+  const commit = React.useCallback(
+    (move: Move, from: Position) => {
+      const next = play(from, move);
+      setMoves((list) => [...list, move]);
+      setBegun(true);
+      setSelected(null);
+      setUnit("stack");
+      setChoice(null);
+      const name = moveName(from, move);
+      const check = !next.result && inCheck(next, next.toMove) ? ` ${t("games.cvnCheck")}` : "";
+      const who = tianwu === from.toMove ? MASCOT_NAME : tianwu ? t("games.cvnYou") : t(from.toMove === RED ? "games.cvnRed" : "games.cvnBlue");
+      setAnnounce(`${who}: ${name}.${check}`);
+    },
+    [t, tianwu],
+  );
+
+  // ---- Tianwu's turn ---------------------------------------------------------------
+
+  React.useEffect(() => {
+    if (!tianwuTurn || !started || thinking) return;
+    const token = gameToken.current;
+    const snapshot = moves;
+    const from = current;
+    setThinking(true);
+    const startedAt = Date.now();
+    void callEngine({ kind: "move", moves: snapshot, level, seed: (Math.random() * 2 ** 31) | 0 }).then((response) => {
+      const wait = Math.max(0, MIN_THINK_MS - (Date.now() - startedAt));
+      window.setTimeout(() => {
+        if (token !== gameToken.current) return;
+        setThinking(false);
+        if (response.kind === "move" && response.move) commit(response.move, from);
+      }, wait);
+    });
+  }, [tianwuTurn, started, thinking, moves, current, level, callEngine, commit]);
 
   const unitMovesNow = React.useMemo(
     () => (selected === null || result ? [] : legalMovesFrom(position, selected).filter((m) => m.unit === unit)),
@@ -205,12 +258,12 @@ export function CoVietNam() {
   );
 
   const onSquare = (s: number) => {
-    if (result) return;
+    if (result || tianwuTurn) return;
     setChoice(null);
     const stack = position.board[s];
     if (selected !== null) {
       const options = unitMovesNow.filter((m) => m.to === s);
-      if (options.length === 1) return commit(options[0]);
+      if (options.length === 1) return commit(options[0], current);
       if (options.length > 1) return setChoice(options);
     }
     if (stack && stack.carrier.color === position.toMove && s !== selected) {
@@ -223,13 +276,25 @@ export function CoVietNam() {
 
   const undo = () => {
     if (!moves.length) return;
+    gameToken.current++;
+    setThinking(false);
     setEnded(undefined);
-    setMoves((list) => list.slice(0, -1));
+    // Against Tianwu, go back to the last position where it was your move.
+    let back = 1;
+    if (tianwu) {
+      while (back < moves.length && positions[moves.length - back].toMove !== human) back++;
+      if (positions[moves.length - back].toMove !== human) back = moves.length;
+    }
+    setMoves((list) => list.slice(0, list.length - back));
+    if (back >= moves.length) setBegun(false);
     clearSelection();
     setAnnounce(t("games.cvnUndone"));
   };
 
   const restart = () => {
+    gameToken.current++;
+    setThinking(false);
+    setBegun(false);
     setMoves([]);
     setEnded(undefined);
     setTimeLeft({ r: clock * 60_000, b: clock * 60_000 });
@@ -244,7 +309,9 @@ export function CoVietNam() {
   };
 
   const resign = () => {
-    setEnded({ loser: position.toMove, reason: "resign" });
+    gameToken.current++;
+    setThinking(false);
+    setEnded({ loser: tianwu ? human : position.toMove, reason: "resign" });
     setConfirm(null);
     clearSelection();
   };
@@ -261,7 +328,8 @@ export function CoVietNam() {
       resign: "games.cvnWinResign",
       timeout: "games.cvnWinTimeout",
     };
-    return { title: t("games.cvnWins", { side: sideName(result.winner) }), description: t(reason[result.reason]) };
+    const title = !tianwu ? t("games.cvnWins", { side: sideName(result.winner) }) : result.winner === human ? t("games.cvnYouWin") : t("games.cvnTianwuWins");
+    return { title, description: t(reason[result.reason]) };
   })();
 
   return (
@@ -306,7 +374,7 @@ export function CoVietNam() {
           <div className="flex flex-wrap items-center justify-center gap-2 rounded-card border border-border bg-surface p-3" role="group" aria-label={t("games.cvnChoose")}>
             <span className="text-sm font-medium">{t("games.cvnChoose")}</span>
             {choice.map((m) => (
-              <Button key={m.kind} size="sm" variant={m.kind === "capture" ? "default" : "outline"} onClick={() => commit(m)}>
+              <Button key={m.kind} size="sm" variant={m.kind === "capture" ? "default" : "outline"} onClick={() => commit(m, current)}>
                 {t(KIND_KEYS[m.kind])}
               </Button>
             ))}
@@ -329,16 +397,24 @@ export function CoVietNam() {
             >
               <span className="flex items-center gap-2 font-semibold">
                 <span aria-hidden="true" className={cn("size-3 rounded-full", color === RED ? "bg-[var(--cvn-red)]" : "bg-[var(--cvn-blue)]")} />
-                {sideName(color)}
-                {position.toMove === color && !result ? <span className="text-xs font-normal text-foreground-secondary">{t("games.cvnToMove")}</span> : null}
+                {playerName(color)}
+                {position.toMove === color && !result ? (
+                  <span className="text-xs font-normal text-foreground-secondary">{tianwu === color && thinking ? t("games.cvnThinking") : t("games.cvnToMove")}</span>
+                ) : null}
               </span>
               {clock ? <span className="font-mono text-lg tabular-nums">{formatClock(timeLeft[color])}</span> : null}
             </div>
           ))}
-          {inCheckNow ? <p className="text-sm font-semibold text-[var(--cvn-red)]">{t("games.cvnInCheck", { side: sideName(position.toMove) })}</p> : null}
+          {tianwu ? (
+            <div className="flex items-center gap-3 pt-1">
+              <TianwuBadge className={cn("size-10 shrink-0", thinking && "tw-sway")} />
+              <p className="text-xs text-foreground-secondary">{t("games.cvnTianwuLevel", { name: MASCOT_NAME, level: t(LEVEL_KEYS[level]) })}</p>
+            </div>
+          ) : null}
+          {inCheckNow ? <p className="text-sm font-semibold text-[var(--cvn-red)]">{t("games.cvnInCheck", { side: playerName(position.toMove) })}</p> : null}
           {position.hqHold.r || position.hqHold.b ? (
             <p className="text-xs text-foreground-secondary">
-              {t("games.cvnHolding", { side: sideName(position.hqHold.r ? RED : BLUE), n: position.hqHold.r || position.hqHold.b })}
+              {t("games.cvnHolding", { side: playerName(position.hqHold.r ? RED : BLUE), n: position.hqHold.r || position.hqHold.b })}
             </p>
           ) : null}
         </div>
@@ -364,7 +440,11 @@ export function CoVietNam() {
         {confirm ? (
           <div className="flex flex-wrap items-center gap-2 rounded-card border border-border bg-surface p-3 text-sm">
             <span className="font-medium">
-              {confirm === "resign" ? t("games.cvnResignConfirm", { side: sideName(position.toMove) }) : t("games.cvnNewGameConfirm")}
+              {confirm === "resign"
+                ? tianwu
+                  ? t("games.cvnResignConfirmAi")
+                  : t("games.cvnResignConfirm", { side: sideName(position.toMove) })
+                : t("games.cvnNewGameConfirm")}
             </span>
             <Button size="sm" variant="destructive" onClick={confirm === "resign" ? resign : restart}>
               {confirm === "resign" ? t("games.cvnResign") : t("games.cvnNewGame")}
@@ -376,25 +456,58 @@ export function CoVietNam() {
         ) : null}
 
         {!started ? (
-          <fieldset className="space-y-2 rounded-card border border-border bg-surface p-4">
-            <legend className="sr-only">{t("games.cvnClock")}</legend>
-            <p className="text-sm font-semibold">{t("games.cvnClock")}</p>
-            <div className="flex flex-wrap gap-2">
-              {CLOCK_OPTIONS.map((minutes) => (
-                <label
-                  key={minutes}
-                  className={cn(
-                    "flex min-h-10 cursor-pointer items-center rounded-control border px-3 text-sm has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary",
-                    clock === minutes ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary/50",
-                  )}
-                >
-                  <input type="radio" name="cvn-clock" className="sr-only" checked={clock === minutes} onChange={() => pickClock(minutes)} />
-                  {minutes ? t("games.cvnMinutes", { n: minutes }) : t("games.cvnNoClock")}
-                </label>
-              ))}
-            </div>
-            <p className="text-xs text-foreground-secondary">{t("games.cvnClockHint")}</p>
-          </fieldset>
+          <div className="space-y-4 rounded-card border border-border bg-surface p-4">
+            <Options
+              label={t("games.cvnMode")}
+              name="cvn-mode"
+              value={mode}
+              onChange={(value) => {
+                setMode(value);
+                setFlipped(value === "ai" && human === BLUE);
+              }}
+              options={[
+                { value: "ai", label: t("games.cvnModeAi", { name: MASCOT_NAME }) },
+                { value: "two", label: t("games.cvnModeTwo") },
+              ]}
+            />
+            {mode === "ai" ? (
+              <>
+                <Options
+                  label={t("games.cvnYouPlay")}
+                  name="cvn-side"
+                  value={human}
+                  onChange={(value) => {
+                    setHuman(value);
+                    setFlipped(value === BLUE);
+                  }}
+                  options={[
+                    { value: RED, label: t("games.cvnRedFirst") },
+                    { value: BLUE, label: t("games.cvnBlue") },
+                  ]}
+                />
+                <Options
+                  label={t("games.cvnLevel")}
+                  name="cvn-level"
+                  value={level}
+                  onChange={setLevel}
+                  options={LEVELS.map((value) => ({ value, label: t(LEVEL_KEYS[value]) }))}
+                />
+              </>
+            ) : null}
+            <Options
+              label={t("games.cvnClock")}
+              name="cvn-clock"
+              value={clock}
+              onChange={pickClock}
+              options={CLOCK_OPTIONS.map((minutes) => ({ value: minutes, label: minutes ? t("games.cvnMinutes", { n: minutes }) : t("games.cvnNoClock") }))}
+            />
+            <p className="text-xs text-foreground-secondary">{mode === "ai" && human === BLUE ? t("games.cvnTianwuStarts", { name: MASCOT_NAME }) : t("games.cvnClockHint")}</p>
+            {mode === "ai" && human === BLUE ? (
+              <Button className="w-full" onClick={() => setBegun(true)}>
+                {t("games.cvnStart")}
+              </Button>
+            ) : null}
+          </div>
         ) : null}
 
         <MoveList positions={positions} moves={moves} />
@@ -404,6 +517,40 @@ export function CoVietNam() {
 }
 
 // ---------------------------------------------------------------------------
+
+function Options<T extends string | number>({
+  label,
+  name,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  name: string;
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (value: T) => void;
+}) {
+  return (
+    <fieldset className="space-y-2">
+      <legend className="text-sm font-semibold">{label}</legend>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => (
+          <label
+            key={String(option.value)}
+            className={cn(
+              "flex min-h-10 cursor-pointer items-center rounded-control border px-3 text-sm has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary",
+              value === option.value ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary/50",
+            )}
+          >
+            <input type="radio" name={name} className="sr-only" checked={value === option.value} onChange={() => onChange(option.value)} />
+            {option.label}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
 
 function SelectedPanel({ stack, unit, onUnit }: { stack: Stack; unit: Move["unit"]; onUnit: (unit: Move["unit"]) => void }) {
   const { t } = useI18n();

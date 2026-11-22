@@ -352,14 +352,21 @@ function reach(piece: Piece, diagonal: boolean) {
  * Moves for one unit, ignoring whether they leave its own commander in danger.
  * With `capturesOnly`, only capturing moves are listed (used to find checks).
  */
-export function unitMoves(pos: Position, from: number, unit: Move["unit"], capturesOnly = false): Move[] {
+export function unitMoves(
+  pos: Position,
+  from: number,
+  unit: Move["unit"],
+  capturesOnly = false,
+  /** Enemy air defence, when the caller has already worked it out. */
+  zone?: Uint8Array,
+): Move[] {
   const stack = pos.board[from];
   if (!stack) return [];
   const piece = unitPiece(stack, unit);
   if (!piece || piece.type === "h") return [];
   const spec = SPECS[piece.type];
   const color = piece.color;
-  const enemyAir = piece.type === "f" && !piece.hero ? airDefence(pos, opponent(color)) : null;
+  const enemyAir = piece.type === "f" && !piece.hero ? (zone ?? airDefence(pos, opponent(color))) : null;
   const moving = unitPieces(stack, unit);
   const moves: Move[] = [];
   const f0 = fileOf(from);
@@ -432,10 +439,15 @@ function unitsAt(stack: Stack): Move["unit"][] {
 
 export function pseudoMoves(pos: Position, color: Color, capturesOnly = false): Move[] {
   const moves: Move[] = [];
+  let zone: Uint8Array | undefined;
   for (let s = 0; s < AREA; s++) {
     const stack = pos.board[s];
     if (!stack || stack.carrier.color !== color) continue;
-    for (const unit of unitsAt(stack)) moves.push(...unitMoves(pos, s, unit, capturesOnly));
+    for (const unit of unitsAt(stack)) {
+      const piece = unitPiece(stack, unit);
+      if (piece.type === "f" && !piece.hero) zone ??= airDefence(pos, opponent(color));
+      moves.push(...unitMoves(pos, s, unit, capturesOnly, zone));
+    }
   }
   return moves;
 }
@@ -556,9 +568,11 @@ export function legalMovesFrom(pos: Position, from: number): Move[] {
   return unitsAt(stack).flatMap((unit) => unitMoves(pos, from, unit)).filter((m) => isLegal(pos, m));
 }
 
-/** Plays a legal move and returns the new position. Throws on an illegal move. */
-export function play(pos: Position, move: Move): Position {
-  if (!isLegal(pos, move)) throw new Error(`Illegal move ${moveName(pos, move)}`);
+/**
+ * Plays a move already known to be legal, without checking whether the game
+ * is over afterwards (the AI search does that itself, more cheaply).
+ */
+export function advance(pos: Position, move: Move): Position {
   const next = clonePosition(pos);
   const mover = pos.toMove;
   applyMove(next, move);
@@ -571,13 +585,19 @@ export function play(pos: Position, move: Move): Position {
     return stack && stack.carrier.color === mover;
   });
   next.hqHold[mover] = holding ? next.hqHold[mover] + 1 : 0;
-
   next.toMove = enemy;
   next.moveNumber = pos.moveNumber + 1;
-  if (next.hqHold[mover] >= 3) {
-    next.result = { winner: mover, reason: "headquarters" };
-  } else if (legalMoves(next).length === 0) {
-    next.result = inCheck(next, enemy) ? { winner: mover, reason: "checkmate" } : { winner: null, reason: "stalemate" };
+  if (next.hqHold[mover] >= 3) next.result = { winner: mover, reason: "headquarters" };
+  return next;
+}
+
+/** Plays a legal move and returns the new position. Throws on an illegal move. */
+export function play(pos: Position, move: Move): Position {
+  if (!isLegal(pos, move)) throw new Error(`Illegal move ${moveName(pos, move)}`);
+  const next = advance(pos, move);
+  if (!next.result && legalMoves(next).length === 0) {
+    const enemy = next.toMove;
+    next.result = inCheck(next, enemy) ? { winner: pos.toMove, reason: "checkmate" } : { winner: null, reason: "stalemate" };
   }
   return next;
 }
